@@ -36,3 +36,16 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+
+# IDE configs
+.idea/
+.vscode/
+
+# TypeScript build info
+*.tsbuildinfo
+
+# pnpm logs
+pnpm-debug.log*
+
+# Local config files
+*.local
