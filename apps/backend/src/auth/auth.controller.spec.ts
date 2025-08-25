@@ -1,9 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { AuthGuard } from './auth.guard';
 import type { LoginDto, CreateUserDto } from '@repo/utils';
 import { RoleType } from '@repo/types';
+import type { RequestWithUser } from './types';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -38,6 +42,28 @@ describe('AuthController', () => {
         {
           provide: AuthService,
           useValue: mockAuthService,
+        },
+        {
+          provide: AuthGuard,
+          useValue: {
+            canActivate: jest.fn(() => true),
+          },
+        },
+        {
+          provide: JwtService,
+          useValue: {
+            sign: jest.fn(() => 'test-token'),
+            verifyAsync: jest.fn(() => ({
+              userId: 1,
+              email: 'test@example.com',
+            })),
+          },
+        },
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn(() => 'test-secret'),
+          },
         },
       ],
     }).compile();
@@ -126,6 +152,26 @@ describe('AuthController', () => {
         mockLoginDto.email,
         mockLoginDto.password,
       );
+    });
+  });
+
+  describe('profile', () => {
+    it('should return user profile from JWT payload', () => {
+      const mockRequest = {
+        user: {
+          userId: 1,
+          email: 'john@example.com',
+          role: RoleType.USER,
+        },
+      } as unknown as RequestWithUser;
+
+      const result = controller.getProfile(mockRequest);
+
+      expect(result).toEqual({
+        id: 1,
+        email: 'john@example.com',
+        role: RoleType.USER,
+      });
     });
   });
 });
