@@ -37,7 +37,7 @@ football-club-manager/
 - Services contain business logic → controllers should stay thin.
 - Always use **async/await**, no `.then()` chaining.
 - Errors should throw **NestJS HttpException** with proper status codes.
-- Always try to use **NestJS generators (`nest g module|service|controller`)** when creating code.
+- Always try to use **NestJS generators (`nest g resource|module|service|controller`)** when creating code.
 - Use **ConfigModule** to manage environment variables (`.env`) – never hardcode secrets.
 - All DB connection settings (host, user, password, db name) must come from environment variables.
 - Use **migrations** (`typeorm migration:generate`) for schema changes instead of `synchronize: true`.
@@ -65,6 +65,7 @@ football-club-manager/
 - Document endpoints with **Swagger** (`@nestjs/swagger`) – keep DTOs annotated.
 - Use **absolute imports** (`@/modules/players/player.service`) via `tsconfig.json` paths.
 - Implement **error handling** with `@nestjs/common` exceptions.
+- Controllers and Services should have return types (e.g., `Promise<UserResponseDto>`).
 
 ---
 
@@ -112,9 +113,10 @@ football-club-manager/
 ## 📦 Shared Packages
 
 - `packages/types/`: All shared interfaces (`Player`, `Contract`, etc).
-- `packages/utils/`: Shared Zod schemas, formatting helpers, constants.
+- `packages/utils/`: **Shared Zod schemas**, formatting helpers, constants.
 
 > Always import types from `packages/types`, not by redefining them in apps.
+> **Always define Zod schemas in `packages/utils`**, never in individual apps.
 
 ---
 
@@ -122,12 +124,17 @@ football-club-manager/
 
 1. **Type Safety**
    - Always define **types in `packages/types`** and reuse across backend + frontend.
+   - Always define **Zod schemas in `packages/utils`** and import them in both backend + frontend.
    - Use **Zod** to validate both API inputs and frontend forms.
+   - Create DTOs using `z.infer<typeof Schema>` for type safety.
 
 2. **Code Style**
    - Use **ESLint + Prettier** (configured at root).
    - Write **async/await** consistently.
    - No `any` types – always be explicit.
+   - **Line Endings**: Always use **LF (Unix)** line endings, not CRLF (Windows). If you see ESLint errors like "Delete ␍", the file has Windows line endings. Fix with: `npx prettier --write "path/to/file.ts"` or configure your editor to use LF endings for TypeScript files.
+   - Don't leave unused imports in your files.
+   - Don't use eslint-disable comments excessively.
 
 3. **Monorepo Rules**
    - Keep **apps isolated** (frontend doesn’t import backend directly).
@@ -151,6 +158,10 @@ football-club-manager/
    - Backend: use Jest for unit/integration tests.
    - Frontend: use React Testing Library for components.
    - Write tests for critical business logic (e.g., contract cost calculations).
+   - Put mocks in a separate file for better organization.
+
+8. **Overall**
+   - Always use pnpm
 
 ---
 
