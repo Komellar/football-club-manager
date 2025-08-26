@@ -107,6 +107,7 @@ football-club-manager/
 - Apply **error boundaries** where user actions can fail (e.g., payment, transfer form).
 - Use **ESLint + Prettier** → no unused imports, no `any` types.
 - Add **Playwright** for e2e tests (important for complex forms/flows).
+- Always you pnpm dlx shadcn@latest add (component name) when adding new component from shadcn
 
 ---
 
