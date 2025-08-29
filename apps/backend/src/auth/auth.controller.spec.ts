@@ -6,7 +6,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { AuthGuard } from './auth.guard';
 import type { LoginDto, CreateUserDto } from '@repo/utils';
-import { RoleType } from '@repo/types';
+import { RoleType } from '@repo/utils';
 import type { RequestWithUser } from './types';
 
 describe('AuthController', () => {

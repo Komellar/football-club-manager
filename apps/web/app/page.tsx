@@ -1,9 +1,12 @@
-import styles from "./page.module.css";
+import { redirect } from "next/navigation";
+import { getProfileAction } from "@/actions/auth-actions";
 
 export default async function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}></main>
-    </div>
-  );
+  const user = await getProfileAction();
+
+  if (user) {
+    redirect("/dashboard");
+  } else {
+    redirect("/auth/login");
+  }
 }

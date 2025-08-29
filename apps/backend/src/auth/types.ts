@@ -1,5 +1,5 @@
 import type { Request } from 'express';
-import { RoleType } from '@repo/types';
+import { RoleType } from '@repo/utils';
 
 export interface JwtPayload {
   userId: number;

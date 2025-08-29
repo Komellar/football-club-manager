@@ -3,11 +3,10 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { UserService } from './user.service';
 import { User } from '../database/entities/user.entity';
 import { Role } from '../database/entities/role.entity';
-import { RoleType } from '@repo/types';
+import { RoleType } from '@repo/utils';
 import type { CreateUserDto } from '@repo/utils';
 import * as bcrypt from 'bcrypt';
 
-// Mock bcrypt
 jest.mock('bcrypt');
 const mockBcrypt = bcrypt as jest.Mocked<typeof bcrypt>;
 

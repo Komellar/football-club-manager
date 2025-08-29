@@ -1,14 +1,14 @@
 import { z } from "zod";
-import { RoleType } from "@repo/types";
+import { RoleType } from "./role-type";
 
 export const CreateUserSchema = z.object({
   name: z.string().min(1, "Name is required").max(100, "Name too long"),
-  email: z.string().email("Invalid email format").max(100, "Email too long"),
+  email: z.email("Invalid email format").max(100, "Email too long"),
   password: z
     .string()
     .min(6, "Password must be at least 6 characters")
     .max(255, "Password too long"),
-  roleName: z.nativeEnum(RoleType).optional().default(RoleType.USER),
+  roleName: z.enum(RoleType).optional(),
 });
 
 export type CreateUserDto = z.infer<typeof CreateUserSchema>;
@@ -20,14 +20,13 @@ export const LoginSchema = z.object({
 
 export type LoginDto = z.infer<typeof LoginSchema>;
 
-// Response DTOs
 export const UserResponseSchema = z.object({
   id: z.number(),
   name: z.string(),
-  email: z.string(),
+  email: z.email(),
   role: z.object({
     id: z.number(),
-    name: z.nativeEnum(RoleType),
+    name: z.enum(RoleType),
   }),
   createdAt: z.date(),
   updatedAt: z.date(),
@@ -40,8 +39,8 @@ export const LoginResponseSchema = z.object({
   user: z.object({
     id: z.number(),
     name: z.string(),
-    email: z.string(),
-    role: z.nativeEnum(RoleType),
+    email: z.email(),
+    role: z.enum(RoleType),
   }),
 });
 

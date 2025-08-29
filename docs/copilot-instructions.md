@@ -1,10 +1,3 @@
-# 🤖 Copilot Instructions
-
-These are the **best practices and conventions** for this monorepo project using **Turborepo + Next.js + NestJS + Postgres + TypeORM + Zod + ShadCN + Tailwind**.
-Always follow these rules when generating code.
-
----
-
 ## 📂 Project Structure
 
 ```

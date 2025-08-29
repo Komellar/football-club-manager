@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
-import { RoleType } from '@repo/types';
+import { RoleType } from '@repo/utils';
 import type {
   CreateUserDto,
   UserResponseDto,

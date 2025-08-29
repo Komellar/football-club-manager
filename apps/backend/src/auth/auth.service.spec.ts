@@ -1,13 +1,12 @@
 import { AuthService } from './auth.service';
 import type { CreateUserDto } from '@repo/utils';
-import { RoleType } from '@repo/types';
+import { RoleType } from '@repo/utils';
 import type { UserService } from '../user/user.service';
 import type { JwtService } from '@nestjs/jwt';
 import type { User } from '../database/entities/user.entity';
 import type { Role } from '../database/entities/role.entity';
 import * as bcrypt from 'bcrypt';
 
-// Mock bcrypt
 jest.mock('bcrypt');
 const mockBcrypt = bcrypt as jest.Mocked<typeof bcrypt>;
 

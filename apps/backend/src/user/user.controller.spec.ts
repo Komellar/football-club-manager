@@ -4,14 +4,13 @@ import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { User } from '../database/entities/user.entity';
 import { Role } from '../database/entities/role.entity';
-import { RoleType } from '@repo/types';
+import { RoleType } from '@repo/utils';
 import type { CreateUserDto } from '@repo/utils';
 
 describe('UserController', () => {
   let controller: UserController;
   let userService: UserService;
 
-  // Create a mock service object
   const mockUserService = {
     create: jest.fn(),
     findById: jest.fn(),
