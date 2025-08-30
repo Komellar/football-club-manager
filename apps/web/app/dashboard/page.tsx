@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { LogoutButton } from "@/components/auth/logout-button";
+import { AuthGuard } from "@/components/auth/auth-guard";
 import {
   Card,
   CardContent,
@@ -11,42 +10,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { getProfileAction } from "@/actions/auth-actions";
-
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  role: {
-    id: number;
-    name: string;
-  };
-}
+import { useAuthStore } from "@/lib/stores/auth-store";
 
 export default function DashboardPage() {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
+  return (
+    <AuthGuard>
+      <DashboardContent />
+    </AuthGuard>
+  );
+}
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const userData = await getProfileAction();
-        if (userData) {
-          setUser(userData);
-        } else {
-          router.push("/auth/login");
-        }
-      } catch (error) {
-        console.error("Failed to fetch profile:", error);
-        router.push("/auth/login");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchProfile();
-  }, [router]);
+function DashboardContent() {
+  const user = useAuthStore((state) => state.user);
+  const isLoading = useAuthStore((state) => state.isLoading);
 
   if (isLoading) {
     return (
@@ -69,6 +45,10 @@ export default function DashboardPage() {
         </div>
       </div>
     );
+  }
+
+  if (!user) {
+    return null; // AuthGuard will handle redirect
   }
 
   return (

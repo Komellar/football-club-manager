@@ -10,9 +10,19 @@ const apiClient = axios.create({
 
 apiClient.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
     if (error.response?.status === 401) {
       if (typeof window !== "undefined") {
+        // Clear auth state if available
+        try {
+          const { useAuthStore } = await import("@/lib/stores/auth-store");
+          const store = useAuthStore.getState();
+          store.clearAuth();
+        } catch {
+          // Ignore error if store is not available
+        }
+
+        // Redirect to login
         window.location.href = "/auth/login";
       }
     }

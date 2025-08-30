@@ -16,12 +16,14 @@ import {
 } from "@/components/ui/form";
 import { LoginDto, LoginSchema } from "@repo/utils";
 import { loginAction } from "@/actions/auth-actions";
+import { useAuthStore } from "@/lib/stores/auth-store";
 import Link from "next/link";
 import Image from "next/image";
 
 export default function LoginPage() {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+  const checkAuth = useAuthStore((state) => state.checkAuth);
 
   const form = useForm<LoginDto>({
     resolver: zodResolver(LoginSchema),
@@ -51,6 +53,8 @@ export default function LoginPage() {
       }
 
       if (result?.success) {
+        // Refresh auth state after successful login
+        await checkAuth();
         router.push("/dashboard");
       }
     });

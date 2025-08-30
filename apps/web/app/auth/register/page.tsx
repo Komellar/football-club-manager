@@ -15,6 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { registerAction } from "@/actions/auth-actions";
+import { useAuthStore } from "@/lib/stores/auth-store";
 import Link from "next/link";
 import { CreateUserDto, CreateUserSchema } from "@repo/utils";
 import Image from "next/image";
@@ -22,6 +23,7 @@ import Image from "next/image";
 export default function RegisterPage() {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+  const checkAuth = useAuthStore((state) => state.checkAuth);
 
   const form = useForm<CreateUserDto>({
     resolver: zodResolver(CreateUserSchema),
@@ -51,6 +53,8 @@ export default function RegisterPage() {
       }
 
       if (result?.success) {
+        // Refresh auth state after successful registration
+        await checkAuth();
         router.push("/dashboard");
       }
     });
