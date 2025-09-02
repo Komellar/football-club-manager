@@ -180,7 +180,7 @@ function DashboardContent() {
                     Role
                   </span>
                   <span className="inline-flex px-2 py-1 text-xs font-semibold bg-green-100 text-green-800 rounded-full">
-                    {user?.role?.name}
+                    {user?.role}
                   </span>
                 </div>
               </div>

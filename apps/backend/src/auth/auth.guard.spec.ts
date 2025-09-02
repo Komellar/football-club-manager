@@ -3,8 +3,8 @@ import { ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { AuthGuard } from './auth.guard';
-import { RoleType } from '@repo/utils';
-import type { JwtPayload, RequestWithUser } from './types';
+import { RoleType, User } from '@repo/utils';
+import type { RequestWithUser } from './types';
 
 describe('AuthGuard', () => {
   let guard: AuthGuard;
@@ -92,8 +92,9 @@ describe('AuthGuard', () => {
     });
 
     it('should return true and attach user to request when token is valid', async () => {
-      const mockPayload: JwtPayload = {
+      const mockPayload: User = {
         userId: 1,
+        name: 'Test User',
         email: 'test@example.com',
         role: RoleType.USER,
       };
@@ -111,8 +112,9 @@ describe('AuthGuard', () => {
     });
 
     it('should call configService.get with JWT_SECRET', async () => {
-      const mockPayload: JwtPayload = {
+      const mockPayload: User = {
         userId: 1,
+        name: 'Test User',
         email: 'test@example.com',
         role: RoleType.USER,
       };

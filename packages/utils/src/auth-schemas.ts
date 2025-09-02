@@ -45,3 +45,12 @@ export const LoginResponseSchema = z.object({
 });
 
 export type LoginResponseDto = z.infer<typeof LoginResponseSchema>;
+
+export const UserSchema = z.object({
+  userId: z.number(),
+  name: z.string(),
+  email: z.email(),
+  role: z.enum(RoleType),
+});
+
+export type User = z.infer<typeof UserSchema>;

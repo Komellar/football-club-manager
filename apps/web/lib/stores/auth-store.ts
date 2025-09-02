@@ -3,16 +3,7 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { getProfileAction, logoutAction } from "@/actions/auth-actions";
-
-export interface User {
-  id: number;
-  name: string;
-  email: string;
-  role: {
-    id: number;
-    name: string;
-  };
-}
+import type { User } from "@repo/utils";
 
 interface AuthState {
   user: User | null;
@@ -35,13 +26,11 @@ export type AuthStore = AuthState & AuthActions;
 export const useAuthStore = create<AuthStore>()(
   devtools(
     (set, get) => ({
-      // Initial state
       user: null,
       isLoading: false,
       isAuthenticated: false,
       error: null,
 
-      // Actions
       setUser: (user) =>
         set(
           { user, isAuthenticated: !!user, error: null },

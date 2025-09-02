@@ -7,15 +7,29 @@ import {
   CreateUserSchema,
   type LoginDto,
   type CreateUserDto,
+  type LoginResponseDto,
+  type User,
 } from "@repo/utils";
 import apiClient from "../lib/apiClient";
-import { AxiosError } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { AUTH_COOKIE_NAME, COOKIE_MAX_AGE } from "../lib/constants";
 
-async function callAuthAPI(endpoint: string, data: Record<string, unknown>) {
+type ActionResult = {
+  success?: boolean;
+  error?: string;
+  fieldErrors?: Record<string, string[]>;
+};
+
+async function callAuthAPI(
+  endpoint: string,
+  payload: Record<string, unknown>
+): Promise<LoginResponseDto> {
   try {
-    const response = await apiClient.post(`/auth/${endpoint}`, data);
-    return response.data;
+    const { data }: AxiosResponse<LoginResponseDto> = await apiClient.post(
+      `/auth/${endpoint}`,
+      payload
+    );
+    return data;
   } catch (error) {
     if (error instanceof AxiosError) {
       const errorMessage =
@@ -37,7 +51,7 @@ async function setAuthCookie(token: string) {
   });
 }
 
-export async function loginAction(data: LoginDto) {
+export async function loginAction(data: LoginDto): Promise<ActionResult> {
   const result = LoginSchema.safeParse(data);
   if (!result.success) {
     return {
@@ -60,7 +74,9 @@ export async function loginAction(data: LoginDto) {
   }
 }
 
-export async function registerAction(data: CreateUserDto) {
+export async function registerAction(
+  data: CreateUserDto
+): Promise<ActionResult> {
   const result = CreateUserSchema.safeParse(data);
   if (!result.success) {
     return {
@@ -96,7 +112,7 @@ export async function logoutAction() {
   }
 }
 
-export async function getProfileAction() {
+export async function getProfileAction(): Promise<User | null> {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get(AUTH_COOKIE_NAME)?.value;
@@ -105,13 +121,13 @@ export async function getProfileAction() {
       return null;
     }
 
-    const response = await apiClient.get("/auth/profile", {
+    const { data }: AxiosResponse<User> = await apiClient.get("/auth/profile", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
 
-    return response.data;
+    return data;
   } catch {
     return null;
   }

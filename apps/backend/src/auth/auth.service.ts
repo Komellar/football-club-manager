@@ -18,8 +18,9 @@ export class AuthService {
 
   private createAuthResponse(user: UserResponseDto): LoginResponseDto {
     const payload = {
+      userId: user.id,
+      name: user.name,
       email: user.email,
-      sub: user.id,
       role: user.role.name,
     };
 

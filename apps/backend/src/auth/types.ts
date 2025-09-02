@@ -1,12 +1,6 @@
 import type { Request } from 'express';
-import { RoleType } from '@repo/utils';
-
-export interface JwtPayload {
-  userId: number;
-  email: string;
-  role: RoleType;
-}
+import { User } from '@repo/utils';
 
 export interface RequestWithUser extends Request {
-  user: JwtPayload;
+  user: User;
 }
