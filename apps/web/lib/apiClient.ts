@@ -15,7 +15,7 @@ apiClient.interceptors.response.use(
       if (typeof window !== "undefined") {
         // Clear auth state if available
         try {
-          const { useAuthStore } = await import("@/lib/stores/auth-store");
+          const { useAuthStore } = await import("@/features/auth");
           const store = useAuthStore.getState();
           store.clearAuth();
         } catch {

@@ -15,8 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { LoginDto, LoginSchema } from "@repo/utils";
-import { loginAction } from "@/actions/auth-actions";
-import { useAuthStore } from "@/lib/stores/auth-store";
+import { loginAction, useAuthStore } from "@/features/auth";
 import Link from "next/link";
 import Image from "next/image";
 

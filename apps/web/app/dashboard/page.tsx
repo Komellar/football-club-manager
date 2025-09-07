@@ -1,8 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { LogoutButton } from "@/components/auth/logout-button";
-import { AuthGuard } from "@/components/auth/auth-guard";
+import { LogoutButton, AuthGuard, useAuthStore } from "@/features/auth";
 import {
   Card,
   CardContent,
@@ -10,7 +9,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useAuthStore } from "@/lib/stores/auth-store";
 
 export default function DashboardPage() {
   return (

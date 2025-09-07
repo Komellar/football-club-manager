@@ -6,7 +6,19 @@
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": [],
+      "env": ["NODE_ENV", "BACKEND_URL", "PORT"]
+    },
+    "web#build": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".next/**", "!.next/cache/**"],
+      "env": ["NODE_ENV", "BACKEND_URL", "PORT"]
+    },
+    "backend#build": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": ["dist/**"],
       "env": ["NODE_ENV", "BACKEND_URL", "PORT"]
     },
     "lint": {

@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getProfileAction } from "@/actions/auth-actions";
+import { getProfileAction } from "@/features/auth";
 
 export default async function Home() {
   const user = await getProfileAction();
