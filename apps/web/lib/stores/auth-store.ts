@@ -27,13 +27,17 @@ export const useAuthStore = create<AuthStore>()(
   devtools(
     (set, get) => ({
       user: null,
-      isLoading: false,
+      isLoading: true, // Start with loading true to prevent premature redirects
       isAuthenticated: false,
       error: null,
 
       setUser: (user) =>
         set(
-          { user, isAuthenticated: !!user, error: null },
+          {
+            user,
+            isAuthenticated: !!user,
+            error: null,
+          },
           false,
           "auth/setUser"
         ),

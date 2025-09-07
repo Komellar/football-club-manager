@@ -15,8 +15,5 @@ export function AuthProvider({ children }: AuthProviderProps) {
     checkAuth();
   }, [checkAuth]);
 
-  // You can add a loading spinner here if needed
-  // For now, we'll render children immediately and let individual
-  // components handle their own auth loading states
   return <>{children}</>;
 }
