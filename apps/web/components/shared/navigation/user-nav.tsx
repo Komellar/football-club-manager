@@ -22,7 +22,7 @@ export function UserNav() {
 
   const handleLogout = async () => {
     await logout();
-    router.push("/auth/login");
+    router.push("/login");
   };
 
   const getInitials = (name: string) => {

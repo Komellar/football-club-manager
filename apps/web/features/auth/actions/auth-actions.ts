@@ -104,11 +104,11 @@ export async function logoutAction() {
     const cookieStore = await cookies();
 
     cookieStore.delete(AUTH_COOKIE_NAME);
-    redirect("/auth/login");
+    redirect("/login");
   } catch {
     const cookieStore = await cookies();
     cookieStore.delete(AUTH_COOKIE_NAME);
-    redirect("/auth/login");
+    redirect("/login");
   }
 }
 

@@ -14,27 +14,28 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { LoginDto, LoginSchema } from "@repo/utils";
-import { loginAction, useAuthStore } from "@/features/auth";
+import { registerAction, useAuthStore } from "@/features/auth";
 import Link from "next/link";
+import { CreateUserDto, CreateUserSchema } from "@repo/utils";
 import Image from "next/image";
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const checkAuth = useAuthStore((state) => state.checkAuth);
 
-  const form = useForm<LoginDto>({
-    resolver: zodResolver(LoginSchema),
+  const form = useForm<CreateUserDto>({
+    resolver: zodResolver(CreateUserSchema),
     defaultValues: {
+      name: "",
       email: "",
       password: "",
     },
   });
 
-  function onSubmit(data: LoginDto) {
+  const onSubmit = (data: CreateUserDto) => {
     startTransition(async () => {
-      const result = await loginAction(data);
+      const result = await registerAction(data);
 
       if (result?.error) {
         form.setError("root", { message: result.error });
@@ -42,22 +43,21 @@ export default function LoginPage() {
       }
 
       if (result?.fieldErrors) {
-        console.error(result.fieldErrors);
         Object.entries(result.fieldErrors).forEach(([field, errors]) => {
           if (errors?.[0]) {
-            form.setError(field as keyof LoginDto, { message: errors[0] });
+            form.setError(field as keyof CreateUserDto, { message: errors[0] });
           }
         });
         return;
       }
 
       if (result?.success) {
-        // Refresh auth state after successful login
+        // Refresh auth state after successful registration
         await checkAuth();
         router.push("/dashboard");
       }
     });
-  }
+  };
 
   return (
     <div className="min-h-screen flex">
@@ -73,12 +73,12 @@ export default function LoginPage() {
 
         <div className="relative z-10 flex flex-col justify-end p-12 text-white">
           <h1 className="text-5xl font-bold mb-4 leading-tight">
-            Welcome
-            <span className="block text-green-400">Back</span>
+            Join the
+            <span className="block text-green-400">Championship</span>
           </h1>
           <p className="text-xl text-gray-200 leading-relaxed">
-            Sign in to continue managing your football club with professional
-            tools and insights.
+            Create your account and start managing your football club with
+            professional tools and insights.
           </p>
         </div>
       </div>
@@ -91,15 +91,16 @@ export default function LoginPage() {
               height={96}
               alt="Football Club Manager Logo"
               src={"/logo.svg"}
-              className="self-center mb-6"
+              className="mb-6 self-center"
             />
-            <h2 className="text-3xl font-bold text-white mb-2">Sign In</h2>
+            <h2 className="text-3xl font-bold text-white mb-2">
+              Create Account
+            </h2>
             <p className="text-gray-400">
-              Access your football management dashboard
+              Join the ultimate football management experience
             </p>
           </div>
 
-          {/* Form */}
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               {form.formState.errors.root && (
@@ -114,6 +115,29 @@ export default function LoginPage() {
               )}
 
               <div className="space-y-5">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <label className="text-sm text-gray-300 block mb-2 font-medium">
+                        Username
+                      </label>
+                      <FormControl>
+                        <Input
+                          type="text"
+                          placeholder="Enter your username"
+                          autoComplete="name"
+                          disabled={isPending}
+                          className="h-12 px-4 bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder:text-gray-400 focus:border-green-400 focus:ring-2 focus:ring-green-400/20 rounded-lg transition-all"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage className="text-red-400 text-sm" />
+                    </FormItem>
+                  )}
+                />
+
                 <FormField
                   control={form.control}
                   name="email"
@@ -149,8 +173,8 @@ export default function LoginPage() {
                         <div className="relative">
                           <Input
                             type="password"
-                            placeholder="Enter your password"
-                            autoComplete="current-password"
+                            placeholder="Create a password"
+                            autoComplete="new-password"
                             disabled={isPending}
                             className="h-12 px-4 bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder:text-gray-400 focus:border-green-400 focus:ring-2 focus:ring-green-400/20 rounded-lg pr-12 transition-all"
                             {...field}
@@ -171,10 +195,10 @@ export default function LoginPage() {
                 {isPending ? (
                   <div className="flex items-center space-x-2">
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>Signing in...</span>
+                    <span>Creating account...</span>
                   </div>
                 ) : (
-                  "Sign In"
+                  "Create Account"
                 )}
               </Button>
             </form>
@@ -188,12 +212,12 @@ export default function LoginPage() {
 
           <div className="text-center">
             <p className="text-gray-300 text-sm">
-              Don&apos;t have an account?&nbsp;
+              Already have an account?&nbsp;
               <Link
-                href="/auth/register"
+                href="/login"
                 className="text-green-400 hover:text-green-300 font-semibold transition-colors"
               >
-                Register
+                Login
               </Link>
             </p>
           </div>

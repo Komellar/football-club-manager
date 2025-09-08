@@ -14,7 +14,7 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get(AUTH_COOKIE_NAME)?.value;
   const { pathname } = request.nextUrl;
 
-  const publicRoutes = ["/auth/login", "/auth/register", "/"];
+  const publicRoutes = ["/login", "/register", "/"];
 
   if (publicRoutes.includes(pathname)) {
     return NextResponse.next();
@@ -22,7 +22,7 @@ export function middleware(request: NextRequest) {
 
   // For protected routes
   if (!token || !isValidToken(token)) {
-    const loginUrl = new URL("/auth/login", request.url);
+    const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(loginUrl);
   }

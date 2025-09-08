@@ -13,7 +13,7 @@ interface AuthGuardProps {
 export function AuthGuard({
   children,
   fallback = <AuthLoadingSpinner />,
-  redirectTo = "/auth/login",
+  redirectTo = "/login",
 }: AuthGuardProps) {
   const router = useRouter();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
