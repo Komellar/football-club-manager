@@ -1,6 +1,6 @@
 import { AuthService } from './auth.service';
-import type { CreateUserDto } from '@repo/utils';
-import { RoleType } from '@repo/utils';
+import type { CreateUserDto } from '@repo/core';
+import { RoleType } from '@repo/core';
 import type { UserService } from '../user/user.service';
 import type { JwtService } from '@nestjs/jwt';
 import type { User } from '../database/entities/user.entity';

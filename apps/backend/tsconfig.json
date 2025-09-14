@@ -19,8 +19,7 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@repo/types": ["../../packages/types"],
-      "@repo/utils": ["../../packages/utils"]
+      "@repo/core": ["../../packages/core"]
     }
   }
 }

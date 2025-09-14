@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { User } from './user.entity';
-import { RoleType } from '@repo/utils';
+import { RoleType } from '@repo/core';
 
 @Entity('roles')
 export class Role {

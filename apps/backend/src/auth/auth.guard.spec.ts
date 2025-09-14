@@ -3,7 +3,7 @@ import { ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { AuthGuard } from './auth.guard';
-import { RoleType, User } from '@repo/utils';
+import { RoleType, User } from '@repo/core';
 import type { RequestWithUser } from './types';
 
 describe('AuthGuard', () => {

@@ -9,7 +9,7 @@ import {
   type CreateUserDto,
   type LoginResponseDto,
   type User,
-} from "@repo/utils";
+} from "@repo/core";
 import apiClient from "../../../lib/apiClient";
 import { AxiosError, AxiosResponse } from "axios";
 import { AUTH_COOKIE_NAME, COOKIE_MAX_AGE } from "../../../lib/constants";
@@ -22,12 +22,12 @@ type ActionResult = {
 
 async function callAuthAPI(
   endpoint: string,
-  payload: Record<string, unknown>
+  payload: Record<string, unknown>,
 ): Promise<LoginResponseDto> {
   try {
     const { data }: AxiosResponse<LoginResponseDto> = await apiClient.post(
       `/auth/${endpoint}`,
-      payload
+      payload,
     );
     return data;
   } catch (error) {
@@ -75,7 +75,7 @@ export async function loginAction(data: LoginDto): Promise<ActionResult> {
 }
 
 export async function registerAction(
-  data: CreateUserDto
+  data: CreateUserDto,
 ): Promise<ActionResult> {
   const result = CreateUserSchema.safeParse(data);
   if (!result.success) {

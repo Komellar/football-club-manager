@@ -1,3 +1,5 @@
+Always create me MD summary file after changes.
+
 ## 📂 Project Structure
 
 ```
@@ -8,8 +10,7 @@ football-club-manager/
 │   └─ backend/        # NestJS app (TypeORM, Postgres, Zod validation)
 │
 ├─ packages/
-│   ├─ types/          # Shared TypeScript types
-│   └─ utils/          # Shared utilities (validation, helpers, API clients)
+│   └─ core/           # Shared types, Zod schemas, and core utilities
 │
 ├─ docs/               # Documentation (plans, architecture, db schema)
 │   └─ copilot-instructions.md
@@ -106,19 +107,18 @@ football-club-manager/
 
 ## 📦 Shared Packages
 
-- `packages/types/`: All shared interfaces (`Player`, `Contract`, etc).
-- `packages/utils/`: **Shared Zod schemas**, formatting helpers, constants.
+- `packages/core/`: All shared interfaces, types, Zod schemas, and core utilities (`Player`, `Contract`, etc).
 
-> Always import types from `packages/types`, not by redefining them in apps.
-> **Always define Zod schemas in `packages/utils`**, never in individual apps.
+> Always import types and schemas from `packages/core`, not by redefining them in apps.
+> **Always define Zod schemas in `packages/core`**, never in individual apps.
 
 ---
 
 ## ✅ Best Practices
 
 1. **Type Safety**
-   - Always define **types in `packages/types`** and reuse across backend + frontend.
-   - Always define **Zod schemas in `packages/utils`** and import them in both backend + frontend.
+   - Always define **types and schemas in `packages/core`** and reuse across backend + frontend.
+   - Always define **Zod schemas in `packages/core`** and import them in both backend + frontend.
    - Use **Zod** to validate both API inputs and frontend forms.
    - Create DTOs using `z.infer<typeof Schema>` for type safety.
 
@@ -135,26 +135,31 @@ football-club-manager/
    - Share only via `packages/`.
    - Run `turbo run build` to ensure all apps/packages build together.
 
-4. **API Layer**
+4. **Monorepo Rules**
+   - Keep **apps isolated** (frontend doesn't import backend directly).
+   - Share only via `packages/core/`.
+   - Run `turbo run build` to ensure all apps/packages build together.
+
+5. **API Layer**
    - Backend endpoints should return **DTOs** that match shared types.
    - Frontend API client should use those shared types (`Player`, `Contract`, etc).
 
-5. **Database (Postgres + TypeORM)**
+6. **Database (Postgres + TypeORM)**
    - Use migrations (`typeorm migration:generate`) for schema changes.
    - Add indexes for frequently queried columns (`player_id`, `date`, `email`).
    - Use `snake_case` for DB columns, `camelCase` for TS properties.
 
-6. **Error Handling**
+7. **Error Handling**
    - Backend: throw `HttpException` with proper status codes.
    - Frontend: show ShadCN `Toast` or AlertDialog on error.
 
-7. **Testing**
+8. **Testing**
    - Backend: use Jest for unit/integration tests.
    - Frontend: use React Testing Library for components.
    - Write tests for critical business logic (e.g., contract cost calculations).
    - Put mocks in a separate file for better organization.
 
-8. **Overall**
+9. **Overall**
    - Always use pnpm
 
 ---

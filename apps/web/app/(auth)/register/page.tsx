@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/form";
 import { registerAction, useAuthStore } from "@/features/auth";
 import Link from "next/link";
-import { CreateUserDto, CreateUserSchema } from "@repo/utils";
+import { CreateUserDto, CreateUserSchema } from "@repo/core";
 import Image from "next/image";
 
 export default function RegisterPage() {

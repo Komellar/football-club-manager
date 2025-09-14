@@ -20,9 +20,7 @@ This Turborepo includes the following packages/apps:
 - `web`: a [Next.js](https://nextjs.org/) app with UI components
 - `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
 - `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-- `@repo/types`: shared TypeScript types
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+- `@repo/core`: shared TypeScript types, Zod validation schemas, and core utilities
 
 Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
 

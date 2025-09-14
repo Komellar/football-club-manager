@@ -14,7 +14,7 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { LoginDto, LoginSchema } from "@repo/utils";
+import { LoginDto, LoginSchema } from "@repo/core";
 import { loginAction, useAuthStore } from "@/features/auth";
 import Link from "next/link";
 import Image from "next/image";

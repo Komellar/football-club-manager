@@ -3,7 +3,7 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { getProfileAction, logoutAction } from "../actions/auth-actions";
-import type { User } from "@repo/utils";
+import type { User } from "@repo/core";
 
 interface AuthState {
   user: User | null;
@@ -39,7 +39,7 @@ export const useAuthStore = create<AuthStore>()(
             error: null,
           },
           false,
-          "auth/setUser"
+          "auth/setUser",
         ),
 
       setLoading: (loading) =>
@@ -90,11 +90,11 @@ export const useAuthStore = create<AuthStore>()(
             isLoading: false,
           },
           false,
-          "auth/clearAuth"
+          "auth/clearAuth",
         ),
     }),
     {
       name: "auth-store",
-    }
-  )
+    },
+  ),
 );

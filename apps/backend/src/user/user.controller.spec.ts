@@ -4,8 +4,8 @@ import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { User } from '../database/entities/user.entity';
 import { Role } from '../database/entities/role.entity';
-import { RoleType } from '@repo/utils';
-import type { CreateUserDto } from '@repo/utils';
+import { RoleType } from '@repo/core';
+import type { CreateUserDto } from '@repo/core';
 
 describe('UserController', () => {
   let controller: UserController;

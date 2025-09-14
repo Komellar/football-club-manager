@@ -10,13 +10,13 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from './auth.guard';
-import { CreateUserSchema, LoginSchema } from '@repo/utils';
+import { CreateUserApiSchema, LoginSchema } from '@repo/core';
 import type {
   CreateUserDto,
   LoginDto,
   User,
   LoginResponseDto,
-} from '@repo/utils';
+} from '@repo/core';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import type { RequestWithUser } from './types';
 
@@ -34,7 +34,8 @@ export class AuthController {
 
   @Post('register')
   async register(
-    @Body(new ZodValidationPipe(CreateUserSchema)) registerDto: CreateUserDto,
+    @Body(new ZodValidationPipe(CreateUserApiSchema))
+    registerDto: CreateUserDto,
   ): Promise<LoginResponseDto> {
     return this.authService.register(registerDto);
   }

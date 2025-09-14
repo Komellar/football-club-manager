@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { User } from '@repo/utils';
+import { User } from '@repo/core';
 import type { RequestWithUser } from './types';
 
 @Injectable()

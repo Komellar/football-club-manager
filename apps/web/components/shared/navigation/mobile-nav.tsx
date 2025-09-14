@@ -54,7 +54,7 @@ export function MobileNav() {
                   "block px-2 py-1 text-lg",
                   pathname === item.href
                     ? "text-foreground"
-                    : "text-foreground/60"
+                    : "text-foreground/60",
                 )}
               >
                 {item.label}

@@ -10,8 +10,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserSchema } from '@repo/utils';
-import type { CreateUserDto, UserResponseDto } from '@repo/utils';
+import { CreateUserApiSchema } from '@repo/core';
+import type { CreateUserDto, UserResponseDto } from '@repo/core';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 
 @Controller('users')
@@ -21,7 +21,8 @@ export class UserController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async create(
-    @Body(new ZodValidationPipe(CreateUserSchema)) createUserDto: CreateUserDto,
+    @Body(new ZodValidationPipe(CreateUserApiSchema))
+    createUserDto: CreateUserDto,
   ): Promise<UserResponseDto> {
     const user = await this.userService.create(createUserDto);
     const { passwordHash: _, ...result } = user;

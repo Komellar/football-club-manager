@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
 import { Role } from '../entities/role.entity';
-import { RoleType } from '@repo/utils';
+import { RoleType } from '@repo/core';
 
 export async function seedRoles(dataSource: DataSource): Promise<void> {
   const roleRepository = dataSource.getRepository(Role);

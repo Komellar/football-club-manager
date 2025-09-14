@@ -1,6 +1,6 @@
 export * from "./components";
 export { useAuthStore } from "./store/auth-store";
-export type { User } from "@repo/utils";
+export type { User } from "@repo/core";
 export {
   loginAction,
   registerAction,
