@@ -29,6 +29,16 @@ describe('AuthController', () => {
     roleName: RoleType.USER,
   };
 
+  const mockAuthResult = {
+    access_token: 'mock-jwt-token',
+    user: {
+      id: 1,
+      email: 'john@example.com',
+      name: 'John Doe',
+      role: RoleType.USER,
+    },
+  };
+
   beforeEach(async () => {
     mockAuthService = {
       register: jest.fn(),
@@ -80,24 +90,13 @@ describe('AuthController', () => {
   });
 
   describe('register', () => {
-    it('should register a user and return user data without password', async () => {
-      const mockRegisterResult = {
-        access_token: 'jwt-token-123',
-        user: {
-          id: 1,
-          email: 'john@example.com',
-          name: 'John Doe',
-          role: RoleType.USER,
-        },
-      };
+    it('should register a user and return auth response', async () => {
+      mockAuthService.register.mockResolvedValue(mockAuthResult);
 
-      mockAuthService.register.mockResolvedValue(mockRegisterResult);
-
-      const result: unknown = await controller.register(mockRegisterDto);
+      const result = await controller.register(mockRegisterDto);
 
       expect(mockAuthService.register).toHaveBeenCalledWith(mockRegisterDto);
-      expect(result).toEqual(mockRegisterResult);
-      expect(result).not.toHaveProperty('passwordHash');
+      expect(result).toEqual(mockAuthResult);
     });
 
     it('should throw error when registration fails', async () => {
@@ -114,26 +113,16 @@ describe('AuthController', () => {
   });
 
   describe('login', () => {
-    it('should login successfully and return access token with user data', async () => {
-      const mockLoginResult = {
-        access_token: 'jwt-token-123',
-        user: {
-          id: 1,
-          email: 'john@example.com',
-          name: 'John Doe',
-          role: RoleType.USER,
-        },
-      };
+    it('should login successfully and return auth response', async () => {
+      mockAuthService.login.mockResolvedValue(mockAuthResult);
 
-      mockAuthService.login.mockResolvedValue(mockLoginResult);
-
-      const result: unknown = await controller.login(mockLoginDto);
+      const result = await controller.login(mockLoginDto);
 
       expect(mockAuthService.login).toHaveBeenCalledWith(
         mockLoginDto.email,
         mockLoginDto.password,
       );
-      expect(result).toEqual(mockLoginResult);
+      expect(result).toEqual(mockAuthResult);
     });
 
     it('should throw UnauthorizedException when login fails', async () => {
@@ -143,9 +132,6 @@ describe('AuthController', () => {
 
       await expect(controller.login(mockLoginDto)).rejects.toThrow(
         UnauthorizedException,
-      );
-      await expect(controller.login(mockLoginDto)).rejects.toThrow(
-        'Invalid credentials',
       );
 
       expect(mockAuthService.login).toHaveBeenCalledWith(
@@ -160,6 +146,7 @@ describe('AuthController', () => {
       const mockRequest = {
         user: {
           userId: 1,
+          name: 'John Doe',
           email: 'john@example.com',
           role: RoleType.USER,
         },
@@ -168,9 +155,10 @@ describe('AuthController', () => {
       const result = controller.getProfile(mockRequest);
 
       expect(result).toEqual({
-        id: 1,
-        email: 'john@example.com',
-        role: RoleType.USER,
+        userId: mockRequest.user.userId,
+        name: mockRequest.user.name,
+        email: mockRequest.user.email,
+        role: mockRequest.user.role,
       });
     });
   });

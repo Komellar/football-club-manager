@@ -18,7 +18,7 @@ export class AuthService {
 
   private createAuthResponse(user: UserResponseDto): LoginResponseDto {
     const payload = {
-      userId: user.id,
+      id: user.id,
       name: user.name,
       email: user.email,
       role: user.role.name,
@@ -26,12 +26,7 @@ export class AuthService {
 
     return {
       access_token: this.jwtService.sign(payload),
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role.name,
-      },
+      user: payload,
     };
   }
 

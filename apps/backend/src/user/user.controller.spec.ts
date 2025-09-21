@@ -2,8 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
-import { User } from '../database/entities/user.entity';
-import { Role } from '../database/entities/role.entity';
+import { User } from '../shared/entities/user.entity';
+import { Role } from '../shared/entities/role.entity';
 import { RoleType } from '@repo/core';
 import type { CreateUserDto } from '@repo/core';
 

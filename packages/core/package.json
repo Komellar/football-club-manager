@@ -1,9 +1,20 @@
 {
   "name": "@repo/core",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "private": true,
-  "main": "./index.ts",
-  "types": "./index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist/**/*",
+    "index.ts",
+    "src/**/*"
+  ],
   "scripts": {
     "build": "tsc"
   },

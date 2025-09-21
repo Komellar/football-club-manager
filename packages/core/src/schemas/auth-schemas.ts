@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { RoleType } from "./role-type";
+import { RoleType } from "../enums/role-type";
 
 // Enhanced validation schemas for Zod v4
 export const CreateUserSchema = z.object({

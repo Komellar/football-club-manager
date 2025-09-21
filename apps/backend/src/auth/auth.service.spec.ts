@@ -3,8 +3,8 @@ import type { CreateUserDto } from '@repo/core';
 import { RoleType } from '@repo/core';
 import type { UserService } from '../user/user.service';
 import type { JwtService } from '@nestjs/jwt';
-import type { User } from '../database/entities/user.entity';
-import type { Role } from '../database/entities/role.entity';
+import type { User } from '../shared/entities/user.entity';
+import type { Role } from '../shared/entities/role.entity';
 import * as bcrypt from 'bcrypt';
 
 jest.mock('bcrypt');
@@ -84,8 +84,9 @@ describe('AuthService', () => {
 
       expect(mockUserService.create).toHaveBeenCalledWith(mockRegisterDto);
       expect(mockJwtService.sign).toHaveBeenCalledWith({
+        id: 1,
+        name: 'John Doe',
         email: 'john@example.com',
-        sub: 1,
         role: RoleType.USER,
       });
       expect(result).toEqual({
@@ -126,8 +127,9 @@ describe('AuthService', () => {
         'hashedpassword123',
       );
       expect(mockJwtService.sign).toHaveBeenCalledWith({
+        id: 1,
+        name: 'John Doe',
         email: 'john@example.com',
-        sub: 1,
         role: RoleType.USER,
       });
       expect(result).toEqual({
