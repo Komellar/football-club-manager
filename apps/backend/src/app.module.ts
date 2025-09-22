@@ -7,6 +7,7 @@ import { getDatabaseConfig } from './database/database.config';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { PlayersModule } from './players/players.module';
+import { StatisticsModule } from './statistics/statistics.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { PlayersModule } from './players/players.module';
     UserModule,
     AuthModule,
     PlayersModule,
+    StatisticsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -10,7 +10,7 @@ export const CreatePlayerSchema = z.object({
     .max(100, "Player name must be less than 100 characters")
     .regex(
       /^[a-zA-Z\s\-'\.]+$/,
-      "Name can only contain letters, spaces, hyphens, apostrophes, and periods",
+      "Name can only contain letters, spaces, hyphens, apostrophes, and periods"
     ),
 
   position: z
@@ -57,6 +57,8 @@ export const CreatePlayerSchema = z.object({
   marketValue: z.number().positive("Market value must be positive").optional(),
 
   isActive: z.boolean().default(true),
+
+  imageUrl: z.url("Image URL must be a valid URL").optional(),
 });
 
 export const UpdatePlayerSchema = CreatePlayerSchema.partial();
@@ -77,6 +79,7 @@ export const PlayerResponseSchema = z.object({
   jerseyNumber: z.number().optional(),
   marketValue: z.number().optional(),
   isActive: z.boolean(),
+  imageUrl: z.url().optional(),
   age: z.number().int().min(0),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
@@ -104,6 +107,7 @@ export const PlayerSchema = z.object({
   jerseyNumber: z.number().optional(),
   marketValue: z.number().optional(),
   isActive: z.boolean(),
+  imageUrl: z.url().optional(),
   age: z.number().int().min(0),
 });
 
@@ -140,3 +144,20 @@ export const PlayerQuerySchema = z.object({
 });
 
 export type PlayerQueryDto = z.infer<typeof PlayerQuerySchema>;
+
+// Pagination response schema
+export const PaginatedPlayerResponseSchema = z.object({
+  data: z.array(PlayerResponseSchema),
+  pagination: z.object({
+    page: z.number().int().min(1),
+    limit: z.number().int().min(1),
+    total: z.number().int().min(0),
+    totalPages: z.number().int().min(0),
+    hasNext: z.boolean(),
+    hasPrev: z.boolean(),
+  }),
+});
+
+export type PaginatedPlayerResponseDto = z.infer<
+  typeof PaginatedPlayerResponseSchema
+>;

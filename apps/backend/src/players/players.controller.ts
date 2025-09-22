@@ -11,7 +11,11 @@ import {
   HttpCode,
   HttpStatus,
   ParseIntPipe,
+  UseInterceptors,
+  UploadedFile,
+  ParseFilePipeBuilder,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { PlayersService } from './players.service';
 import { AuthGuard } from '../auth/auth.guard';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
@@ -23,6 +27,7 @@ import {
   type UpdatePlayerDto,
   type PlayerResponseDto,
   type PlayerQueryDto,
+  type PaginatedPlayerResponseDto,
 } from '@repo/core';
 
 @Controller('players')
@@ -43,7 +48,7 @@ export class PlayersController {
   async findAll(
     @Query(new ZodValidationPipe(PlayerQuerySchema))
     queryDto?: PlayerQueryDto,
-  ): Promise<PlayerResponseDto[]> {
+  ): Promise<PaginatedPlayerResponseDto> {
     return this.playersService.findAll(queryDto);
   }
 
@@ -67,5 +72,26 @@ export class PlayersController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.playersService.remove(id);
+  }
+
+  @Post(':id/upload-image')
+  @UseInterceptors(FileInterceptor('image'))
+  async uploadImage(
+    @Param('id', ParseIntPipe) id: number,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({
+          fileType: /(jpg|jpeg|png)$/i,
+        })
+        .addMaxSizeValidator({
+          maxSize: 5 * 1024 * 1024, // 5MB
+        })
+        .build({
+          errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+        }),
+    )
+    file: Express.Multer.File,
+  ): Promise<PlayerResponseDto> {
+    return this.playersService.uploadImage(id, file);
   }
 }

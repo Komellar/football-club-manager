@@ -66,17 +66,17 @@
 
 #### 2.1.1 Player Entity & Basic CRUD
 
-- [ ] Create Player entity with TypeORM decorators (@Entity, @Column, @OneToMany)
-- [ ] Create PlayerService with @InjectRepository pattern
-- [ ] Implement basic CRUD endpoints using NestJS generators (GET, POST, PUT, DELETE)
-- [ ] Add Zod DTOs for validation (CreatePlayerDto, UpdatePlayerDto)
+- [x] Create Player entity with TypeORM decorators (@Entity, @Column, @OneToMany)
+- [x] Create PlayerService with @InjectRepository pattern
+- [x] Implement basic CRUD endpoints using NestJS generators (GET, POST, PUT, DELETE)
+- [x] Add Zod DTOs for validation (CreatePlayerDto, UpdatePlayerDto)
 
-#### 2.1.2 Advanced Player Features
+#### 2.1.2 Advanced Player Features ✅ COMPLETED
 
-- [ ] Add player search and filtering with query builders
-- [ ] Implement pagination for player lists
-- [ ] Add player image upload functionality
-- [ ] Create player statistics tracking
+- [x] Add player search and filtering with query builders
+- [x] Implement pagination for player lists
+- [x] Add player image upload functionality
+- [x] Create player statistics tracking
 
 #### 2.1.3 Player Data Validation & Business Logic
 
