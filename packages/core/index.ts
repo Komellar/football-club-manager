@@ -9,3 +9,7 @@ export * from "./src/schemas/player-statistics-schemas";
 
 // Types
 export * from "./src/types";
+
+// Utils
+export * from "./src/utils/age-utils";
+export * from "./src/utils/position-utils";

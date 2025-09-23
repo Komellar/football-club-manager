@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { PlayerPosition } from "../enums/player-position";
+import { isValidPlayerAge } from "../utils/age-utils";
 
 // Player validation schemas for Zod v4
 export const CreatePlayerSchema = z.object({
@@ -22,10 +23,12 @@ export const CreatePlayerSchema = z.object({
     ])
     .describe("Player position on the field"),
 
-  dateOfBirth: z.coerce.date().refine((date) => {
-    const age = new Date().getFullYear() - date.getFullYear();
-    return age >= 15 && age <= 45;
-  }, "Player must be between 15 and 45 years old"),
+  dateOfBirth: z.coerce
+    .date()
+    .refine(
+      (date) => isValidPlayerAge(date),
+      "Player must be between 15 and 50 years old"
+    ),
 
   nationality: z
     .string()
