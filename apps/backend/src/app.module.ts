@@ -3,12 +3,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { getDatabaseConfig } from './database/database.config';
-import { UserModule } from './user/user.module';
-import { AuthModule } from './auth/auth.module';
-import { PlayersModule } from './players/players.module';
-import { StatisticsModule } from './statistics/statistics.module';
-import { TransfersModule } from './transfers/transfers.module';
+import { getDatabaseConfig } from './core/database/database.config';
+import { UserModule } from './modules/users/user.module';
+import { AuthModule } from './core/auth/auth.module';
+import { PlayersModule } from './modules/players/players.module';
+import { StatisticsModule } from './modules/statistics/statistics.module';
+import { TransfersModule } from './modules/transfers/transfers.module';
 
 @Module({
   imports: [
