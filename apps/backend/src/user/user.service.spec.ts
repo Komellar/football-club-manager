@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { UserService } from './user.service';
-import { User } from '../shared/entities/user.entity';
-import { Role } from '../shared/entities/role.entity';
+import { User } from '../common/entities/user.entity';
+import { Role } from '../common/entities/role.entity';
 import { RoleType } from '@repo/core';
 import type { CreateUserDto } from '@repo/core';
 import * as bcrypt from 'bcrypt';

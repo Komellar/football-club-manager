@@ -5,13 +5,15 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { PlayerStatistics } from '../shared/entities/player-statistics.entity';
+import { PlayerStatistics } from '../common/entities/player-statistics.entity';
 import type {
   CreatePlayerStatisticsDto,
   UpdatePlayerStatisticsDto,
   PlayerStatisticsResponseDto,
   PlayerStatisticsQueryDto,
 } from '@repo/core';
+import { PaginationHelper } from '../common/helpers/pagination.helper';
+import { PaginationResult } from '@repo/core';
 
 @Injectable()
 export class PlayerStatisticsService {
@@ -36,7 +38,7 @@ export class PlayerStatisticsService {
 
   async findAll(
     queryDto?: Partial<PlayerStatisticsQueryDto>,
-  ): Promise<PlayerStatisticsResponseDto[]> {
+  ): Promise<PaginationResult<PlayerStatisticsResponseDto>> {
     try {
       const queryBuilder =
         this.statisticsRepository.createQueryBuilder('stats');
@@ -53,15 +55,17 @@ export class PlayerStatisticsService {
         });
       }
 
-      const page = queryDto?.page || 1;
-      const limit = queryDto?.limit || 10;
-      const skip = (page - 1) * limit;
-
-      queryBuilder.skip(skip).take(limit);
       queryBuilder.orderBy('stats.season', 'DESC');
 
-      const statistics = await queryBuilder.getMany();
-      return statistics.map((stat) => this.mapToResponseDto(stat));
+      const paginationResult = await PaginationHelper.paginate(queryBuilder, {
+        page: queryDto?.page,
+        limit: queryDto?.limit,
+      });
+
+      return {
+        data: paginationResult.data.map((stat) => this.mapToResponseDto(stat)),
+        pagination: paginationResult.pagination,
+      };
     } catch {
       throw new InternalServerErrorException(
         'Failed to retrieve player statistics',

@@ -5,8 +5,10 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Index,
+  OneToMany,
 } from 'typeorm';
 import { PlayerPosition } from '@repo/core';
+import { Transfer } from '../../common/entities/transfer.entity';
 
 @Entity('players')
 @Index(['position', 'isActive'])
@@ -65,7 +67,9 @@ export class Player {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
-  // Virtual property to calculate age
+  @OneToMany(() => Transfer, (transfer) => transfer.player)
+  transfers: Transfer[];
+
   get age(): number {
     const today = new Date();
     const birthDate = new Date(this.dateOfBirth);

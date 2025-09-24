@@ -3,8 +3,8 @@ import type { CreateUserDto } from '@repo/core';
 import { RoleType } from '@repo/core';
 import type { UserService } from '../user/user.service';
 import type { JwtService } from '@nestjs/jwt';
-import type { User } from '../shared/entities/user.entity';
-import type { Role } from '../shared/entities/role.entity';
+import type { User } from '../common/entities/user.entity';
+import type { Role } from '../common/entities/role.entity';
 import * as bcrypt from 'bcrypt';
 
 jest.mock('bcrypt');

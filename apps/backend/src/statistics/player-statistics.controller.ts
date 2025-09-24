@@ -23,6 +23,7 @@ import {
   type UpdatePlayerStatisticsDto,
   type PlayerStatisticsResponseDto,
   type PlayerStatisticsQueryDto,
+  type PaginationResult,
 } from '@repo/core';
 
 @Controller('statistics')
@@ -36,7 +37,7 @@ export class PlayerStatisticsController {
   async findAll(
     @Query(new ZodValidationPipe(PlayerStatisticsQuerySchema))
     queryDto?: PlayerStatisticsQueryDto,
-  ): Promise<PlayerStatisticsResponseDto[]> {
+  ): Promise<PaginationResult<PlayerStatisticsResponseDto>> {
     return this.playerStatisticsService.findAll(queryDto);
   }
 
@@ -52,7 +53,7 @@ export class PlayerStatisticsController {
     @Param('playerId', ParseIntPipe) playerId: number,
     @Query(new ZodValidationPipe(PlayerStatisticsQuerySchema))
     queryDto?: PlayerStatisticsQueryDto,
-  ): Promise<PlayerStatisticsResponseDto[]> {
+  ): Promise<PaginationResult<PlayerStatisticsResponseDto>> {
     return this.playerStatisticsService.findAll({ ...queryDto, playerId });
   }
 

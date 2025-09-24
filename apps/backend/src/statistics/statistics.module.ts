@@ -4,7 +4,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
 import { PlayerStatisticsController } from './player-statistics.controller';
 import { PlayerStatisticsService } from './player-statistics.service';
-import { PlayerStatistics } from '../shared/entities/player-statistics.entity';
+import { PlayerStatistics } from '../common/entities/player-statistics.entity';
 
 @Module({
   imports: [

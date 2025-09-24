@@ -1,8 +1,12 @@
 import { z } from "zod";
 import { PlayerPosition } from "../enums/player-position";
 import { isValidPlayerAge } from "../utils/age-utils";
+import { isValidNationality } from "../utils/nationality-utils";
+import {
+  createPaginationResultSchema,
+  BaseQuerySchema,
+} from "./shared-schemas";
 
-// Player validation schemas for Zod v4
 export const CreatePlayerSchema = z.object({
   name: z
     .string()
@@ -33,8 +37,12 @@ export const CreatePlayerSchema = z.object({
   nationality: z
     .string()
     .trim()
-    .min(1, "Nationality is required")
-    .max(50, "Nationality must be less than 50 characters"),
+    .length(3, "Nationality must be a valid 3-letter ISO country code")
+    .toUpperCase()
+    .refine(
+      (nationality) => isValidNationality(nationality),
+      "Invalid nationality code. Must be a valid FIFA-recognized country"
+    ),
 
   height: z
     .number()
@@ -88,12 +96,10 @@ export const PlayerResponseSchema = z.object({
   updatedAt: z.coerce.date(),
 });
 
-// Type inference
 export type CreatePlayerDto = z.infer<typeof CreatePlayerSchema>;
 export type UpdatePlayerDto = z.infer<typeof UpdatePlayerSchema>;
 export type PlayerResponseDto = z.infer<typeof PlayerResponseSchema>;
 
-// Base Player type for frontend use
 export const PlayerSchema = z.object({
   id: z.number().int().positive(),
   name: z.string(),
@@ -124,7 +130,7 @@ export const PlayerIdSchema = z.object({
     .positive("Player ID must be a positive integer"),
 });
 
-export const PlayerQuerySchema = z.object({
+export const PlayerQuerySchema = BaseQuerySchema.extend({
   position: z
     .enum([
       PlayerPosition.GOALKEEPER,
@@ -138,8 +144,6 @@ export const PlayerQuerySchema = z.object({
   minAge: z.coerce.number().int().min(0).optional(),
   maxAge: z.coerce.number().int().min(0).optional(),
   search: z.string().optional(),
-  page: z.coerce.number().int().min(1).default(1),
-  limit: z.coerce.number().int().min(1).max(100).default(10),
   sortBy: z
     .enum(["name", "position", "age", "nationality", "marketValue"])
     .default("name"),
@@ -148,18 +152,8 @@ export const PlayerQuerySchema = z.object({
 
 export type PlayerQueryDto = z.infer<typeof PlayerQuerySchema>;
 
-// Pagination response schema
-export const PaginatedPlayerResponseSchema = z.object({
-  data: z.array(PlayerResponseSchema),
-  pagination: z.object({
-    page: z.number().int().min(1),
-    limit: z.number().int().min(1),
-    total: z.number().int().min(0),
-    totalPages: z.number().int().min(0),
-    hasNext: z.boolean(),
-    hasPrev: z.boolean(),
-  }),
-});
+export const PaginatedPlayerResponseSchema =
+  createPaginationResultSchema(PlayerResponseSchema);
 
 export type PaginatedPlayerResponseDto = z.infer<
   typeof PaginatedPlayerResponseSchema
