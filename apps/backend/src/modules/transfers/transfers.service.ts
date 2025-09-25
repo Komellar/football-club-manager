@@ -86,9 +86,7 @@ export class TransfersService {
       const queryBuilder =
         this.transferRepository.createQueryBuilder('transfer');
 
-      // Join with player for additional filtering capabilities
-      queryBuilder.leftJoinAndSelect('transfer.player', 'player');
-
+      // No need to join with player since we don't use it in response
       this.applyFilters(queryBuilder, queryDto);
       this.applySorting(queryBuilder, queryDto);
 
@@ -114,7 +112,7 @@ export class TransfersService {
     try {
       const transfer = await this.transferRepository.findOne({
         where: { id },
-        relations: ['player'],
+        // No need to load player relation since we don't use it
       });
 
       if (!transfer) {
@@ -331,24 +329,10 @@ export class TransfersService {
   }
 
   private mapToResponseDto(transfer: Transfer): TransferResponseDto {
+    // Destructure to exclude the 'player' relation and include computed properties
+    const { player: _player, ...transferDto } = transfer;
     return {
-      id: transfer.id,
-      playerId: transfer.playerId,
-      fromClub: transfer.fromClub,
-      toClub: transfer.toClub,
-      transferType: transfer.transferType,
-      transferStatus: transfer.transferStatus,
-      transferDate: transfer.transferDate,
-      transferFee: transfer.transferFee,
-      agentFee: transfer.agentFee,
-      annualSalary: transfer.annualSalary,
-      contractLengthMonths: transfer.contractLengthMonths,
-      loanEndDate: transfer.loanEndDate,
-      notes: transfer.notes,
-      isPermanent: transfer.isPermanent,
-      createdBy: transfer.createdBy,
-      createdAt: transfer.createdAt,
-      updatedAt: transfer.updatedAt,
+      ...transferDto,
       isCompleted: transfer.isCompleted,
       isActiveLoan: transfer.isActiveLoan,
       transferDurationDays: transfer.transferDurationDays ?? undefined,

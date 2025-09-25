@@ -1,4 +1,4 @@
-import { SelectQueryBuilder } from 'typeorm';
+import { SelectQueryBuilder, ObjectLiteral } from 'typeorm';
 import { PaginationResult } from '@repo/core';
 
 export interface PaginationOptions {
@@ -7,7 +7,7 @@ export interface PaginationOptions {
 }
 
 export class PaginationHelper {
-  static async paginate<T extends Record<string, any>>(
+  static async paginate<T extends ObjectLiteral>(
     queryBuilder: SelectQueryBuilder<T>,
     options: PaginationOptions = {},
   ): Promise<PaginationResult<T>> {

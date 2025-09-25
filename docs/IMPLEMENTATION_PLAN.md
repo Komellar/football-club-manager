@@ -71,11 +71,11 @@
 
 ### 2.2 Contract Module (Backend) - Break into smaller tasks
 
-#### 2.2.1 Contract Entity & Relations
+#### 2.2.1 Contract Entity & Relations ✅ COMPLETED
 
-- [ ] Create Contract entity with Player relations (@ManyToOne)
-- [ ] Implement contract CRUD operations with repository pattern
-- [ ] Add contract validation (dates, salary) using class-validator
+- [x] Create Contract entity with Player relations (@ManyToOne)
+- [x] Implement contract CRUD operations with repository pattern
+- [x] Add contract validation (dates, salary) using zod
 
 #### 2.2.2 Contract Business Logic
 
@@ -248,87 +248,6 @@
 - [ ] Performance optimization and bundle analysis
 - [ ] Add monitoring and logging
 - [ ] Security audit and vulnerability scanning
-
-## Technical Stack (Updated per Copilot Instructions)
-
-### Database
-
-- **PostgreSQL** with **TypeORM**
-- **Reason**: ACID compliance, excellent TypeScript integration, decorator-based entities
-
-### Backend
-
-- **NestJS** with TypeScript
-- **TypeORM** for database operations with repository pattern
-- **JWT** for authentication with httpOnly cookies
-- **Zod** for DTO validation (preferred over class-validator)
-- **bcrypt** for password hashing
-- **@nestjs/config** for environment management
-
-### Frontend
-
-- **Next.js 15** with App Router
-- **Tailwind CSS** for styling
-- **shadcn/ui** for components
-- **Recharts** for data visualization
-- **React Hook Form** with Zod resolver
-- **React Query** for state management
-
-## File Structure (Updated per Copilot Instructions)
-
-```
-apps/
-├── backend/                # NestJS app (TypeORM, Postgres, Zod validation)
-│   ├── src/
-│   │   ├── modules/        # Feature modules
-│   │   │   ├── auth/       # Authentication (login, register, JWT)
-│   │   │   ├── users/      # User management
-│   │   │   ├── players/    # Player CRUD and search
-│   │   │   ├── contracts/  # Contract management
-│   │   │   ├── transfers/  # Transfer tracking
-│   │   │   ├── expenses/   # Expense management
-│   │   │   ├── revenues/   # Revenue tracking
-│   │   │   └── reports/    # Financial reports
-│   │   ├── common/         # Shared DTOs, interfaces, utils, guards
-│   │   │   ├── guards/     # JwtAuthGuard, RolesGuard
-│   │   │   ├── interceptors/ # Logging, response transformation
-│   │   │   ├── filters/    # Global exception filters
-│   │   │   └── decorators/ # Custom decorators
-│   │   ├── database/       # TypeORM configuration and entities
-│   │   ├── main.ts
-│   │   └── app.module.ts
-│   └── test/              # Backend tests (unit, integration, e2e)
-└── web/                   # Next.js app (TS, Tailwind, ShadCN, Zod)
-    ├── app/               # App Router pages + layouts
-    │   ├── (auth)/        # Authentication pages
-    │   ├── (dashboard)/   # Protected dashboard routes
-    │   │   ├── players/   # Player management
-    │   │   ├── contracts/ # Contract management
-    │   │   ├── transfers/ # Transfer tracking
-    │   │   ├── expenses/  # Expense management
-    │   │   ├── revenues/  # Revenue tracking
-    │   │   └── reports/   # Financial reports
-    │   └── api/           # API routes (if needed)
-    ├── components/        # UI components (shadcn + custom)
-    │   ├── ui/           # shadcn base components
-    │   ├── forms/        # Form components with Zod validation
-    │   └── layout/       # Layout components (navbar, sidebar)
-    ├── hooks/            # React hooks for API and logic
-    ├── lib/              # Utilities and API client
-    │   ├── api.ts        # Centralized API client with JWT
-    │   ├── auth.ts       # Authentication utilities
-    │   └── validations.ts # Zod schemas
-    └── types/            # TypeScript types/interfaces
-```
-
-### Key Architecture Principles
-
-- **Backend**: Feature modules with repository pattern, Zod validation, JWT auth
-- **Frontend**: Server components preferred, client components for interactivity only
-- **Shared Types**: Common interfaces between backend and frontend
-- **Authentication**: JWT in httpOnly cookies, never localStorage
-- **Database**: TypeORM entities with proper relations and indexes
-- **Testing**: Unit tests for services, E2E tests for critical flows
 
 ## Success Metrics
 

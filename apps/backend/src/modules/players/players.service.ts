@@ -8,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Not, SelectQueryBuilder } from 'typeorm';
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import { PaginationHelper } from '../../shared/helpers/pagination.helper';
 import { Player } from '@/shared/entities/player.entity';
 import type {
   CreatePlayerDto,
@@ -44,7 +45,7 @@ export class PlayersService {
       const player = this.playerRepository.create(createPlayerDto);
       const savedPlayer = await this.playerRepository.save(player);
 
-      return this.mapToResponseDto(savedPlayer);
+      return savedPlayer;
     } catch (error) {
       if (error instanceof BadRequestException) {
         throw error;
@@ -63,28 +64,19 @@ export class PlayersService {
       this.applyFilters(queryBuilder, queryDto);
       this.applySorting(queryBuilder, queryDto);
 
-      const page = queryDto?.page || 1;
-      const limit = queryDto?.limit || 10;
-      const skip = (page - 1) * limit;
+      const paginationOptions = {
+        page: queryDto?.page,
+        limit: queryDto?.limit,
+      };
 
-      queryBuilder.skip(skip).take(limit);
-
-      const [players, total] = await queryBuilder.getManyAndCount();
-
-      const totalPages = Math.ceil(total / limit);
-      const hasNext = page < totalPages;
-      const hasPrev = page > 1;
+      const result = await PaginationHelper.paginate(
+        queryBuilder,
+        paginationOptions,
+      );
 
       return {
-        data: players.map((player) => this.mapToResponseDto(player)),
-        pagination: {
-          page,
-          limit,
-          total,
-          totalPages,
-          hasNext,
-          hasPrev,
-        },
+        data: result.data,
+        pagination: result.pagination,
       };
     } catch {
       throw new InternalServerErrorException(
@@ -131,7 +123,7 @@ export class PlayersService {
         where: { id },
       });
 
-      return this.mapToResponseDto(updatedPlayer!);
+      return updatedPlayer!;
     } catch (error) {
       if (
         error instanceof NotFoundException ||
@@ -211,9 +203,12 @@ export class PlayersService {
         );
       }
 
-      return this.mapToResponseDto(updatedPlayer);
+      return updatedPlayer;
     } catch (error) {
-      if (error instanceof NotFoundException) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof BadRequestException
+      ) {
         throw error;
       }
       throw new InternalServerErrorException(
@@ -222,23 +217,25 @@ export class PlayersService {
     }
   }
 
-  private mapToResponseDto(player: Player): PlayerResponseDto {
-    return {
-      id: player.id,
-      name: player.name,
-      position: player.position,
-      dateOfBirth: player.dateOfBirth,
-      nationality: player.nationality,
-      height: player.height,
-      weight: player.weight,
-      jerseyNumber: player.jerseyNumber,
-      marketValue: player.marketValue,
-      isActive: player.isActive,
-      imageUrl: player.imageUrl,
-      age: player.age,
-      createdAt: player.createdAt,
-      updatedAt: player.updatedAt,
-    };
+  async findOne(id: number): Promise<PlayerResponseDto> {
+    try {
+      const player = await this.playerRepository.findOne({
+        where: { id },
+      });
+
+      if (!player) {
+        throw new NotFoundException(`Player with ID ${id} not found`);
+      }
+
+      return player;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(
+        'Failed to retrieve player. Please try again.',
+      );
+    }
   }
 
   private applyFilters(
@@ -296,26 +293,5 @@ export class PlayersService {
     const sortOrder = queryDto?.sortOrder || 'asc';
     const orderDirection = sortOrder.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
     queryBuilder.orderBy(`player.${sortBy}`, orderDirection);
-  }
-
-  async findOne(id: number): Promise<PlayerResponseDto> {
-    try {
-      const player = await this.playerRepository.findOne({
-        where: { id },
-      });
-
-      if (!player) {
-        throw new NotFoundException(`Player with ID ${id} not found`);
-      }
-
-      return this.mapToResponseDto(player);
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      throw new InternalServerErrorException(
-        'Failed to retrieve player. Please try again.',
-      );
-    }
   }
 }

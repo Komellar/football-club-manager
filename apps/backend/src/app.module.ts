@@ -9,6 +9,7 @@ import { AuthModule } from './core/auth/auth.module';
 import { PlayersModule } from './modules/players/players.module';
 import { StatisticsModule } from './modules/statistics/statistics.module';
 import { TransfersModule } from './modules/transfers/transfers.module';
+import { ContractsModule } from './modules/contracts/contracts.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { TransfersModule } from './modules/transfers/transfers.module';
     PlayersModule,
     StatisticsModule,
     TransfersModule,
+    ContractsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

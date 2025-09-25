@@ -32,6 +32,7 @@ const createMockPlayer = (overrides = {}): Player => ({
   createdAt: new Date('2024-01-01'),
   updatedAt: new Date('2024-01-01'),
   transfers: [],
+  contracts: [],
   get age() {
     return new Date().getFullYear() - this.dateOfBirth.getFullYear();
   },
@@ -248,10 +249,6 @@ describe('TransfersService', () => {
       expect(transferRepository.createQueryBuilder).toHaveBeenCalledWith(
         'transfer',
       );
-      expect(queryBuilder.leftJoinAndSelect).toHaveBeenCalledWith(
-        'transfer.player',
-        'player',
-      );
       expect(queryBuilder.skip).toHaveBeenCalledWith(0); // (page 1 - 1) * limit 10
       expect(queryBuilder.take).toHaveBeenCalledWith(10);
 
@@ -384,7 +381,6 @@ describe('TransfersService', () => {
 
       expect(transferRepository.findOne).toHaveBeenCalledWith({
         where: { id: 1 },
-        relations: ['player'],
       });
       expect(result).toEqual(
         expect.objectContaining({

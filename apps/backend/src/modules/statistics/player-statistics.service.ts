@@ -28,7 +28,8 @@ export class PlayerStatisticsService {
     try {
       const statistics = this.statisticsRepository.create(createStatisticsDto);
       const savedStatistics = await this.statisticsRepository.save(statistics);
-      return this.mapToResponseDto(savedStatistics);
+
+      return savedStatistics;
     } catch {
       throw new InternalServerErrorException(
         'Failed to create player statistics',
@@ -63,7 +64,7 @@ export class PlayerStatisticsService {
       });
 
       return {
-        data: paginationResult.data.map((stat) => this.mapToResponseDto(stat)),
+        data: paginationResult.data,
         pagination: paginationResult.pagination,
       };
     } catch {
@@ -83,7 +84,7 @@ export class PlayerStatisticsService {
           `Player statistics with ID ${id} not found`,
         );
       }
-      return this.mapToResponseDto(statistics);
+      return statistics;
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw error;
@@ -119,7 +120,7 @@ export class PlayerStatisticsService {
         );
       }
 
-      return this.mapToResponseDto(updatedStats);
+      return updatedStats;
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw error;
@@ -150,27 +151,5 @@ export class PlayerStatisticsService {
         'Failed to delete player statistics',
       );
     }
-  }
-
-  private mapToResponseDto(
-    statistics: PlayerStatistics,
-  ): PlayerStatisticsResponseDto {
-    return {
-      id: statistics.id,
-      playerId: statistics.playerId,
-      season: statistics.season,
-      matchesPlayed: statistics.matchesPlayed,
-      minutesPlayed: statistics.minutesPlayed,
-      goals: statistics.goals,
-      assists: statistics.assists,
-      yellowCards: statistics.yellowCards,
-      redCards: statistics.redCards,
-      cleanSheets: statistics.cleanSheets,
-      savesMade: statistics.savesMade,
-      rating: statistics.rating,
-      averageRating: statistics.averageRating,
-      createdAt: statistics.createdAt,
-      updatedAt: statistics.updatedAt,
-    };
   }
 }

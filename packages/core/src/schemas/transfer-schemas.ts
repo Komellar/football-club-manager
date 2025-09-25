@@ -1,6 +1,5 @@
 import { z } from "zod";
-import { TransferType } from "../enums/transfer-type";
-import { TransferStatus } from "../enums/transfer-status";
+import { TransferType, TransferStatus } from "../enums/transfer";
 import {
   createPaginationResultSchema,
   BaseQuerySchema,

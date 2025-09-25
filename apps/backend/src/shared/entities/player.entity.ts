@@ -6,9 +6,11 @@ import {
   UpdateDateColumn,
   Index,
   OneToMany,
+  Relation,
 } from 'typeorm';
 import { PlayerPosition } from '@repo/core';
 import { Transfer } from './transfer.entity';
+import { Contract } from './contract.entity';
 
 @Entity('players')
 @Index(['position', 'isActive'])
@@ -69,6 +71,9 @@ export class Player {
 
   @OneToMany(() => Transfer, (transfer) => transfer.player)
   transfers: Transfer[];
+
+  @OneToMany(() => Contract, (contract) => contract.player)
+  contracts: Relation<Contract[]>;
 
   get age(): number {
     const today = new Date();
