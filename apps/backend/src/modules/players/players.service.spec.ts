@@ -6,6 +6,7 @@ import {
   BadRequestException,
   InternalServerErrorException,
 } from '@nestjs/common';
+
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
@@ -94,6 +95,8 @@ const mockRepository = {
   create: jest.fn(),
   save: jest.fn(),
   findOne: jest.fn(),
+  findOneOrFail: jest.fn(),
+  exists: jest.fn(),
   update: jest.fn(),
   remove: jest.fn(),
   createQueryBuilder: jest.fn(() => mockQueryBuilder),
@@ -332,7 +335,9 @@ describe('PlayersService', () => {
       const result = await service.update(1, mockUpdatePlayerDto);
 
       // Assert
-      expect(mockRepository.findOne).toHaveBeenCalledWith({ where: { id: 1 } });
+      expect(mockRepository.findOne).toHaveBeenCalledWith({
+        where: { id: 1 },
+      });
       expect(mockRepository.update).toHaveBeenCalledWith(
         1,
         mockUpdatePlayerDto,
@@ -406,6 +411,7 @@ describe('PlayersService', () => {
       // Assert
       expect(mockRepository.findOne).toHaveBeenCalledWith({
         where: { id: 1 },
+        relations: ['contracts', 'transfers', 'statistics'],
       });
       expect(mockRepository.remove).toHaveBeenCalledWith(mockPlayer);
     });
@@ -439,9 +445,8 @@ describe('PlayersService', () => {
         imageUrl: '/uploads/players/1_123456789.jpg',
       };
 
-      mockRepository.findOne
-        .mockResolvedValueOnce(mockPlayer) // Player exists check
-        .mockResolvedValueOnce(updatedPlayerWithImage); // Updated player with image
+      mockRepository.exists.mockResolvedValue(true); // Player exists check
+      mockRepository.findOne.mockResolvedValue(updatedPlayerWithImage); // Updated player with image
       mockRepository.update.mockResolvedValue({ affected: 1 });
 
       jest.spyOn(Date, 'now').mockReturnValue(123456789);
@@ -466,7 +471,7 @@ describe('PlayersService', () => {
 
     it('should throw NotFoundException if player not found', async () => {
       // Arrange
-      mockRepository.findOne.mockResolvedValue(null);
+      mockRepository.exists.mockResolvedValue(false);
 
       // Act & Assert
       await expect(service.uploadImage(1, mockFile)).rejects.toThrow(
@@ -476,7 +481,7 @@ describe('PlayersService', () => {
 
     it('should throw BadRequestException if file is invalid', async () => {
       // Arrange
-      mockRepository.findOne.mockResolvedValue(mockPlayer);
+      mockRepository.exists.mockResolvedValue(true);
       const invalidFile = { buffer: null, originalname: null } as any;
 
       // Act & Assert
@@ -487,7 +492,7 @@ describe('PlayersService', () => {
 
     it('should throw BadRequestException if file is empty', async () => {
       // Arrange
-      mockRepository.findOne.mockResolvedValue(mockPlayer);
+      mockRepository.exists.mockResolvedValue(true);
       const emptyFile = {
         buffer: Buffer.alloc(0),
         originalname: 'test.jpg',

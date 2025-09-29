@@ -77,12 +77,12 @@
 - [x] Implement contract CRUD operations with repository pattern
 - [x] Add contract validation (dates, salary) using zod
 
-#### 2.2.2 Contract Business Logic
+#### 2.2.2 Contract Business Logic ✅ COMPLETED
 
-- [ ] Create contract expiry tracking queries
-- [ ] Add database indexes for frequently queried fields
-- [ ] Implement contract renewal workflows
-- [ ] Add contract value calculations (bonuses, clauses)
+- [x] Create contract expiry tracking queries
+- [x] Add database indexes for frequently queried fields
+- [x] Implement contract renewal workflows
+- [x] Add contract value calculations (bonuses, clauses)
 
 ### 2.3 Player Management UI (Frontend) - Break into smaller tasks
 
@@ -259,5 +259,3 @@
 - [ ] Sub-2s page load times with Next.js optimization
 - [ ] Proper error handling and user feedback
 - [ ] Accessibility compliance (WCAG 2.1)
-
-This plan follows the copilot instructions exactly, prioritizing TypeORM over Prisma, Zod validation, and proper NestJS/Next.js patterns.

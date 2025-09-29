@@ -93,6 +93,86 @@ export const PaginatedContractResponseSchema = createPaginationResultSchema(
   ContractResponseSchema
 );
 
+// Contract renewal schemas
+export const ContractRenewalSchema = z.object({
+  endDate: z.coerce.date(),
+  salary: z.number().positive().optional(),
+  bonuses: z.number().min(0).optional(),
+  notes: z.string().max(1000).optional(),
+});
+
+export const ContractNewRenewalSchema = z
+  .object({
+    startDate: z.coerce.date(),
+    endDate: z.coerce.date(),
+    salary: z.number().positive().optional(),
+    bonuses: z.number().min(0).optional(),
+    signOnFee: z.number().min(0).optional(),
+    releaseClause: z.number().positive().optional(),
+    agentFee: z.number().min(0).optional(),
+    notes: z.string().max(1000).optional(),
+  })
+  .refine(
+    (data) => {
+      return data.endDate > data.startDate;
+    },
+    {
+      message: "End date must be after start date",
+      path: ["endDate"],
+    }
+  );
+
+// Contract value calculation response schema
+export const ContractValueCalculationSchema = z.object({
+  totalValue: z.number(),
+  salaryValue: z.number(),
+  bonusesValue: z.number(),
+  signOnFeeValue: z.number(),
+  agentFeeValue: z.number(),
+  remainingValue: z.number(),
+  remainingMonths: z.number(),
+});
+
+// Contract expiry report response schema
+export const ContractExpiryReportSchema = z.object({
+  expired: z.array(ContractResponseSchema),
+  expiringSoon: z.array(ContractResponseSchema),
+  expiringLater: z.array(ContractResponseSchema),
+  active: z.number(),
+  total: z.number(),
+});
+
+// Financial summary response schema
+export const ContractFinancialSummarySchema = z.object({
+  totalActiveValue: z.number(),
+  totalMonthlyCommitment: z.number(),
+  upcomingExpiries: z.object({
+    count: z.number(),
+    value: z.number(),
+  }),
+  averageSalary: z.number(),
+  totalContracts: z.number(),
+  contractsByType: z.record(
+    z.enum([
+      ContractType.PERMANENT,
+      ContractType.LOAN,
+      ContractType.TRIAL,
+      ContractType.YOUTH,
+      ContractType.PROFESSIONAL,
+    ]),
+    z.number()
+  ),
+});
+
+// Query schemas for contract expiry endpoints
+export const ExpiryQuerySchema = z.object({
+  days: z.number().int().min(1).optional(),
+});
+
+export const ReportQuerySchema = z.object({
+  days: z.number().int().min(1).optional(),
+});
+
 export type Contract = z.infer<typeof ContractSchema>;
 export type CreateContract = z.infer<typeof CreateContractSchema>;
 export type UpdateContract = z.infer<typeof UpdateContractSchema>;
@@ -101,8 +181,25 @@ export type ContractResponse = z.infer<typeof ContractResponseSchema>;
 export type PaginatedContractResponseDto = z.infer<
   typeof PaginatedContractResponseSchema
 >;
+export type ContractRenewal = z.infer<typeof ContractRenewalSchema>;
+export type ContractNewRenewal = z.infer<typeof ContractNewRenewalSchema>;
+export type ContractValueCalculation = z.infer<
+  typeof ContractValueCalculationSchema
+>;
+export type ContractExpiryReport = z.infer<typeof ContractExpiryReportSchema>;
+export type ContractFinancialSummary = z.infer<
+  typeof ContractFinancialSummarySchema
+>;
 
 export type CreateContractDto = CreateContract;
 export type UpdateContractDto = UpdateContract;
 export type ContractQueryDto = ContractQuery;
 export type ContractResponseDto = ContractResponse;
+export type ContractRenewalDto = ContractRenewal;
+export type ContractNewRenewalDto = ContractNewRenewal;
+
+// Additional query types
+export type ExpiryQuery = z.infer<typeof ExpiryQuerySchema>;
+export type ReportQuery = z.infer<typeof ReportQuerySchema>;
+export type ExpiryQueryDto = ExpiryQuery;
+export type ReportQueryDto = ReportQuery;

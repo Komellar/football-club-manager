@@ -1,27 +1,3 @@
-Always create me MD summary file after changes.
-
-## 📂 Project Structure
-
-```
-football-club-manager/
-│
-├─ apps/
-│   ├─ frontend/       # Next.js app (TS, Tailwind, ShadCN, Zod)
-│   └─ backend/        # NestJS app (TypeORM, Postgres, Zod validation)
-│
-├─ packages/
-│   └─ core/           # Shared types, Zod schemas, and core utilities
-│
-├─ docs/               # Documentation (plans, architecture, db schema)
-│   └─ copilot-instructions.md
-│
-├─ turbo.json          # Turborepo config
-├─ package.json        # Root config
-└─ tsconfig.json       # Shared TS settings
-```
-
----
-
 ## 🛠️ Backend (NestJS + Postgres + TypeORM)
 
 - Use **TypeORM entities** with decorators.
@@ -161,6 +137,7 @@ football-club-manager/
 
 9. **Overall**
    - Always use pnpm
+   - Always create MD summary file after changes.
 
 ---
 

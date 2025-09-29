@@ -123,7 +123,13 @@ export class PlayersService {
         where: { id },
       });
 
-      return updatedPlayer!;
+      if (!updatedPlayer) {
+        throw new InternalServerErrorException(
+          'Failed to retrieve updated player.',
+        );
+      }
+
+      return updatedPlayer;
     } catch (error) {
       if (
         error instanceof NotFoundException ||
@@ -141,6 +147,7 @@ export class PlayersService {
     try {
       const player = await this.playerRepository.findOne({
         where: { id },
+        relations: ['contracts', 'transfers', 'statistics'],
       });
 
       if (!player) {
@@ -153,7 +160,7 @@ export class PlayersService {
         throw error;
       }
       throw new InternalServerErrorException(
-        'Failed to delete player. Please try again.',
+        `Failed to delete player with id ${id}: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
     }
   }
@@ -163,11 +170,11 @@ export class PlayersService {
     file: Express.Multer.File,
   ): Promise<PlayerResponseDto> {
     try {
-      const player = await this.playerRepository.findOne({
+      const playerExists = await this.playerRepository.exists({
         where: { id },
       });
 
-      if (!player) {
+      if (!playerExists) {
         throw new NotFoundException(`Player with ID ${id} not found`);
       }
 
@@ -199,7 +206,7 @@ export class PlayersService {
 
       if (!updatedPlayer) {
         throw new InternalServerErrorException(
-          'Failed to retrieve updated player after image upload',
+          'Failed to retrieve updated player.',
         );
       }
 

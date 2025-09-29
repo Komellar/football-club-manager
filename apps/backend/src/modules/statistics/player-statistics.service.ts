@@ -79,11 +79,13 @@ export class PlayerStatisticsService {
       const statistics = await this.statisticsRepository.findOne({
         where: { id },
       });
+
       if (!statistics) {
         throw new NotFoundException(
           `Player statistics with ID ${id} not found`,
         );
       }
+
       return statistics;
     } catch (error) {
       if (error instanceof NotFoundException) {
@@ -100,25 +102,19 @@ export class PlayerStatisticsService {
     updateStatisticsDto: UpdatePlayerStatisticsDto,
   ): Promise<PlayerStatisticsResponseDto> {
     try {
-      const existingStats = await this.statisticsRepository.findOne({
+      const exists = await this.statisticsRepository.exists({
         where: { id },
       });
-      if (!existingStats) {
+      if (!exists) {
         throw new NotFoundException(
           `Player statistics with ID ${id} not found`,
         );
       }
 
       await this.statisticsRepository.update(id, updateStatisticsDto);
-      const updatedStats = await this.statisticsRepository.findOne({
+      const updatedStats = await this.statisticsRepository.findOneOrFail({
         where: { id },
       });
-
-      if (!updatedStats) {
-        throw new InternalServerErrorException(
-          'Failed to retrieve updated player statistics',
-        );
-      }
 
       return updatedStats;
     } catch (error) {
@@ -135,7 +131,9 @@ export class PlayerStatisticsService {
     try {
       const statistics = await this.statisticsRepository.findOne({
         where: { id },
+        relations: ['player'],
       });
+
       if (!statistics) {
         throw new NotFoundException(
           `Player statistics with ID ${id} not found`,
@@ -148,7 +146,7 @@ export class PlayerStatisticsService {
         throw error;
       }
       throw new InternalServerErrorException(
-        'Failed to delete player statistics',
+        `Failed to delete player statistics with id ${id}: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
     }
   }

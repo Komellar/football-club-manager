@@ -72,6 +72,8 @@ const mockRepository = {
   create: jest.fn(),
   save: jest.fn(),
   findOne: jest.fn(),
+  findOneOrFail: jest.fn(),
+  exists: jest.fn(),
   update: jest.fn(),
   remove: jest.fn(),
   createQueryBuilder: jest.fn(() => mockQueryBuilder),
@@ -245,23 +247,22 @@ describe('PlayerStatisticsService', () => {
       // Arrange
       const updatedStats = { ...mockStatistics, ...mockUpdateDto };
 
-      mockRepository.findOne
-        .mockResolvedValueOnce(mockStatistics) // Existing stats check
-        .mockResolvedValueOnce(updatedStats); // Updated stats
+      mockRepository.exists.mockResolvedValue(true);
+      mockRepository.findOneOrFail.mockResolvedValue(updatedStats);
       mockRepository.update.mockResolvedValue({ affected: 1 });
 
       // Act
       const result = await service.update(1, mockUpdateDto);
 
       // Assert
-      expect(mockRepository.findOne).toHaveBeenCalledWith({ where: { id: 1 } });
+      expect(mockRepository.exists).toHaveBeenCalledWith({ where: { id: 1 } });
       expect(mockRepository.update).toHaveBeenCalledWith(1, mockUpdateDto);
       expect(result).toEqual(updatedStats);
     });
 
     it('should throw NotFoundException if statistics not found', async () => {
       // Arrange
-      mockRepository.findOne.mockResolvedValue(null);
+      mockRepository.exists.mockResolvedValue(false);
 
       // Act & Assert
       await expect(service.update(1, mockUpdateDto)).rejects.toThrow(
@@ -271,7 +272,8 @@ describe('PlayerStatisticsService', () => {
 
     it('should throw InternalServerErrorException on database error', async () => {
       // Arrange
-      mockRepository.findOne.mockRejectedValue(new Error('Database error'));
+      mockRepository.exists.mockResolvedValue(true);
+      mockRepository.update.mockRejectedValue(new Error('Database error'));
 
       // Act & Assert
       await expect(service.update(1, mockUpdateDto)).rejects.toThrow(
@@ -292,6 +294,7 @@ describe('PlayerStatisticsService', () => {
       // Assert
       expect(mockRepository.findOne).toHaveBeenCalledWith({
         where: { id: 1 },
+        relations: ['player'],
       });
       expect(mockRepository.remove).toHaveBeenCalledWith(mockStatistics);
     });

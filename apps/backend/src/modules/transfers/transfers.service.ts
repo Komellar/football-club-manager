@@ -32,11 +32,11 @@ export class TransfersService {
     createTransferDto: CreateTransferDto,
   ): Promise<TransferResponseDto> {
     try {
-      const player = await this.playerRepository.findOne({
+      const playerExists = await this.playerRepository.exists({
         where: { id: createTransferDto.playerId },
       });
 
-      if (!player) {
+      if (!playerExists) {
         throw new NotFoundException(
           `Player with ID ${createTransferDto.playerId} not found`,
         );
@@ -112,7 +112,6 @@ export class TransfersService {
     try {
       const transfer = await this.transferRepository.findOne({
         where: { id },
-        // No need to load player relation since we don't use it
       });
 
       if (!transfer) {
@@ -216,6 +215,7 @@ export class TransfersService {
     try {
       const transfer = await this.transferRepository.findOne({
         where: { id },
+        relations: ['player'],
       });
 
       if (!transfer) {
@@ -235,7 +235,7 @@ export class TransfersService {
         throw error;
       }
       throw new InternalServerErrorException(
-        'Failed to delete transfer. Please try again.',
+        `Failed to delete transfer with id ${id}: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
     }
   }

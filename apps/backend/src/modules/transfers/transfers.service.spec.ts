@@ -122,6 +122,7 @@ describe('TransfersService', () => {
 
     const mockPlayerRepository = {
       findOne: jest.fn(),
+      exists: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -145,14 +146,14 @@ describe('TransfersService', () => {
 
   describe('create', () => {
     it('should successfully create a new transfer', async () => {
-      playerRepository.findOne.mockResolvedValue(mockPlayer);
+      playerRepository.exists.mockResolvedValue(true);
       transferRepository.findOne.mockResolvedValue(null); // No conflicting transfer
       transferRepository.create.mockReturnValue(mockTransfer);
       transferRepository.save.mockResolvedValue(mockTransfer);
 
       const result = await service.create(mockCreateTransferDto);
 
-      expect(playerRepository.findOne).toHaveBeenCalledWith({
+      expect(playerRepository.exists).toHaveBeenCalledWith({
         where: { id: mockCreateTransferDto.playerId },
       });
       expect(transferRepository.create).toHaveBeenCalledWith(
@@ -170,7 +171,7 @@ describe('TransfersService', () => {
     });
 
     it('should throw NotFoundException when player does not exist', async () => {
-      playerRepository.findOne.mockResolvedValue(null);
+      playerRepository.exists.mockResolvedValue(false);
 
       await expect(service.create(mockCreateTransferDto)).rejects.toThrow(
         new NotFoundException(
@@ -178,7 +179,7 @@ describe('TransfersService', () => {
         ),
       );
 
-      expect(playerRepository.findOne).toHaveBeenCalledWith({
+      expect(playerRepository.exists).toHaveBeenCalledWith({
         where: { id: mockCreateTransferDto.playerId },
       });
       expect(transferRepository.create).not.toHaveBeenCalled();
@@ -191,7 +192,7 @@ describe('TransfersService', () => {
         transferType: TransferType.SIGNING,
       };
 
-      playerRepository.findOne.mockResolvedValue(mockPlayer);
+      playerRepository.exists.mockResolvedValue(true);
       transferRepository.findOne.mockResolvedValue(mockTransfer); // Active transfer exists
 
       await expect(service.create(completedTransferDto)).rejects.toThrow(
@@ -211,7 +212,7 @@ describe('TransfersService', () => {
         transferType: TransferType.LOAN_RETURN,
       });
 
-      playerRepository.findOne.mockResolvedValue(mockPlayer);
+      playerRepository.exists.mockResolvedValue(true);
       transferRepository.findOne.mockResolvedValue(mockTransfer); // Active transfer exists
       transferRepository.create.mockReturnValue(loanReturnTransfer);
       transferRepository.save.mockResolvedValue(loanReturnTransfer);
@@ -227,7 +228,7 @@ describe('TransfersService', () => {
     });
 
     it('should throw InternalServerErrorException on unexpected error', async () => {
-      playerRepository.findOne.mockRejectedValue(new Error('Database error'));
+      playerRepository.exists.mockRejectedValue(new Error('Database error'));
 
       await expect(service.create(mockCreateTransferDto)).rejects.toThrow(
         new InternalServerErrorException(
@@ -568,6 +569,7 @@ describe('TransfersService', () => {
 
       expect(transferRepository.findOne).toHaveBeenCalledWith({
         where: { id: 1 },
+        relations: ['player'],
       });
       expect(transferRepository.remove).toHaveBeenCalledWith(pendingTransfer);
     });
@@ -597,7 +599,7 @@ describe('TransfersService', () => {
 
       await expect(service.remove(1)).rejects.toThrow(
         new InternalServerErrorException(
-          'Failed to delete transfer. Please try again.',
+          'Failed to delete transfer with id 1: Database error',
         ),
       );
     });
