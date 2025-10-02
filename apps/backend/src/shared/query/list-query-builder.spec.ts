@@ -1,5 +1,5 @@
 import { Repository } from 'typeorm';
-import { QueryHelper } from './query-helper.service';
+import { ListQueryBuilder } from './list-query-builder';
 import { CompareOperator, FilterMode } from '@repo/core';
 
 // Mock TypeORM operators
@@ -29,7 +29,7 @@ interface TestEntity {
   email: string;
 }
 
-describe('QueryHelper', () => {
+describe('ListQueryBuilder', () => {
   let mockRepository: jest.Mocked<Repository<TestEntity>>;
 
   beforeEach(() => {
@@ -49,7 +49,7 @@ describe('QueryHelper', () => {
       mockRepository.findAndCount.mockResolvedValue([mockData, 2]);
 
       // Act
-      const result = await QueryHelper.executeQuery(mockRepository);
+      const result = await ListQueryBuilder.executeQuery(mockRepository);
 
       // Assert
       expect(result).toEqual({
@@ -83,7 +83,10 @@ describe('QueryHelper', () => {
       const queryDto = { page: 3, limit: 5 };
 
       // Act
-      const result = await QueryHelper.executeQuery(mockRepository, queryDto);
+      const result = await ListQueryBuilder.executeQuery(
+        mockRepository,
+        queryDto,
+      );
 
       // Assert
       expect(result.pagination).toEqual({
@@ -105,10 +108,10 @@ describe('QueryHelper', () => {
     it('should apply simple filters', async () => {
       // Arrange
       mockRepository.findAndCount.mockResolvedValue([[], 0]);
-      const queryDto = { name: 'John', age: 25 };
+      const queryDto = { where: { name: 'John', age: 25 } };
 
       // Act
-      await QueryHelper.executeQuery(mockRepository, queryDto);
+      await ListQueryBuilder.executeQuery(mockRepository, queryDto);
 
       // Assert
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
@@ -128,9 +131,9 @@ describe('QueryHelper', () => {
     });
 
     it('should handle greater than operator', async () => {
-      const queryDto = { age: { [CompareOperator.GT]: 18 } };
+      const queryDto = { where: { age: { [CompareOperator.GT]: 18 } } };
 
-      await QueryHelper.executeQuery(mockRepository, queryDto);
+      await ListQueryBuilder.executeQuery(mockRepository, queryDto);
 
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: { age: { _type: 'moreThan', _value: 18 } },
@@ -140,9 +143,9 @@ describe('QueryHelper', () => {
     });
 
     it('should handle less than operator', async () => {
-      const queryDto = { age: { [CompareOperator.LT]: 65 } };
+      const queryDto = { where: { age: { [CompareOperator.LT]: 65 } } };
 
-      await QueryHelper.executeQuery(mockRepository, queryDto);
+      await ListQueryBuilder.executeQuery(mockRepository, queryDto);
 
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: { age: { _type: 'lessThan', _value: 65 } },
@@ -152,9 +155,9 @@ describe('QueryHelper', () => {
     });
 
     it('should handle greater than or equal operator', async () => {
-      const queryDto = { age: { [CompareOperator.GTE]: 18 } };
+      const queryDto = { where: { age: { [CompareOperator.GTE]: 18 } } };
 
-      await QueryHelper.executeQuery(mockRepository, queryDto);
+      await ListQueryBuilder.executeQuery(mockRepository, queryDto);
 
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: { age: { _type: 'moreThanOrEqual', _value: 18 } },
@@ -164,9 +167,9 @@ describe('QueryHelper', () => {
     });
 
     it('should handle less than or equal operator', async () => {
-      const queryDto = { age: { [CompareOperator.LTE]: 65 } };
+      const queryDto = { where: { age: { [CompareOperator.LTE]: 65 } } };
 
-      await QueryHelper.executeQuery(mockRepository, queryDto);
+      await ListQueryBuilder.executeQuery(mockRepository, queryDto);
 
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: { age: { _type: 'lessThanOrEqual', _value: 65 } },
@@ -176,9 +179,9 @@ describe('QueryHelper', () => {
     });
 
     it('should handle not equal operator', async () => {
-      const queryDto = { age: { [CompareOperator.NE]: 25 } };
+      const queryDto = { where: { age: { [CompareOperator.NE]: 25 } } };
 
-      await QueryHelper.executeQuery(mockRepository, queryDto);
+      await ListQueryBuilder.executeQuery(mockRepository, queryDto);
 
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: { age: { _type: 'not', _value: 25 } },
@@ -188,9 +191,11 @@ describe('QueryHelper', () => {
     });
 
     it('should handle array values with IN operator', async () => {
-      const queryDto = { age: { [CompareOperator.EQ]: [18, 25, 30] } };
+      const queryDto = {
+        where: { age: { [CompareOperator.EQ]: [18, 25, 30] } },
+      };
 
-      await QueryHelper.executeQuery(mockRepository, queryDto);
+      await ListQueryBuilder.executeQuery(mockRepository, queryDto);
 
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: { age: { _type: 'in', _value: [18, 25, 30] } },
@@ -200,9 +205,11 @@ describe('QueryHelper', () => {
     });
 
     it('should handle array values with NOT IN operator', async () => {
-      const queryDto = { age: { [CompareOperator.NE]: [18, 25, 30] } };
+      const queryDto = {
+        where: { age: { [CompareOperator.NE]: [18, 25, 30] } },
+      };
 
-      await QueryHelper.executeQuery(mockRepository, queryDto);
+      await ListQueryBuilder.executeQuery(mockRepository, queryDto);
 
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: {
@@ -221,13 +228,15 @@ describe('QueryHelper', () => {
 
     it('should handle multiple operators on same field with AND logic', async () => {
       const queryDto = {
-        age: {
-          [CompareOperator.GTE]: 18,
-          [CompareOperator.LT]: 65,
+        where: {
+          age: {
+            [CompareOperator.GTE]: 18,
+            [CompareOperator.LT]: 65,
+          },
         },
       };
 
-      await QueryHelper.executeQuery(mockRepository, queryDto);
+      await ListQueryBuilder.executeQuery(mockRepository, queryDto);
 
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: {
@@ -245,9 +254,9 @@ describe('QueryHelper', () => {
     });
 
     it('should handle single operator without AND wrapper', async () => {
-      const queryDto = { age: { [CompareOperator.GTE]: 18 } };
+      const queryDto = { where: { age: { [CompareOperator.GTE]: 18 } } };
 
-      await QueryHelper.executeQuery(mockRepository, queryDto);
+      await ListQueryBuilder.executeQuery(mockRepository, queryDto);
 
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: { age: { _type: 'moreThanOrEqual', _value: 18 } },
@@ -263,9 +272,9 @@ describe('QueryHelper', () => {
     });
 
     it('should apply PARTIAL mode by default', async () => {
-      const queryDto = { name: 'John' };
+      const queryDto = { where: { name: 'John' } };
 
-      await QueryHelper.executeQuery(mockRepository, queryDto);
+      await ListQueryBuilder.executeQuery(mockRepository, queryDto);
 
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: { name: { _type: 'ilike', _value: '%John%' } },
@@ -275,12 +284,16 @@ describe('QueryHelper', () => {
     });
 
     it('should apply EXACT mode when specified', async () => {
-      const queryDto = { name: 'John' };
+      const queryDto = { where: { name: 'John' } };
       const filterOptions = {
         filterModes: { name: FilterMode.EXACT },
       };
 
-      await QueryHelper.executeQuery(mockRepository, queryDto, filterOptions);
+      await ListQueryBuilder.executeQuery(
+        mockRepository,
+        queryDto,
+        filterOptions,
+      );
 
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: { name: 'John' },
@@ -290,12 +303,18 @@ describe('QueryHelper', () => {
     });
 
     it('should apply default filter mode from options', async () => {
-      const queryDto = { name: 'John', email: 'john@test.com' };
+      const queryDto = {
+        where: { name: 'John', email: 'john@test.com' },
+      };
       const filterOptions = {
         defaultFilterMode: FilterMode.EXACT,
       };
 
-      await QueryHelper.executeQuery(mockRepository, queryDto, filterOptions);
+      await ListQueryBuilder.executeQuery(
+        mockRepository,
+        queryDto,
+        filterOptions,
+      );
 
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: {
@@ -308,12 +327,18 @@ describe('QueryHelper', () => {
     });
 
     it('should ignore specified filters', async () => {
-      const queryDto = { name: 'John', age: 25, email: 'john@test.com' };
+      const queryDto = {
+        where: { name: 'John', age: 25, email: 'john@test.com' },
+      };
       const filterOptions = {
         ignoredFilters: ['age'],
       };
 
-      await QueryHelper.executeQuery(mockRepository, queryDto, filterOptions);
+      await ListQueryBuilder.executeQuery(
+        mockRepository,
+        queryDto,
+        filterOptions,
+      );
 
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: {
@@ -339,7 +364,11 @@ describe('QueryHelper', () => {
         },
       };
 
-      await QueryHelper.executeQuery(mockRepository, queryDto, filterOptions);
+      await ListQueryBuilder.executeQuery(
+        mockRepository,
+        queryDto,
+        filterOptions,
+      );
 
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: [
@@ -352,14 +381,18 @@ describe('QueryHelper', () => {
     });
 
     it('should combine search with existing filters', async () => {
-      const queryDto = { age: 25, search: 'John' };
+      const queryDto = { where: { age: 25 }, search: 'John' };
       const filterOptions = {
         searchOptions: {
           searchFields: ['name', 'email'],
         },
       };
 
-      await QueryHelper.executeQuery(mockRepository, queryDto, filterOptions);
+      await ListQueryBuilder.executeQuery(
+        mockRepository,
+        queryDto,
+        filterOptions,
+      );
 
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: [
@@ -386,7 +419,11 @@ describe('QueryHelper', () => {
         },
       };
 
-      await QueryHelper.executeQuery(mockRepository, queryDto, filterOptions);
+      await ListQueryBuilder.executeQuery(
+        mockRepository,
+        queryDto,
+        filterOptions,
+      );
 
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: [{ name: 'test' }],
@@ -396,14 +433,18 @@ describe('QueryHelper', () => {
     });
 
     it('should prevent search conflicts with existing filters', async () => {
-      const queryDto = { name: 'John', search: 'test' };
+      const queryDto = { where: { name: 'John' }, search: 'test' };
       const filterOptions = {
         searchOptions: {
           searchFields: ['name', 'email'], // name conflicts with filter
         },
       };
 
-      await QueryHelper.executeQuery(mockRepository, queryDto, filterOptions);
+      await ListQueryBuilder.executeQuery(
+        mockRepository,
+        queryDto,
+        filterOptions,
+      );
 
       // Should only search on email, not name (conflict prevention)
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
@@ -419,14 +460,21 @@ describe('QueryHelper', () => {
     });
 
     it('should return original where when all search fields have conflicts', async () => {
-      const queryDto = { name: 'John', email: 'john@test.com', search: 'test' };
+      const queryDto = {
+        where: { name: 'John', email: 'john@test.com' },
+        search: 'test',
+      };
       const filterOptions = {
         searchOptions: {
           searchFields: ['name', 'email'], // Both fields have conflicts
         },
       };
 
-      await QueryHelper.executeQuery(mockRepository, queryDto, filterOptions);
+      await ListQueryBuilder.executeQuery(
+        mockRepository,
+        queryDto,
+        filterOptions,
+      );
 
       // Should return original filters without search
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
@@ -440,14 +488,18 @@ describe('QueryHelper', () => {
     });
 
     it('should ignore search when no search term provided', async () => {
-      const queryDto = { name: 'John' };
+      const queryDto = { where: { name: 'John' } };
       const filterOptions = {
         searchOptions: {
           searchFields: ['name', 'email'],
         },
       };
 
-      await QueryHelper.executeQuery(mockRepository, queryDto, filterOptions);
+      await ListQueryBuilder.executeQuery(
+        mockRepository,
+        queryDto,
+        filterOptions,
+      );
 
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: { name: { _type: 'ilike', _value: '%John%' } },
@@ -464,14 +516,16 @@ describe('QueryHelper', () => {
 
     it('should flatten nested filter objects', async () => {
       const queryDto = {
-        user: {
-          profile: {
-            name: 'John',
+        where: {
+          user: {
+            profile: {
+              name: 'John',
+            },
           },
         },
       };
 
-      await QueryHelper.executeQuery(mockRepository, queryDto);
+      await ListQueryBuilder.executeQuery(mockRepository, queryDto);
 
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: {
@@ -484,12 +538,14 @@ describe('QueryHelper', () => {
 
     it('should handle nested objects with comparison operators', async () => {
       const queryDto = {
-        user: {
-          age: { [CompareOperator.GTE]: 18 },
+        where: {
+          user: {
+            age: { [CompareOperator.GTE]: 18 },
+          },
         },
       };
 
-      await QueryHelper.executeQuery(mockRepository, queryDto);
+      await ListQueryBuilder.executeQuery(mockRepository, queryDto);
 
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: {
@@ -507,9 +563,11 @@ describe('QueryHelper', () => {
     });
 
     it('should handle null and undefined values', async () => {
-      const queryDto = { name: 'John', age: null, email: undefined };
+      const queryDto = {
+        where: { name: 'John', age: null, email: undefined },
+      };
 
-      await QueryHelper.executeQuery(mockRepository, queryDto);
+      await ListQueryBuilder.executeQuery(mockRepository, queryDto);
 
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: { name: { _type: 'ilike', _value: '%John%' } },
@@ -519,7 +577,7 @@ describe('QueryHelper', () => {
     });
 
     it('should handle empty query object', async () => {
-      await QueryHelper.executeQuery(mockRepository, {});
+      await ListQueryBuilder.executeQuery(mockRepository, {});
 
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: {},
@@ -531,7 +589,7 @@ describe('QueryHelper', () => {
     it('should handle zero page and limit', async () => {
       const queryDto = { page: 0, limit: 0 };
 
-      await QueryHelper.executeQuery(mockRepository, queryDto);
+      await ListQueryBuilder.executeQuery(mockRepository, queryDto);
 
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: {},
@@ -550,7 +608,10 @@ describe('QueryHelper', () => {
       mockRepository.findAndCount.mockResolvedValue([[], 25]);
       const queryDto = { page: 1, limit: 10 };
 
-      const result = await QueryHelper.executeQuery(mockRepository, queryDto);
+      const result = await ListQueryBuilder.executeQuery(
+        mockRepository,
+        queryDto,
+      );
 
       expect(result.pagination).toEqual({
         page: 1,
@@ -566,7 +627,10 @@ describe('QueryHelper', () => {
       mockRepository.findAndCount.mockResolvedValue([[], 25]);
       const queryDto = { page: 2, limit: 10 };
 
-      const result = await QueryHelper.executeQuery(mockRepository, queryDto);
+      const result = await ListQueryBuilder.executeQuery(
+        mockRepository,
+        queryDto,
+      );
 
       expect(result.pagination).toEqual({
         page: 2,
@@ -582,7 +646,10 @@ describe('QueryHelper', () => {
       mockRepository.findAndCount.mockResolvedValue([[], 25]);
       const queryDto = { page: 3, limit: 10 };
 
-      const result = await QueryHelper.executeQuery(mockRepository, queryDto);
+      const result = await ListQueryBuilder.executeQuery(
+        mockRepository,
+        queryDto,
+      );
 
       expect(result.pagination).toEqual({
         page: 3,

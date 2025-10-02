@@ -9,7 +9,8 @@ import { Repository, Not } from 'typeorm';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { Player } from '@/shared/entities/player.entity';
-import { QueryHelper } from '@/shared/query';
+import { ListQueryBuilder } from '../../shared/query/list-query-builder';
+import { FilterOptions, FilterMode } from '@repo/core';
 import type {
   CreatePlayerDto,
   UpdatePlayerDto,
@@ -60,7 +61,14 @@ export class PlayersService {
     queryDto?: Partial<PlayerQueryDto>,
   ): Promise<PaginatedPlayerResponseDto> {
     try {
-      return await QueryHelper.executeQuery(this.playerRepository, queryDto);
+      const filterOptions: FilterOptions = {
+        defaultFilterMode: FilterMode.EXACT, // Use exact matching for player filters
+      };
+      return await ListQueryBuilder.executeQuery(
+        this.playerRepository,
+        queryDto,
+        filterOptions,
+      );
     } catch {
       throw new InternalServerErrorException(
         'Failed to retrieve players. Please try again.',

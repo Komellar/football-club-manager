@@ -54,7 +54,13 @@ export class PlayerStatisticsController {
     @Query(new ZodValidationPipe(PlayerStatisticsQuerySchema))
     queryDto?: PlayerStatisticsQueryDto,
   ): Promise<PaginationResult<PlayerStatisticsResponseDto>> {
-    return this.playerStatisticsService.findAll({ ...queryDto, playerId });
+    return this.playerStatisticsService.findAll({
+      ...queryDto,
+      where: {
+        ...queryDto?.where,
+        playerId,
+      },
+    });
   }
 
   @Post()

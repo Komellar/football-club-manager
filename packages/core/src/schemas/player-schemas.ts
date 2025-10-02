@@ -2,10 +2,8 @@ import { z } from "zod";
 import { PlayerPosition } from "../enums/player-position";
 import { isValidPlayerAge } from "../utils/age-utils";
 import { isValidNationality } from "../utils/nationality-utils";
-import {
-  createPaginationResultSchema,
-  BasePaginationSchema,
-} from "./shared-schemas";
+import { createPaginationResponseSchema } from "../utils/schema-utils";
+import { ListQueryParamsSchema } from "./list/pagination-schemas";
 
 export const CreatePlayerSchema = z.object({
   name: z
@@ -130,7 +128,7 @@ export const PlayerIdSchema = z.object({
     .positive("Player ID must be a positive integer"),
 });
 
-export const PlayerQuerySchema = BasePaginationSchema.extend({
+export const PlayerQuerySchema = ListQueryParamsSchema.extend({
   where: z
     .object({
       position: z
@@ -151,13 +149,12 @@ export const PlayerQuerySchema = BasePaginationSchema.extend({
     .record(z.string(), z.enum(["ASC", "DESC"]))
     .default({ name: "ASC" })
     .optional(),
-  search: z.string().optional(),
 });
 
 export type PlayerQueryDto = z.infer<typeof PlayerQuerySchema>;
 
 export const PaginatedPlayerResponseSchema =
-  createPaginationResultSchema(PlayerResponseSchema);
+  createPaginationResponseSchema(PlayerResponseSchema);
 
 export type PaginatedPlayerResponseDto = z.infer<
   typeof PaginatedPlayerResponseSchema

@@ -6,7 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PlayerStatistics } from '@/shared/entities/player-statistics.entity';
-import { QueryHelper } from '@/shared/query';
+import { ListQueryBuilder } from '../../shared/query/list-query-builder';
 import type {
   CreatePlayerStatisticsDto,
   UpdatePlayerStatisticsDto,
@@ -45,7 +45,7 @@ export class PlayerStatisticsService {
       const filterOptions: FilterOptions = {
         defaultFilterMode: FilterMode.EXACT, // Use exact matching for statistics filters
       };
-      return await QueryHelper.executeQuery(
+      return await ListQueryBuilder.executeQuery(
         this.statisticsRepository,
         queryDto,
         filterOptions,

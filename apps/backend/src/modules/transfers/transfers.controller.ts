@@ -18,11 +18,11 @@ import { ZodValidationPipe } from '../../shared/pipes/zod-validation.pipe';
 import {
   CreateTransferSchema,
   UpdateTransferSchema,
-  TransferQuerySchema,
+  TransferListSchema,
   type CreateTransferDto,
   type UpdateTransferDto,
   type TransferResponseDto,
-  type TransferQueryDto,
+  type TransferListDto,
   type PaginatedTransferResponseDto,
   type TransferHistoryDto,
 } from '@repo/core';
@@ -43,8 +43,8 @@ export class TransfersController {
 
   @Get()
   async findAll(
-    @Query(new ZodValidationPipe(TransferQuerySchema))
-    queryDto?: TransferQueryDto,
+    @Query(new ZodValidationPipe(TransferListSchema))
+    queryDto?: TransferListDto,
   ): Promise<PaginatedTransferResponseDto> {
     return this.transfersService.findAll(queryDto);
   }

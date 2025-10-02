@@ -17,30 +17,21 @@ import {
   type Comparable,
   type FilterOptions,
   type SearchOptions,
-  type PaginationParams,
-  type QueryPaginationResult as PaginationResult,
-  type QueryPaginatedResponse as PaginatedResponse,
+  type ListQueryParams,
+  type PaginationResult,
+  type PaginationMeta,
 } from '@repo/core';
 
-export class QueryHelper {
+export class ListQueryBuilder {
   private static readonly DEFAULT_PAGE = 1;
   private static readonly DEFAULT_LIMIT = 10;
-  private static readonly NON_TYPEORM_PROPERTIES = [
-    'page',
-    'limit',
-    'search',
-    'sortBy',
-    'sortOrder',
-    'order',
-    'where',
-  ] as const;
   private static readonly DEFAULT_FILTER_MODE = FilterMode.PARTIAL;
 
   static async executeQuery<T extends ObjectLiteral, Q>(
     repository: Repository<T>,
-    queryDto?: Partial<Q & PaginationParams>,
+    queryDto?: Partial<Q & ListQueryParams>,
     filterOptions?: FilterOptions,
-  ): Promise<PaginatedResponse<T>> {
+  ): Promise<PaginationResult<T>> {
     const page = queryDto?.page || this.DEFAULT_PAGE;
     const limit = queryDto?.limit || this.DEFAULT_LIMIT;
 
@@ -61,27 +52,21 @@ export class QueryHelper {
   private static buildTypeOrmQuery<T>(
     page: number,
     limit: number,
-    queryDto?: Partial<T & PaginationParams>,
+    queryDto?: Partial<T & ListQueryParams>,
     filterOptions?: FilterOptions,
   ): FindManyOptions {
     if (!queryDto) {
       return { skip: (page - 1) * limit, take: limit };
     }
 
-    const cleanQuery = { ...queryDto } as Record<string, any>;
     const searchTerm = queryDto.search;
+    const whereClause =
+      ((queryDto as Record<string, unknown>)?.where as Record<
+        string,
+        unknown
+      >) || {};
 
-    // Extract filters from nested 'where' object or use flat structure
-    let filtersToProcess: Record<string, any>;
-    if (cleanQuery.where && typeof cleanQuery.where === 'object') {
-      filtersToProcess = cleanQuery.where;
-    } else {
-      filtersToProcess = { ...cleanQuery };
-      // Remove non-TypeORM properties for flat structure
-      this.NON_TYPEORM_PROPERTIES.forEach((prop) => delete filtersToProcess[prop]);
-    }
-
-    const processedWhere = this.processFilters(filtersToProcess, filterOptions);
+    const processedWhere = this.processFilters(whereClause, filterOptions);
 
     const finalWhere = this.addSearchToWhere(
       processedWhere,
@@ -89,13 +74,10 @@ export class QueryHelper {
       filterOptions?.searchOptions,
     );
 
-    const order = this.buildOrderOptions(queryDto);
-
     return {
       where: finalWhere,
       skip: (page - 1) * limit,
       take: limit,
-      order,
     };
   }
 
@@ -261,29 +243,11 @@ export class QueryHelper {
     }));
   }
 
-  private static buildOrderOptions<T>(
-    queryDto?: Partial<T & PaginationParams>,
-  ): Record<string, 'ASC' | 'DESC'> | undefined {
-    // Handle nested order structure
-    if ((queryDto as any)?.order && typeof (queryDto as any).order === 'object') {
-      return (queryDto as any).order;
-    }
-    
-    // Handle flat structure
-    if (!queryDto?.sortBy) {
-      return undefined;
-    }
-
-    return {
-      [queryDto.sortBy]: queryDto.sortOrder || 'DESC',
-    };
-  }
-
   private static buildPagination(
     page: number,
     limit: number,
     total: number,
-  ): PaginationResult {
+  ): PaginationMeta {
     const totalPages = Math.ceil(total / limit);
     return {
       page,

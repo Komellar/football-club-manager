@@ -57,8 +57,10 @@ const mockUpdateDto: UpdatePlayerStatisticsDto = {
 const mockQueryDto: PlayerStatisticsQueryDto = {
   page: 1,
   limit: 10,
-  playerId: 1,
-  season: '2023-24',
+  where: {
+    playerId: 1,
+    season: '2023-24',
+  },
 };
 
 // Mock QueryBuilder

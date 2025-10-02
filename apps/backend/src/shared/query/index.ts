@@ -1,1 +1,1 @@
-export { QueryHelper } from './query-helper.service';
+export { ListQueryBuilder } from './list-query-builder';

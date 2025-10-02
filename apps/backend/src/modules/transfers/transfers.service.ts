@@ -13,12 +13,12 @@ import type {
   CreateTransferDto,
   UpdateTransferDto,
   TransferResponseDto,
-  TransferQueryDto,
+  TransferListDto,
   PaginatedTransferResponseDto,
   TransferHistoryDto,
   FilterOptions,
 } from '@repo/core';
-import { QueryHelper } from '@/shared/query/query-helper.service';
+import { ListQueryBuilder } from '../../shared/query/list-query-builder';
 
 @Injectable()
 export class TransfersService {
@@ -81,16 +81,16 @@ export class TransfersService {
   }
 
   async findAll(
-    queryDto?: Partial<TransferQueryDto>,
+    queryDto?: Partial<TransferListDto>,
   ): Promise<PaginatedTransferResponseDto> {
     try {
       const filterOptions: FilterOptions = {
+        defaultFilterMode: FilterMode.EXACT, // Default to exact matching
         filterModes: {
           fromClub: FilterMode.PARTIAL,
           toClub: FilterMode.PARTIAL,
           minFee: FilterMode.GTE,
           maxFee: FilterMode.LTE,
-          // Other fields like playerId, transferType etc. will use default EXACT mode
         },
         searchOptions: {
           searchFields: ['fromClub', 'toClub'],
@@ -98,7 +98,7 @@ export class TransfersService {
         },
       };
 
-      const result = await QueryHelper.executeQuery(
+      const result = await ListQueryBuilder.executeQuery(
         this.transferRepository,
         queryDto,
         filterOptions,

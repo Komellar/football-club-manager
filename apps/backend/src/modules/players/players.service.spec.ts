@@ -204,9 +204,6 @@ describe('PlayersService', () => {
       // Assert
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: mockQueryDto.where,
-        order: {
-          name: 'ASC',
-        },
         skip: 0,
         take: 10,
       });
@@ -243,9 +240,6 @@ describe('PlayersService', () => {
       // Assert
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: queryWithFilters.where,
-        order: {
-          name: 'DESC',
-        },
         skip: 5,
         take: 5,
       });

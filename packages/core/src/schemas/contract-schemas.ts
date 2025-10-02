@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { ContractStatus, ContractType } from "../enums";
-import { createPaginationResultSchema } from "./shared-schemas";
+import { createPaginationResponseSchema } from "../utils/schema-utils";
 
 export const ContractSchema = z.object({
   id: z.number().int().positive(),
@@ -89,7 +89,7 @@ export const ContractResponseSchema = ContractSchema.extend({
     .optional(),
 });
 
-export const PaginatedContractResponseSchema = createPaginationResultSchema(
+export const PaginatedContractResponseSchema = createPaginationResponseSchema(
   ContractResponseSchema
 );
 

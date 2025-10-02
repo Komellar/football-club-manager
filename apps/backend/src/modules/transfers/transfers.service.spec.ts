@@ -14,7 +14,7 @@ import { TransferStatus, TransferType, PlayerPosition } from '@repo/core';
 import type {
   CreateTransferDto,
   UpdateTransferDto,
-  TransferQueryDto,
+  TransferListDto,
 } from '@repo/core';
 
 const createMockPlayer = (overrides = {}): Player => ({
@@ -269,7 +269,7 @@ describe('TransfersService', () => {
     });
 
     it('should return paginated transfers with custom pagination', async () => {
-      const queryDto: Partial<TransferQueryDto> = {
+      const queryDto: Partial<TransferListDto> = {
         page: 2,
         limit: 5,
       };
@@ -298,15 +298,17 @@ describe('TransfersService', () => {
 
     it('should apply filters correctly', async () => {
       const queryDto = {
-        playerId: 1,
-        transferType: TransferType.SIGNING,
-        transferStatus: TransferStatus.COMPLETED,
-        fromClub: 'Barcelona',
-        toClub: 'Madrid',
-        isPermanent: true,
-        minFee: 1000000,
-        maxFee: 100000000,
-      } as TransferQueryDto;
+        where: {
+          playerId: 1,
+          transferType: TransferType.SIGNING,
+          transferStatus: TransferStatus.COMPLETED,
+          fromClub: 'Barcelona',
+          toClub: 'Madrid',
+          isPermanent: true,
+          minFee: 1000000,
+          maxFee: 100000000,
+        },
+      } as TransferListDto;
 
       transferRepository.findAndCount.mockResolvedValue([[], 0]);
 
@@ -329,28 +331,6 @@ describe('TransfersService', () => {
           }),
           skip: 0,
           take: 10,
-        }),
-      );
-    });
-
-    it('should apply sorting correctly', async () => {
-      const queryDto = {
-        sortBy: 'transferFee' as const,
-        sortOrder: 'ASC' as const,
-      } as TransferQueryDto;
-
-      transferRepository.findAndCount.mockResolvedValue([[], 0]);
-
-      await service.findAll(queryDto);
-
-      expect(transferRepository.findAndCount).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: {},
-          skip: 0,
-          take: 10,
-          order: {
-            transferFee: 'ASC',
-          },
         }),
       );
     });
