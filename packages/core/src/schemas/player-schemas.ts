@@ -4,7 +4,7 @@ import { isValidPlayerAge } from "../utils/age-utils";
 import { isValidNationality } from "../utils/nationality-utils";
 import {
   createPaginationResultSchema,
-  BaseQuerySchema,
+  BasePaginationSchema,
 } from "./shared-schemas";
 
 export const CreatePlayerSchema = z.object({
@@ -130,24 +130,28 @@ export const PlayerIdSchema = z.object({
     .positive("Player ID must be a positive integer"),
 });
 
-export const PlayerQuerySchema = BaseQuerySchema.extend({
-  position: z
-    .enum([
-      PlayerPosition.GOALKEEPER,
-      PlayerPosition.DEFENDER,
-      PlayerPosition.MIDFIELDER,
-      PlayerPosition.FORWARD,
-    ])
+export const PlayerQuerySchema = BasePaginationSchema.extend({
+  where: z
+    .object({
+      position: z
+        .enum([
+          PlayerPosition.GOALKEEPER,
+          PlayerPosition.DEFENDER,
+          PlayerPosition.MIDFIELDER,
+          PlayerPosition.FORWARD,
+        ])
+        .optional(),
+      isActive: z.coerce.boolean().optional(),
+      nationality: z.string().optional(),
+      minAge: z.coerce.number().int().min(0).optional(),
+      maxAge: z.coerce.number().int().min(0).optional(),
+    })
     .optional(),
-  isActive: z.coerce.boolean().optional(),
-  nationality: z.string().optional(),
-  minAge: z.coerce.number().int().min(0).optional(),
-  maxAge: z.coerce.number().int().min(0).optional(),
+  order: z
+    .record(z.string(), z.enum(["ASC", "DESC"]))
+    .default({ name: "ASC" })
+    .optional(),
   search: z.string().optional(),
-  sortBy: z
-    .enum(["name", "position", "age", "nationality", "marketValue"])
-    .default("name"),
-  sortOrder: z.enum(["asc", "desc"]).default("asc"),
 });
 
 export type PlayerQueryDto = z.infer<typeof PlayerQuerySchema>;

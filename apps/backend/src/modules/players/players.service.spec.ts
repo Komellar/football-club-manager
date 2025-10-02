@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository, Not } from 'typeorm';
+import { Not } from 'typeorm';
 import {
   NotFoundException,
   BadRequestException,
@@ -12,7 +12,7 @@ import * as path from 'path';
 
 import { PlayersService } from './players.service';
 import { Player } from '@/shared/entities/player.entity';
-import { PaginationHelper } from '../../shared/helpers/pagination.helper';
+
 import {
   PlayerPosition,
   CreatePlayerDto,
@@ -73,11 +73,12 @@ const mockUpdatePlayerDto: UpdatePlayerDto = {
 const mockQueryDto: PlayerQueryDto = {
   page: 1,
   limit: 10,
-  sortBy: 'name',
-  sortOrder: 'asc',
-  position: PlayerPosition.FORWARD,
-  isActive: true,
-  nationality: 'ESP',
+  order: { name: 'ASC' },
+  where: {
+    position: PlayerPosition.FORWARD,
+    isActive: true,
+    nationality: 'ESP',
+  },
   search: 'John',
 };
 
@@ -99,15 +100,9 @@ const mockRepository = {
   exists: jest.fn(),
   update: jest.fn(),
   remove: jest.fn(),
+  findAndCount: jest.fn(),
   createQueryBuilder: jest.fn(() => mockQueryBuilder),
 };
-
-// Mock PaginationHelper
-jest.mock('../../shared/helpers/pagination.helper', () => ({
-  PaginationHelper: {
-    paginate: jest.fn(),
-  },
-}));
 
 // Mock fs promises
 jest.mock('fs/promises', () => ({
@@ -117,7 +112,6 @@ jest.mock('fs/promises', () => ({
 
 describe('PlayersService', () => {
   let service: PlayersService;
-  let repository: Repository<Player>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -131,7 +125,6 @@ describe('PlayersService', () => {
     }).compile();
 
     service = module.get<PlayersService>(PlayersService);
-    repository = module.get<Repository<Player>>(getRepositoryToken(Player));
 
     // Reset all mocks
     jest.clearAllMocks();
@@ -201,79 +194,80 @@ describe('PlayersService', () => {
   });
 
   describe('findAll', () => {
-    const mockPaginationResult = {
-      data: [mockPlayer],
-      pagination: {
-        page: 1,
-        limit: 10,
-        total: 1,
-        totalPages: 1,
-        hasNext: false,
-        hasPrev: false,
-      },
-    };
-
-    beforeEach(() => {
-      (PaginationHelper.paginate as jest.Mock).mockResolvedValue(
-        mockPaginationResult,
-      );
-    });
-
     it('should return paginated players', async () => {
+      // Arrange
+      mockRepository.findAndCount.mockResolvedValue([[mockPlayer], 1]);
+
       // Act
       const result = await service.findAll(mockQueryDto);
 
       // Assert
-      expect(mockRepository.createQueryBuilder).toHaveBeenCalledWith('player');
-      expect(PaginationHelper.paginate).toHaveBeenCalledWith(mockQueryBuilder, {
-        page: mockQueryDto.page,
-        limit: mockQueryDto.limit,
+      expect(mockRepository.findAndCount).toHaveBeenCalledWith({
+        where: mockQueryDto.where,
+        order: {
+          name: 'ASC',
+        },
+        skip: 0,
+        take: 10,
       });
-      expect(result).toEqual(mockPaginationResult);
+      expect(result).toEqual({
+        data: [mockPlayer],
+        pagination: {
+          page: 1,
+          limit: 10,
+          total: 1,
+          totalPages: 1,
+          hasNext: false,
+          hasPrev: false,
+        },
+      });
     });
 
     it('should apply filters correctly', async () => {
+      // Arrange
+      mockRepository.findAndCount.mockResolvedValue([[mockPlayer], 1]);
+      const queryWithFilters = {
+        where: {
+          position: PlayerPosition.MIDFIELDER,
+          isActive: false,
+          nationality: 'GER',
+        },
+        page: 2,
+        limit: 5,
+        order: { name: 'DESC' as const },
+      };
+
       // Act
-      await service.findAll(mockQueryDto);
+      await service.findAll(queryWithFilters);
 
       // Assert
-      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
-        'player.position = :position',
-        {
-          position: mockQueryDto.position,
+      expect(mockRepository.findAndCount).toHaveBeenCalledWith({
+        where: queryWithFilters.where,
+        order: {
+          name: 'DESC',
         },
-      );
-      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
-        'player.isActive = :isActive',
-        {
-          isActive: mockQueryDto.isActive,
-        },
-      );
-      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
-        'player.nationality = :nationality',
-        {
-          nationality: mockQueryDto.nationality,
-        },
-      );
+        skip: 5,
+        take: 5,
+      });
     });
 
-    it('should handle search filter', async () => {
+    it('should handle default pagination when no query provided', async () => {
+      // Arrange
+      mockRepository.findAndCount.mockResolvedValue([[mockPlayer], 1]);
+
       // Act
-      await service.findAll(mockQueryDto);
+      await service.findAll();
 
       // Assert
-      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
-        '(player.name ILIKE :search OR CAST(player.jerseyNumber AS TEXT) = :jerseySearch)',
-        {
-          search: `%${mockQueryDto.search}%`,
-          jerseySearch: mockQueryDto.search,
-        },
-      );
+      expect(mockRepository.findAndCount).toHaveBeenCalledWith({
+        skip: 0,
+        take: 10,
+      });
     });
 
     it('should throw InternalServerErrorException on error', async () => {
       // Arrange
-      (PaginationHelper.paginate as jest.Mock).mockRejectedValue(
+      mockRepository.findAndCount.mockRejectedValue(
         new Error('Database error'),
       );
 

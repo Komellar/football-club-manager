@@ -116,6 +116,7 @@ describe('TransfersService', () => {
       save: jest.fn(),
       findOne: jest.fn(),
       find: jest.fn(),
+      findAndCount: jest.fn(),
       remove: jest.fn(),
       createQueryBuilder: jest.fn().mockReturnValue(queryBuilder),
     };
@@ -243,15 +244,14 @@ describe('TransfersService', () => {
       const transfers = [mockTransfer];
       const total = 1;
 
-      queryBuilder.getManyAndCount.mockResolvedValue([transfers, total]);
+      transferRepository.findAndCount.mockResolvedValue([transfers, total]);
 
       const result = await service.findAll();
 
-      expect(transferRepository.createQueryBuilder).toHaveBeenCalledWith(
-        'transfer',
-      );
-      expect(queryBuilder.skip).toHaveBeenCalledWith(0); // (page 1 - 1) * limit 10
-      expect(queryBuilder.take).toHaveBeenCalledWith(10);
+      expect(transferRepository.findAndCount).toHaveBeenCalledWith({
+        skip: 0, // (page 1 - 1) * limit 10
+        take: 10,
+      });
 
       expect(result).toEqual({
         data: expect.arrayContaining([
@@ -276,12 +276,15 @@ describe('TransfersService', () => {
       const transfers = [mockTransfer];
       const total = 15;
 
-      queryBuilder.getManyAndCount.mockResolvedValue([transfers, total]);
+      transferRepository.findAndCount.mockResolvedValue([transfers, total]);
 
       const result = await service.findAll(queryDto);
 
-      expect(queryBuilder.skip).toHaveBeenCalledWith(5); // (page 2 - 1) * limit 5
-      expect(queryBuilder.take).toHaveBeenCalledWith(5);
+      expect(transferRepository.findAndCount).toHaveBeenCalledWith({
+        where: {},
+        skip: 5, // (page 2 - 1) * limit 5
+        take: 5,
+      });
 
       expect(result.pagination).toEqual({
         page: 2,
@@ -303,66 +306,57 @@ describe('TransfersService', () => {
         isPermanent: true,
         minFee: 1000000,
         maxFee: 100000000,
-        // Note: dateFrom/dateTo are part of DateRangeQuerySchema but typing is complex
-        // We'll test them separately
       } as TransferQueryDto;
 
-      queryBuilder.getManyAndCount.mockResolvedValue([[], 0]);
+      transferRepository.findAndCount.mockResolvedValue([[], 0]);
 
       await service.findAll(queryDto);
 
-      expect(queryBuilder.andWhere).toHaveBeenCalledWith(
-        'transfer.playerId = :playerId',
-        { playerId: 1 },
-      );
-      expect(queryBuilder.andWhere).toHaveBeenCalledWith(
-        'transfer.transferType = :transferType',
-        { transferType: TransferType.SIGNING },
-      );
-      expect(queryBuilder.andWhere).toHaveBeenCalledWith(
-        'transfer.transferStatus = :transferStatus',
-        { transferStatus: TransferStatus.COMPLETED },
-      );
-      expect(queryBuilder.andWhere).toHaveBeenCalledWith(
-        'transfer.fromClub ILIKE :fromClub',
-        { fromClub: '%Barcelona%' },
-      );
-      expect(queryBuilder.andWhere).toHaveBeenCalledWith(
-        'transfer.toClub ILIKE :toClub',
-        { toClub: '%Madrid%' },
-      );
-      expect(queryBuilder.andWhere).toHaveBeenCalledWith(
-        'transfer.isPermanent = :isPermanent',
-        { isPermanent: true },
-      );
-      expect(queryBuilder.andWhere).toHaveBeenCalledWith(
-        'transfer.transferFee >= :minFee',
-        { minFee: 1000000 },
-      );
-      expect(queryBuilder.andWhere).toHaveBeenCalledWith(
-        'transfer.transferFee <= :maxFee',
-        { maxFee: 100000000 },
+      // QueryHelper processes filters and creates the where clause
+      expect(transferRepository.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            playerId: 1,
+            transferType: TransferType.SIGNING,
+            transferStatus: TransferStatus.COMPLETED,
+            // fromClub and toClub should be processed with ILike for partial matching
+            fromClub: expect.objectContaining({ _type: 'ilike' }),
+            toClub: expect.objectContaining({ _type: 'ilike' }),
+            isPermanent: true,
+            // minFee and maxFee now use FilterMode.GTE and FilterMode.LTE directly
+            minFee: expect.objectContaining({ _type: 'moreThanOrEqual' }),
+            maxFee: expect.objectContaining({ _type: 'lessThanOrEqual' }),
+          }),
+          skip: 0,
+          take: 10,
+        }),
       );
     });
 
     it('should apply sorting correctly', async () => {
       const queryDto = {
         sortBy: 'transferFee' as const,
-        sortOrder: 'asc' as const,
+        sortOrder: 'ASC' as const,
       } as TransferQueryDto;
 
-      queryBuilder.getManyAndCount.mockResolvedValue([[], 0]);
+      transferRepository.findAndCount.mockResolvedValue([[], 0]);
 
       await service.findAll(queryDto);
 
-      expect(queryBuilder.orderBy).toHaveBeenCalledWith(
-        'transfer.transferFee',
-        'ASC',
+      expect(transferRepository.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {},
+          skip: 0,
+          take: 10,
+          order: {
+            transferFee: 'ASC',
+          },
+        }),
       );
     });
 
     it('should throw InternalServerErrorException on database error', async () => {
-      queryBuilder.getManyAndCount.mockRejectedValue(
+      transferRepository.findAndCount.mockRejectedValue(
         new Error('Database error'),
       );
 

@@ -24,6 +24,12 @@ export const config = [
         "error",
         { varsIgnorePattern: "^_" },
       ],
+      "prettier/prettier": [
+        "error",
+        {
+          endOfLine: "auto",
+        },
+      ],
     },
   },
   {

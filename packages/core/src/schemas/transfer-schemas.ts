@@ -2,7 +2,7 @@ import { z } from "zod";
 import { TransferType, TransferStatus } from "../enums/transfer";
 import {
   createPaginationResultSchema,
-  BaseQuerySchema,
+  BasePaginationSchema,
   DateRangeQuerySchema,
 } from "./shared-schemas";
 
@@ -162,7 +162,7 @@ export type CreateTransferDto = z.infer<typeof CreateTransferSchema>;
 export type UpdateTransferDto = z.infer<typeof UpdateTransferSchema>;
 export type TransferResponseDto = z.infer<typeof TransferResponseSchema>;
 
-export const TransferQuerySchema = BaseQuerySchema.extend({
+export const TransferQuerySchema = BasePaginationSchema.extend({
   ...DateRangeQuerySchema.shape,
   // Transfer-specific fields
   playerId: z.coerce.number().int().positive().optional(),
@@ -191,6 +191,7 @@ export const TransferQuerySchema = BaseQuerySchema.extend({
   sortBy: z
     .enum(["transferDate", "transferFee", "toClub", "fromClub"])
     .default("transferDate"),
+  sortOrder: z.enum(["ASC", "DESC"]).default("DESC").optional(),
 });
 
 export type TransferQueryDto = z.infer<typeof TransferQuerySchema>;

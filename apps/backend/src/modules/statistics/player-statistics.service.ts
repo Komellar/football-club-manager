@@ -6,14 +6,15 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PlayerStatistics } from '@/shared/entities/player-statistics.entity';
+import { QueryHelper } from '@/shared/query';
 import type {
   CreatePlayerStatisticsDto,
   UpdatePlayerStatisticsDto,
   PlayerStatisticsResponseDto,
   PlayerStatisticsQueryDto,
+  FilterOptions,
 } from '@repo/core';
-import { PaginationHelper } from '@/shared/helpers/pagination.helper';
-import { PaginationResult } from '@repo/core';
+import { PaginationResult, FilterMode } from '@repo/core';
 
 @Injectable()
 export class PlayerStatisticsService {
@@ -41,32 +42,14 @@ export class PlayerStatisticsService {
     queryDto?: Partial<PlayerStatisticsQueryDto>,
   ): Promise<PaginationResult<PlayerStatisticsResponseDto>> {
     try {
-      const queryBuilder =
-        this.statisticsRepository.createQueryBuilder('stats');
-
-      if (queryDto?.playerId) {
-        queryBuilder.andWhere('stats.playerId = :playerId', {
-          playerId: queryDto.playerId,
-        });
-      }
-
-      if (queryDto?.season) {
-        queryBuilder.andWhere('stats.season = :season', {
-          season: queryDto.season,
-        });
-      }
-
-      queryBuilder.orderBy('stats.season', 'DESC');
-
-      const paginationResult = await PaginationHelper.paginate(queryBuilder, {
-        page: queryDto?.page,
-        limit: queryDto?.limit,
-      });
-
-      return {
-        data: paginationResult.data,
-        pagination: paginationResult.pagination,
+      const filterOptions: FilterOptions = {
+        defaultFilterMode: FilterMode.EXACT, // Use exact matching for statistics filters
       };
+      return await QueryHelper.executeQuery(
+        this.statisticsRepository,
+        queryDto,
+        filterOptions,
+      );
     } catch {
       throw new InternalServerErrorException(
         'Failed to retrieve player statistics',

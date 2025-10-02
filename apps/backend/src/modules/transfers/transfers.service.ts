@@ -5,10 +5,10 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, SelectQueryBuilder } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Transfer } from '@/shared/entities/transfer.entity';
 import { Player } from '@/shared/entities/player.entity';
-import { TransferStatus, TransferType } from '@repo/core';
+import { TransferStatus, TransferType, FilterMode } from '@repo/core';
 import type {
   CreateTransferDto,
   UpdateTransferDto,
@@ -16,8 +16,9 @@ import type {
   TransferQueryDto,
   PaginatedTransferResponseDto,
   TransferHistoryDto,
+  FilterOptions,
 } from '@repo/core';
-import { PaginationHelper } from '@/shared/helpers/pagination.helper';
+import { QueryHelper } from '@/shared/query/query-helper.service';
 
 @Injectable()
 export class TransfersService {
@@ -83,23 +84,29 @@ export class TransfersService {
     queryDto?: Partial<TransferQueryDto>,
   ): Promise<PaginatedTransferResponseDto> {
     try {
-      const queryBuilder =
-        this.transferRepository.createQueryBuilder('transfer');
+      const filterOptions: FilterOptions = {
+        filterModes: {
+          fromClub: FilterMode.PARTIAL,
+          toClub: FilterMode.PARTIAL,
+          minFee: FilterMode.GTE,
+          maxFee: FilterMode.LTE,
+          // Other fields like playerId, transferType etc. will use default EXACT mode
+        },
+        searchOptions: {
+          searchFields: ['fromClub', 'toClub'],
+          searchMode: FilterMode.PARTIAL,
+        },
+      };
 
-      // No need to join with player since we don't use it in response
-      this.applyFilters(queryBuilder, queryDto);
-      this.applySorting(queryBuilder, queryDto);
-
-      const paginationResult = await PaginationHelper.paginate(queryBuilder, {
-        page: queryDto?.page,
-        limit: queryDto?.limit,
-      });
+      const result = await QueryHelper.executeQuery(
+        this.transferRepository,
+        queryDto,
+        filterOptions,
+      );
 
       return {
-        data: paginationResult.data.map((transfer) =>
-          this.mapToResponseDto(transfer),
-        ),
-        pagination: paginationResult.pagination,
+        data: result.data.map((transfer) => this.mapToResponseDto(transfer)),
+        pagination: result.pagination,
       };
     } catch {
       throw new InternalServerErrorException(
@@ -238,94 +245,6 @@ export class TransfersService {
         `Failed to delete transfer with id ${id}: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
     }
-  }
-
-  private applyFilters(
-    queryBuilder: SelectQueryBuilder<Transfer>,
-    queryDto?: Partial<TransferQueryDto>,
-  ): void {
-    if (!queryDto) return;
-
-    // Player filter
-    if (queryDto.playerId) {
-      queryBuilder.andWhere('transfer.playerId = :playerId', {
-        playerId: queryDto.playerId,
-      });
-    }
-
-    // Transfer type filter
-    if (queryDto.transferType) {
-      queryBuilder.andWhere('transfer.transferType = :transferType', {
-        transferType: queryDto.transferType,
-      });
-    }
-
-    // Transfer status filter
-    if (queryDto.transferStatus) {
-      queryBuilder.andWhere('transfer.transferStatus = :transferStatus', {
-        transferStatus: queryDto.transferStatus,
-      });
-    }
-
-    // Permanent transfer filter (check for undefined to allow false values)
-    if (queryDto.isPermanent !== undefined) {
-      queryBuilder.andWhere('transfer.isPermanent = :isPermanent', {
-        isPermanent: queryDto.isPermanent,
-      });
-    }
-
-    // Club name filters (case-insensitive partial match)
-    if (queryDto.fromClub) {
-      queryBuilder.andWhere('transfer.fromClub ILIKE :fromClub', {
-        fromClub: `%${queryDto.fromClub}%`,
-      });
-    }
-
-    if (queryDto.toClub) {
-      queryBuilder.andWhere('transfer.toClub ILIKE :toClub', {
-        toClub: `%${queryDto.toClub}%`,
-      });
-    }
-
-    // Date range filters
-    if (queryDto.dateFrom) {
-      queryBuilder.andWhere('transfer.transferDate >= :dateFrom', {
-        dateFrom: queryDto.dateFrom,
-      });
-    }
-
-    if (queryDto.dateTo) {
-      queryBuilder.andWhere('transfer.transferDate <= :dateTo', {
-        dateTo: queryDto.dateTo,
-      });
-    }
-
-    // Fee range filters
-    if (queryDto.minFee !== undefined) {
-      queryBuilder.andWhere('transfer.transferFee >= :minFee', {
-        minFee: queryDto.minFee,
-      });
-    }
-
-    if (queryDto.maxFee !== undefined) {
-      queryBuilder.andWhere('transfer.transferFee <= :maxFee', {
-        maxFee: queryDto.maxFee,
-      });
-    }
-  }
-
-  private applySorting(
-    queryBuilder: SelectQueryBuilder<Transfer>,
-    queryDto?: Partial<TransferQueryDto>,
-  ): void {
-    const sortBy = queryDto?.sortBy || 'transferDate';
-    const sortOrder = (queryDto?.sortOrder || 'desc').toUpperCase() as
-      | 'ASC'
-      | 'DESC';
-
-    // Map sortBy field to database column
-    const sortField = `transfer.${sortBy}`;
-    queryBuilder.orderBy(sortField, sortOrder);
   }
 
   private mapToResponseDto(transfer: Transfer): TransferResponseDto {

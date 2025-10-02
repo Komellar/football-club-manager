@@ -5,11 +5,11 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Not, SelectQueryBuilder } from 'typeorm';
+import { Repository, Not } from 'typeorm';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { PaginationHelper } from '../../shared/helpers/pagination.helper';
 import { Player } from '@/shared/entities/player.entity';
+import { QueryHelper } from '@/shared/query';
 import type {
   CreatePlayerDto,
   UpdatePlayerDto,
@@ -60,24 +60,7 @@ export class PlayersService {
     queryDto?: Partial<PlayerQueryDto>,
   ): Promise<PaginatedPlayerResponseDto> {
     try {
-      const queryBuilder = this.playerRepository.createQueryBuilder('player');
-      this.applyFilters(queryBuilder, queryDto);
-      this.applySorting(queryBuilder, queryDto);
-
-      const paginationOptions = {
-        page: queryDto?.page,
-        limit: queryDto?.limit,
-      };
-
-      const result = await PaginationHelper.paginate(
-        queryBuilder,
-        paginationOptions,
-      );
-
-      return {
-        data: result.data,
-        pagination: result.pagination,
-      };
+      return await QueryHelper.executeQuery(this.playerRepository, queryDto);
     } catch {
       throw new InternalServerErrorException(
         'Failed to retrieve players. Please try again.',
@@ -243,62 +226,5 @@ export class PlayersService {
         'Failed to retrieve player. Please try again.',
       );
     }
-  }
-
-  private applyFilters(
-    queryBuilder: SelectQueryBuilder<Player>,
-    queryDto?: Partial<PlayerQueryDto>,
-  ): void {
-    if (queryDto?.position) {
-      queryBuilder.andWhere('player.position = :position', {
-        position: queryDto.position,
-      });
-    }
-
-    if (queryDto?.isActive !== undefined) {
-      queryBuilder.andWhere('player.isActive = :isActive', {
-        isActive: queryDto.isActive,
-      });
-    }
-
-    if (queryDto?.nationality) {
-      queryBuilder.andWhere('player.nationality = :nationality', {
-        nationality: queryDto.nationality,
-      });
-    }
-
-    if (queryDto?.search) {
-      queryBuilder.andWhere(
-        '(player.name ILIKE :search OR CAST(player.jerseyNumber AS TEXT) = :jerseySearch)',
-        {
-          search: `%${queryDto.search}%`,
-          jerseySearch: queryDto.search,
-        },
-      );
-    }
-
-    if (queryDto?.maxAge) {
-      queryBuilder.andWhere(
-        "DATE_TRUNC('day', player.dateOfBirth) >= DATE_TRUNC('day', CURRENT_DATE - INTERVAL ':maxAge years')",
-        { maxAge: queryDto.maxAge },
-      );
-    }
-
-    if (queryDto?.minAge) {
-      queryBuilder.andWhere(
-        "DATE_TRUNC('day', player.dateOfBirth) <= DATE_TRUNC('day', CURRENT_DATE - INTERVAL ':minAge years')",
-        { minAge: queryDto.minAge },
-      );
-    }
-  }
-
-  private applySorting(
-    queryBuilder: SelectQueryBuilder<Player>,
-    queryDto?: Partial<PlayerQueryDto>,
-  ): void {
-    const sortBy = queryDto?.sortBy || 'name';
-    const sortOrder = queryDto?.sortOrder || 'asc';
-    const orderDirection = sortOrder.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
-    queryBuilder.orderBy(`player.${sortBy}`, orderDirection);
   }
 }

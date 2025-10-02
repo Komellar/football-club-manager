@@ -25,13 +25,12 @@ export type PaginationResult<T> = {
   pagination: PaginationMeta;
 };
 
-export const BaseQuerySchema = z.object({
-  page: z.coerce.number().int().min(1).default(1),
-  limit: z.coerce.number().int().min(1).max(100).default(10),
-  sortOrder: z.enum(["asc", "desc"]).default("desc"),
+export const BasePaginationSchema = z.object({
+  page: z.coerce.number().int().min(1).default(1).optional(),
+  limit: z.coerce.number().int().min(1).max(100).default(10).optional(),
 });
 
-export type BaseQuery = z.infer<typeof BaseQuerySchema>;
+export type BasePagination = z.infer<typeof BasePaginationSchema>;
 
 export const IdParamSchema = z.object({
   id: z.coerce.number().int().positive("ID must be a positive integer"),

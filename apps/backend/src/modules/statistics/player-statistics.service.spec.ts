@@ -73,6 +73,7 @@ const mockRepository = {
   save: jest.fn(),
   findOne: jest.fn(),
   findOneOrFail: jest.fn(),
+  findAndCount: jest.fn(),
   exists: jest.fn(),
   update: jest.fn(),
   remove: jest.fn(),
@@ -162,40 +163,46 @@ describe('PlayerStatisticsService', () => {
     });
 
     it('should return paginated statistics', async () => {
+      // Arrange
+      mockRepository.findAndCount.mockResolvedValue([[mockStatistics], 1]);
+
       // Act
       const result = await service.findAll(mockQueryDto);
 
       // Assert
-      expect(mockRepository.createQueryBuilder).toHaveBeenCalledWith('stats');
-      expect(PaginationHelper.paginate).toHaveBeenCalledWith(mockQueryBuilder, {
-        page: mockQueryDto.page,
-        limit: mockQueryDto.limit,
+      expect(mockRepository.findAndCount).toHaveBeenCalledWith({
+        where: {
+          playerId: 1,
+          season: '2023-24',
+        },
+        skip: 0,
+        take: 10,
       });
-      expect(result).toEqual(mockPaginationResult);
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0]).toEqual(mockStatistics);
     });
 
     it('should apply filters correctly', async () => {
+      // Arrange
+      mockRepository.findAndCount.mockResolvedValue([[mockStatistics], 1]);
+
       // Act
       await service.findAll(mockQueryDto);
 
       // Assert
-      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
-        'stats.playerId = :playerId',
-        {
-          playerId: mockQueryDto.playerId,
+      expect(mockRepository.findAndCount).toHaveBeenCalledWith({
+        where: {
+          playerId: 1,
+          season: '2023-24',
         },
-      );
-      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
-        'stats.season = :season',
-        {
-          season: mockQueryDto.season,
-        },
-      );
+        skip: 0,
+        take: 10,
+      });
     });
 
     it('should throw InternalServerErrorException on error', async () => {
       // Arrange
-      (PaginationHelper.paginate as jest.Mock).mockRejectedValue(
+      mockRepository.findAndCount.mockRejectedValue(
         new Error('Database error'),
       );
 
