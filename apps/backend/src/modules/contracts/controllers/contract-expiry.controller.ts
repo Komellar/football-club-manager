@@ -4,9 +4,9 @@ import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe';
 import { CONTRACT_CONSTANTS } from '../constants/contract.constants';
 import { ContractExpiryService } from '../services';
 import {
-  ExpiryQueryDto,
+  ExpiryQuery,
   ExpiryQuerySchema,
-  ReportQueryDto,
+  ReportQuery,
   ReportQuerySchema,
 } from '@repo/core';
 
@@ -17,7 +17,7 @@ export class ContractExpiryController {
 
   @Get('expiring')
   async findExpiringContracts(
-    @Query(new ZodValidationPipe(ExpiryQuerySchema)) query: ExpiryQueryDto,
+    @Query(new ZodValidationPipe(ExpiryQuerySchema)) query: ExpiryQuery,
   ) {
     const days = query.days ?? CONTRACT_CONSTANTS.EXPIRY.DEFAULT_DAYS;
     return await this.contractExpiryService.findExpiringContracts(days);
@@ -25,7 +25,7 @@ export class ContractExpiryController {
 
   @Get('recently-expired')
   async getRecentlyExpiredContracts(
-    @Query(new ZodValidationPipe(ReportQuerySchema)) query: ReportQueryDto,
+    @Query(new ZodValidationPipe(ReportQuerySchema)) query: ReportQuery,
   ) {
     const days = query.days ?? CONTRACT_CONSTANTS.EXPIRY.DEFAULT_DAYS;
     return await this.contractExpiryService.getRecentlyExpiredContracts(days);

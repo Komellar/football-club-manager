@@ -10,6 +10,7 @@ import {
   HttpStatus,
   HttpCode,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { AuthGuard } from '@/core/auth/auth.guard';
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe';
@@ -17,8 +18,11 @@ import { ContractsService } from '../services/contracts.service';
 import {
   CreateContractSchema,
   UpdateContractSchema,
+  ContractListSchema,
   type CreateContractDto,
   type UpdateContractDto,
+  type ContractListDto,
+  type PaginatedContractListResponseDto,
 } from '@repo/core';
 import { Contract } from '@/shared/entities';
 
@@ -37,8 +41,11 @@ export class ContractsController {
   }
 
   @Get()
-  async findAll(): Promise<Contract[]> {
-    return await this.contractsService.findAll();
+  async findAll(
+    @Query(new ZodValidationPipe(ContractListSchema))
+    query: ContractListDto,
+  ): Promise<PaginatedContractListResponseDto> {
+    return await this.contractsService.findAll(query);
   }
 
   @Get(':id')

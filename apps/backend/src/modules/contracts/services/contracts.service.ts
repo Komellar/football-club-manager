@@ -6,7 +6,16 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Contract } from '@/shared/entities/contract.entity';
-import { CreateContractDto, UpdateContractDto } from '@repo/core';
+import {
+  CreateContractDto,
+  UpdateContractDto,
+  ContractListDto,
+  PaginatedContractListResponseDto,
+  ContractResponseDto,
+  FilterMode,
+  type FilterOptions,
+} from '@repo/core';
+import { ListQueryBuilder } from '../../../shared/query/list-query-builder';
 
 @Injectable()
 export class ContractsService {
@@ -26,12 +35,32 @@ export class ContractsService {
     }
   }
 
-  async findAll(): Promise<Contract[]> {
+  async findAll(
+    queryDto?: Partial<ContractListDto>,
+  ): Promise<PaginatedContractListResponseDto> {
     try {
-      return await this.contractRepository.find({
-        relations: ['player'],
-        order: { startDate: 'DESC' },
-      });
+      const filterOptions: FilterOptions = {
+        defaultFilterMode: FilterMode.EXACT,
+        filterModes: {
+          minSalary: FilterMode.GTE,
+          maxSalary: FilterMode.LTE,
+        },
+        searchOptions: {
+          searchFields: ['notes'],
+          searchMode: FilterMode.PARTIAL,
+        },
+      };
+
+      const result = await ListQueryBuilder.executeQuery(
+        this.contractRepository,
+        queryDto,
+        filterOptions,
+      );
+
+      return {
+        data: result.data.map((contract) => this.mapToResponseDto(contract)),
+        pagination: result.pagination,
+      };
     } catch (error) {
       throw new InternalServerErrorException(
         `Failed to fetch contracts: ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -103,5 +132,33 @@ export class ContractsService {
         `Failed to delete contract with id ${id}: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
     }
+  }
+
+  private mapToResponseDto(contract: Contract): ContractResponseDto {
+    return {
+      id: contract.id,
+      playerId: contract.playerId,
+      contractType: contract.contractType,
+      status: contract.status,
+      startDate: contract.startDate,
+      endDate: contract.endDate,
+      salary: contract.salary,
+      currency: contract.currency,
+      bonuses: contract.bonuses,
+      signOnFee: contract.signOnFee,
+      releaseClause: contract.releaseClause,
+      agentFee: contract.agentFee,
+      notes: contract.notes,
+      createdAt: contract.createdAt,
+      updatedAt: contract.updatedAt,
+      player: contract.player
+        ? {
+            id: contract.player.id,
+            name: contract.player.name,
+            position: contract.player.position,
+            jerseyNumber: contract.player.jerseyNumber,
+          }
+        : undefined,
+    };
   }
 }
