@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { RoleType } from "../enums/role-type";
 
-// Enhanced validation schemas for Zod v4
 export const CreateUserSchema = z.object({
   name: z
     .string()
@@ -10,7 +9,7 @@ export const CreateUserSchema = z.object({
     .max(100, "Name must be less than 100 characters")
     .regex(
       /^[a-zA-Z\s\-'\.]+$/,
-      "Name can only contain letters, spaces, hyphens, apostrophes, and periods",
+      "Name can only contain letters, spaces, hyphens, apostrophes, and periods"
     ),
 
   email: z
@@ -23,7 +22,7 @@ export const CreateUserSchema = z.object({
     .max(255, "Password must be less than 255 characters")
     .regex(
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-      "Password must contain at least one lowercase letter, one uppercase letter, and one number",
+      "Password must contain at least one lowercase letter, one uppercase letter, and one number"
     ),
 
   roleName: z.enum([RoleType.ADMIN, RoleType.USER]).optional(),

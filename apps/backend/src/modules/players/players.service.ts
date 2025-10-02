@@ -9,14 +9,14 @@ import { Repository, Not } from 'typeorm';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { Player } from '@/shared/entities/player.entity';
-import { ListQueryBuilder } from '../../shared/query/list-query-builder';
+import { ListQueryBuilder } from '../../shared/listQueryBuilder/list-query-builder';
 import { FilterOptions, FilterMode } from '@repo/core';
 import type {
   CreatePlayerDto,
   UpdatePlayerDto,
   PlayerResponseDto,
-  PlayerQueryDto,
-  PaginatedPlayerResponseDto,
+  PlayerListDto,
+  PaginatedPlayerListResponseDto,
 } from '@repo/core';
 
 @Injectable()
@@ -58,8 +58,8 @@ export class PlayersService {
   }
 
   async findAll(
-    queryDto?: Partial<PlayerQueryDto>,
-  ): Promise<PaginatedPlayerResponseDto> {
+    queryDto?: Partial<PlayerListDto>,
+  ): Promise<PaginatedPlayerListResponseDto> {
     try {
       const filterOptions: FilterOptions = {
         defaultFilterMode: FilterMode.EXACT, // Use exact matching for player filters

@@ -1,3 +1,3 @@
 export * from './contracts.service';
-export * from './contract-expiry.service';
-export * from './contract-financial.service';
+export * from './contractExpiry.service';
+export * from './contractFinancial.service';

@@ -6,7 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PlayerStatistics } from '@/shared/entities/player-statistics.entity';
-import { ListQueryBuilder } from '../../shared/query/list-query-builder';
+import { ListQueryBuilder } from '../../shared/listQueryBuilder/list-query-builder';
 import type {
   CreatePlayerStatisticsDto,
   UpdatePlayerStatisticsDto,

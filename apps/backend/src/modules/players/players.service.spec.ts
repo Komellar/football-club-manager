@@ -17,7 +17,7 @@ import {
   PlayerPosition,
   CreatePlayerDto,
   UpdatePlayerDto,
-  PlayerQueryDto,
+  PlayerListDto,
 } from '@repo/core';
 
 // Mock data
@@ -70,10 +70,11 @@ const mockUpdatePlayerDto: UpdatePlayerDto = {
   weight: 80,
 };
 
-const mockQueryDto: PlayerQueryDto = {
+const mockQueryDto: PlayerListDto = {
   page: 1,
   limit: 10,
-  order: { name: 'ASC' },
+  sortBy: 'name',
+  sortOrder: 'ASC',
   where: {
     position: PlayerPosition.FORWARD,
     isActive: true,

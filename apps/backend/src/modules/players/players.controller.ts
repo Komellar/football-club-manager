@@ -22,12 +22,12 @@ import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe';
 import {
   CreatePlayerSchema,
   UpdatePlayerSchema,
-  PlayerQuerySchema,
+  PlayerListSchema,
   type CreatePlayerDto,
   type UpdatePlayerDto,
   type PlayerResponseDto,
-  type PlayerQueryDto,
-  type PaginatedPlayerResponseDto,
+  type PlayerListDto,
+  type PaginatedPlayerListResponseDto,
 } from '@repo/core';
 
 @Controller('players')
@@ -46,9 +46,9 @@ export class PlayersController {
 
   @Get()
   async findAll(
-    @Query(new ZodValidationPipe(PlayerQuerySchema))
-    queryDto?: PlayerQueryDto,
-  ): Promise<PaginatedPlayerResponseDto> {
+    @Query(new ZodValidationPipe(PlayerListSchema))
+    queryDto?: PlayerListDto,
+  ): Promise<PaginatedPlayerListResponseDto> {
     return this.playersService.findAll(queryDto);
   }
 
