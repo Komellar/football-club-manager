@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Transfer } from '@/shared/entities/transfer.entity';
@@ -32,226 +27,180 @@ export class TransfersService {
   async create(
     createTransferDto: CreateTransferDto,
   ): Promise<TransferResponseDto> {
-    try {
-      const playerExists = await this.playerRepository.exists({
-        where: { id: createTransferDto.playerId },
+    // This will throw EntityNotFoundError if player doesn't exist
+    await this.playerRepository.findOneOrFail({
+      where: { id: createTransferDto.playerId },
+    });
+
+    // Check for conflicting active transfers
+    if (createTransferDto.transferStatus === TransferStatus.COMPLETED) {
+      const activeTransfer = await this.transferRepository.findOne({
+        where: {
+          playerId: createTransferDto.playerId,
+          transferStatus: TransferStatus.COMPLETED,
+        },
+        order: { transferDate: 'DESC' },
       });
 
-      if (!playerExists) {
-        throw new NotFoundException(
-          `Player with ID ${createTransferDto.playerId} not found`,
+      if (
+        activeTransfer &&
+        createTransferDto.transferType !== TransferType.LOAN_RETURN
+      ) {
+        throw new BadRequestException(
+          'Player already has an active transfer. Complete or cancel the existing transfer first.',
         );
       }
-
-      // Check for conflicting active transfers
-      if (createTransferDto.transferStatus === TransferStatus.COMPLETED) {
-        const activeTransfer = await this.transferRepository.findOne({
-          where: {
-            playerId: createTransferDto.playerId,
-            transferStatus: TransferStatus.COMPLETED,
-          },
-          order: { transferDate: 'DESC' },
-        });
-
-        if (
-          activeTransfer &&
-          createTransferDto.transferType !== TransferType.LOAN_RETURN
-        ) {
-          throw new BadRequestException(
-            'Player already has an active transfer. Complete or cancel the existing transfer first.',
-          );
-        }
-      }
-
-      const transfer = this.transferRepository.create(createTransferDto);
-      const savedTransfer = await this.transferRepository.save(transfer);
-
-      return this.mapToResponseDto(savedTransfer);
-    } catch (error) {
-      if (
-        error instanceof NotFoundException ||
-        error instanceof BadRequestException
-      ) {
-        throw error;
-      }
-      throw new InternalServerErrorException(
-        'Failed to create transfer. Please try again.',
-      );
     }
+
+    const transfer = this.transferRepository.create(createTransferDto);
+    const savedTransfer = await this.transferRepository.save(transfer);
+
+    return this.mapToResponseDto(savedTransfer);
   }
 
   async findAll(
     queryDto?: Partial<TransferListDto>,
   ): Promise<PaginatedTransferResponseDto> {
-    try {
-      const filterOptions: FilterOptions = {
-        defaultFilterMode: FilterMode.EXACT, // Default to exact matching
-        filterModes: {
-          fromClub: FilterMode.PARTIAL,
-          toClub: FilterMode.PARTIAL,
-          minFee: FilterMode.GTE,
-          maxFee: FilterMode.LTE,
-        },
-        searchOptions: {
-          searchFields: ['fromClub', 'toClub'],
-          searchMode: FilterMode.PARTIAL,
-        },
-      };
+    const filterOptions: FilterOptions = {
+      defaultFilterMode: FilterMode.EXACT, // Default to exact matching
+      filterModes: {
+        fromClub: FilterMode.PARTIAL,
+        toClub: FilterMode.PARTIAL,
+        minFee: FilterMode.GTE,
+        maxFee: FilterMode.LTE,
+      },
+      searchOptions: {
+        searchFields: ['fromClub', 'toClub'],
+        searchMode: FilterMode.PARTIAL,
+      },
+    };
 
-      const result = await ListQueryBuilder.executeQuery(
-        this.transferRepository,
-        queryDto,
-        filterOptions,
-      );
+    const result = await ListQueryBuilder.executeQuery(
+      this.transferRepository,
+      queryDto,
+      filterOptions,
+    );
 
-      return {
-        data: result.data.map((transfer) => this.mapToResponseDto(transfer)),
-        pagination: result.pagination,
-      };
-    } catch {
-      throw new InternalServerErrorException(
-        'Failed to retrieve transfers. Please try again.',
-      );
-    }
+    return {
+      data: result.data.map((transfer) => this.mapToResponseDto(transfer)),
+      pagination: result.pagination,
+    };
   }
 
   async findOne(id: number): Promise<TransferResponseDto> {
-    try {
-      const transfer = await this.transferRepository.findOne({
-        where: { id },
-      });
+    const transfer = await this.transferRepository.findOneOrFail({
+      where: { id },
+    });
 
-      if (!transfer) {
-        throw new NotFoundException(`Transfer with ID ${id} not found`);
-      }
-
-      return this.mapToResponseDto(transfer);
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      throw new InternalServerErrorException(
-        'Failed to retrieve transfer. Please try again.',
-      );
-    }
+    return this.mapToResponseDto(transfer);
   }
 
   async findByPlayer(playerId: number): Promise<TransferHistoryDto> {
-    try {
-      const player = await this.playerRepository.findOne({
-        where: { id: playerId },
-      });
+    const player = await this.playerRepository.findOneOrFail({
+      where: { id: playerId },
+    });
 
-      if (!player) {
-        throw new NotFoundException(`Player with ID ${playerId} not found`);
-      }
+    const transfers = await this.transferRepository.find({
+      where: { playerId },
+      order: { transferDate: 'DESC' },
+    });
 
-      const transfers = await this.transferRepository.find({
-        where: { playerId },
-        order: { transferDate: 'DESC' },
-      });
+    const currentTransfer = transfers.find(
+      (t) =>
+        t.transferStatus === TransferStatus.COMPLETED &&
+        (t.transferType !== TransferType.LOAN || t.isActiveLoan),
+    );
 
-      const currentTransfer = transfers.find(
-        (t) =>
-          t.transferStatus === TransferStatus.COMPLETED &&
-          (t.transferType !== TransferType.LOAN || t.isActiveLoan),
-      );
+    const careerTransfersValue = transfers
+      .filter((t) => t.transferFee)
+      .reduce((sum, t) => sum + (t.transferFee || 0), 0);
 
-      const careerTransfersValue = transfers
-        .filter((t) => t.transferFee)
-        .reduce((sum, t) => sum + (t.transferFee || 0), 0);
-
-      return {
-        playerId,
-        playerName: player.name,
-        transfers: transfers.map((transfer) => this.mapToResponseDto(transfer)),
-        totalTransfers: transfers.length,
-        currentClub: currentTransfer?.toClub,
-        careerTransfersValue,
-      };
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      throw new InternalServerErrorException(
-        'Failed to retrieve player transfer history. Please try again.',
-      );
-    }
+    return {
+      playerId,
+      playerName: player.name,
+      transfers: transfers.map((transfer) => this.mapToResponseDto(transfer)),
+      totalTransfers: transfers.length,
+      currentClub: currentTransfer?.toClub,
+      careerTransfersValue,
+    };
   }
 
   async update(
     id: number,
     updateTransferDto: UpdateTransferDto,
   ): Promise<TransferResponseDto> {
-    try {
-      const transfer = await this.transferRepository.findOne({
-        where: { id },
-      });
+    const transfer = await this.transferRepository.findOneOrFail({
+      where: { id },
+    });
 
-      if (!transfer) {
-        throw new NotFoundException(`Transfer with ID ${id} not found`);
-      }
-
-      if (
-        transfer.transferStatus === TransferStatus.COMPLETED &&
-        updateTransferDto.transferStatus !== TransferStatus.COMPLETED
-      ) {
-        throw new BadRequestException(
-          'Cannot change status of completed transfer',
-        );
-      }
-
-      Object.assign(transfer, updateTransferDto);
-      const updatedTransfer = await this.transferRepository.save(transfer);
-
-      return this.mapToResponseDto(updatedTransfer);
-    } catch (error) {
-      if (
-        error instanceof NotFoundException ||
-        error instanceof BadRequestException
-      ) {
-        throw error;
-      }
-      throw new InternalServerErrorException(
-        'Failed to update transfer. Please try again.',
+    if (
+      transfer.transferStatus === TransferStatus.COMPLETED &&
+      updateTransferDto.transferStatus !== TransferStatus.COMPLETED
+    ) {
+      throw new BadRequestException(
+        'Cannot change status of completed transfer',
       );
     }
+
+    Object.assign(transfer, updateTransferDto);
+    const updatedTransfer = await this.transferRepository.save(transfer);
+
+    return this.mapToResponseDto(updatedTransfer);
   }
 
   async remove(id: number): Promise<void> {
-    try {
-      const transfer = await this.transferRepository.findOne({
-        where: { id },
-        relations: ['player'],
-      });
+    const transfer = await this.transferRepository.findOneOrFail({
+      where: { id },
+      relations: ['player'],
+    });
 
-      if (!transfer) {
-        throw new NotFoundException(`Transfer with ID ${id} not found`);
-      }
-
-      if (transfer.transferStatus === TransferStatus.COMPLETED) {
-        throw new BadRequestException('Cannot delete completed transfers');
-      }
-
-      await this.transferRepository.remove(transfer);
-    } catch (error) {
-      if (
-        error instanceof NotFoundException ||
-        error instanceof BadRequestException
-      ) {
-        throw error;
-      }
-      throw new InternalServerErrorException(
-        `Failed to delete transfer with id ${id}: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      );
+    if (transfer.transferStatus === TransferStatus.COMPLETED) {
+      throw new BadRequestException('Cannot delete completed transfers');
     }
+
+    await this.transferRepository.remove(transfer);
   }
 
   private mapToResponseDto(transfer: Transfer): TransferResponseDto {
-    // Destructure to exclude the 'player' relation and include computed properties
-    const { player: _player, ...transferDto } = transfer;
+    // Create response DTO excluding the 'player' relation and including computed properties
+    const {
+      id,
+      playerId,
+      fromClub,
+      toClub,
+      transferType,
+      transferStatus,
+      transferDate,
+      transferFee,
+      agentFee,
+      annualSalary,
+      contractLengthMonths,
+      loanEndDate,
+      notes,
+      isPermanent,
+      createdBy,
+      createdAt,
+      updatedAt,
+    } = transfer;
+
     return {
-      ...transferDto,
+      id,
+      playerId,
+      fromClub,
+      toClub,
+      transferType,
+      transferStatus,
+      transferDate,
+      transferFee,
+      agentFee,
+      annualSalary,
+      contractLengthMonths,
+      loanEndDate,
+      notes,
+      isPermanent,
+      createdBy,
+      createdAt,
+      updatedAt,
       isCompleted: transfer.isCompleted,
       isActiveLoan: transfer.isActiveLoan,
       transferDurationDays: transfer.transferDurationDays ?? undefined,

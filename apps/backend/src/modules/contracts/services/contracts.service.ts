@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Contract } from '@/shared/entities/contract.entity';
@@ -25,113 +21,70 @@ export class ContractsService {
   ) {}
 
   async create(createContractDto: CreateContractDto): Promise<Contract> {
-    try {
-      const contract = this.contractRepository.create(createContractDto);
-      return await this.contractRepository.save(contract);
-    } catch (error) {
-      throw new InternalServerErrorException(
-        `Failed to create contract: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      );
-    }
+    const contract = this.contractRepository.create(createContractDto);
+    return await this.contractRepository.save(contract);
   }
 
   async findAll(
     queryDto?: Partial<ContractListDto>,
   ): Promise<PaginatedContractListResponseDto> {
-    try {
-      const filterOptions: FilterOptions = {
-        defaultFilterMode: FilterMode.EXACT,
-        filterModes: {
-          minSalary: FilterMode.GTE,
-          maxSalary: FilterMode.LTE,
-        },
-        searchOptions: {
-          searchFields: ['notes'],
-          searchMode: FilterMode.PARTIAL,
-        },
-      };
+    const filterOptions: FilterOptions = {
+      defaultFilterMode: FilterMode.EXACT,
+      filterModes: {
+        minSalary: FilterMode.GTE,
+        maxSalary: FilterMode.LTE,
+      },
+      searchOptions: {
+        searchFields: ['notes'],
+        searchMode: FilterMode.PARTIAL,
+      },
+    };
 
-      const result = await ListQueryBuilder.executeQuery(
-        this.contractRepository,
-        queryDto,
-        filterOptions,
-      );
+    const result = await ListQueryBuilder.executeQuery(
+      this.contractRepository,
+      queryDto,
+      filterOptions,
+    );
 
-      return {
-        data: result.data.map((contract) => this.mapToResponseDto(contract)),
-        pagination: result.pagination,
-      };
-    } catch (error) {
-      throw new InternalServerErrorException(
-        `Failed to fetch contracts: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      );
-    }
+    return {
+      data: result.data.map((contract) => this.mapToResponseDto(contract)),
+      pagination: result.pagination,
+    };
   }
 
   async findOne(id: number): Promise<Contract> {
-    try {
-      const contract = await this.contractRepository.findOneOrFail({
-        where: { id },
-        relations: ['player'],
-      });
-
-      return contract;
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      throw new InternalServerErrorException(
-        `Failed to fetch contract with id ${id}: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      );
-    }
+    return await this.contractRepository.findOneOrFail({
+      where: { id },
+      relations: ['player'],
+    });
   }
 
   async update(
     id: number,
     updateContractDto: UpdateContractDto,
   ): Promise<Contract> {
-    try {
-      const existingContract = await this.findOne(id);
+    const existingContract = await this.findOne(id);
 
-      if (updateContractDto.playerId !== existingContract.playerId) {
-        throw new NotFoundException(
-          'Cannot change the player associated with the contract',
-        );
-      }
-
-      await this.contractRepository.save(updateContractDto);
-      const updatedContract = await this.contractRepository.findOneOrFail({
-        where: { id },
-        relations: ['player'],
-      });
-
-      return updatedContract;
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      throw new InternalServerErrorException(
-        `Failed to update contract with id ${id}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+    if (updateContractDto.playerId !== existingContract.playerId) {
+      throw new NotFoundException(
+        'Cannot change the player associated with the contract',
       );
     }
+
+    await this.contractRepository.save(updateContractDto);
+    return await this.contractRepository.findOneOrFail({
+      where: { id },
+      relations: ['player'],
+    });
   }
 
   async remove(id: number): Promise<void> {
-    try {
-      const contract = await this.contractRepository.findOneOrFail({
-        where: { id },
-        relations: ['player'],
-      });
+    const contract = await this.contractRepository.findOneOrFail({
+      where: { id },
+      relations: ['player'],
+    });
 
-      await this.contractRepository.remove(contract);
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      throw new InternalServerErrorException(
-        `Failed to delete contract with id ${id}: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      );
-    }
+    await this.contractRepository.remove(contract);
   }
 
   private mapToResponseDto(contract: Contract): ContractResponseDto {

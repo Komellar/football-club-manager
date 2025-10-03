@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import {
@@ -20,93 +16,71 @@ export class ContractFinancialService {
     private readonly contractRepository: Repository<Contract>,
   ) {}
 
-  async calculateContractValue(
-    contractId: number,
-  ): Promise<ContractValueCalculation> {
-    try {
-      const contract = await this.findOne(contractId);
-      const { totalMonths, remainingMonths } =
-        this.calculateRemainingMonths(contract);
+  async calculateContractValue(id: number): Promise<ContractValueCalculation> {
+    const contract = await this.findOne(id);
+    return this.calculateContractValueFromData(
+      contract.salary,
+      this.calculateDurationMonths(contract.startDate, contract.endDate),
+      contract.bonuses,
+      contract.signOnFee,
+      contract.agentFee,
+    );
+  }
 
-      const components = {
-        salaryValue: contract.salary * totalMonths,
-        bonusesValue: contract.bonuses || 0,
-        signOnFeeValue: contract.signOnFee || 0,
-        agentFeeValue: contract.agentFee || 0,
-      };
+  calculateContractValueFromData(
+    annualSalary: number,
+    durationMonths: number,
+    bonuses?: number,
+    signOnFee?: number,
+    agentFee?: number,
+  ): ContractValueCalculation {
+    const salaryValue = (annualSalary * durationMonths) / 12;
+    const bonusesValue = bonuses || 0;
+    const signOnFeeValue = signOnFee || 0;
+    const agentFeeValue = agentFee || 0;
+    const totalValue =
+      salaryValue + bonusesValue + signOnFeeValue + agentFeeValue;
 
-      const totalValue = Object.values(components).reduce(
-        (sum, value) => sum + value,
-        0,
-      );
+    return {
+      totalValue,
+      salaryValue,
+      bonusesValue,
+      signOnFeeValue,
+      agentFeeValue,
+      remainingValue: totalValue,
+      remainingMonths: durationMonths,
+    };
+  }
 
-      const remainingValue = this.calculateRemainingValue(
-        contract,
-        remainingMonths,
-        totalMonths,
-      );
-
-      return {
-        totalValue,
-        ...components,
-        remainingValue,
-        remainingMonths,
-      };
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-
-      throw new InternalServerErrorException(
-        `Failed to calculate contract value for ID ${contractId}`,
-      );
-    }
+  private calculateDurationMonths(startDate: Date, endDate: Date): number {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const monthsDiff =
+      (end.getFullYear() - start.getFullYear()) * 12 +
+      (end.getMonth() - start.getMonth());
+    return monthsDiff;
   }
 
   async getFinancialSummary(): Promise<ContractFinancialSummary> {
-    try {
-      const [activeContracts, upcomingExpiries] = await Promise.all([
-        this.getActiveContracts(),
-        this.findExpiringContracts(90),
-      ]);
+    const [activeContracts, upcomingExpiries] = await Promise.all([
+      this.getActiveContracts(),
+      this.findExpiringContracts(90),
+    ]);
 
-      const contractMetrics = this.calculateContractMetrics(activeContracts);
-      const upcomingExpiryMetrics =
-        this.calculateExpiryMetrics(upcomingExpiries);
+    const contractMetrics = this.calculateContractMetrics(activeContracts);
+    const upcomingExpiryMetrics = this.calculateExpiryMetrics(upcomingExpiries);
 
-      return {
-        ...contractMetrics,
-        upcomingExpiries: upcomingExpiryMetrics,
-      };
-    } catch {
-      throw new InternalServerErrorException(
-        'Failed to generate financial summary',
-      );
-    }
+    return {
+      ...contractMetrics,
+      upcomingExpiries: upcomingExpiryMetrics,
+    };
   }
 
   private async findOne(id: number): Promise<Contract> {
-    try {
-      const contract = await this.contractRepository
-        .createQueryBuilder('contract')
-        .leftJoinAndSelect('contract.player', 'player')
-        .where('contract.id = :id', { id })
-        .getOne();
-
-      if (!contract) {
-        throw new NotFoundException(`Contract with ID ${id} not found`);
-      }
-
-      return contract;
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-
-      throw new InternalServerErrorException(
-        `Failed to fetch contract with ID ${id}`,
-      );
-    }
+    return await this.contractRepository.findOneOrFail({
+      where: { id },
+      relations: ['player'],
+    });
   }
 
   private async getActiveContracts(): Promise<Contract[]> {

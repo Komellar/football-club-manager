@@ -1,11 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Not } from 'typeorm';
-import {
-  NotFoundException,
-  BadRequestException,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { EntityNotFoundError, Not } from 'typeorm';
+import { BadRequestException } from '@nestjs/common';
 
 import * as fs from 'fs/promises';
 import * as path from 'path';
@@ -98,11 +94,18 @@ const mockRepository = {
   save: jest.fn(),
   findOne: jest.fn(),
   findOneOrFail: jest.fn(),
-  exists: jest.fn(),
+  findAndCount: jest.fn(),
   update: jest.fn(),
   remove: jest.fn(),
-  findAndCount: jest.fn(),
-  createQueryBuilder: jest.fn(() => mockQueryBuilder),
+  exists: jest.fn(),
+  createQueryBuilder: jest.fn().mockReturnValue({
+    leftJoinAndSelect: jest.fn().mockReturnThis(),
+    andWhere: jest.fn().mockReturnThis(),
+    orderBy: jest.fn().mockReturnThis(),
+    skip: jest.fn().mockReturnThis(),
+    take: jest.fn().mockReturnThis(),
+    getManyAndCount: jest.fn(),
+  }),
 };
 
 // Mock fs promises
@@ -183,14 +186,12 @@ describe('PlayersService', () => {
       expect(result).toEqual(mockPlayer);
     });
 
-    it('should throw InternalServerErrorException on database error', async () => {
+    it('should throw Error on database error', async () => {
       // Arrange
       mockRepository.findOne.mockRejectedValue(new Error('Database error'));
 
       // Act & Assert
-      await expect(service.create(mockCreatePlayerDto)).rejects.toThrow(
-        InternalServerErrorException,
-      );
+      await expect(service.create(mockCreatePlayerDto)).rejects.toThrow(Error);
     });
   });
 
@@ -260,52 +261,50 @@ describe('PlayersService', () => {
       });
     });
 
-    it('should throw InternalServerErrorException on error', async () => {
+    it('should throw Error on error', async () => {
       // Arrange
       mockRepository.findAndCount.mockRejectedValue(
         new Error('Database error'),
       );
 
       // Act & Assert
-      await expect(service.findAll(mockQueryDto)).rejects.toThrow(
-        InternalServerErrorException,
-      );
+      await expect(service.findAll(mockQueryDto)).rejects.toThrow(Error);
     });
   });
 
   describe('findOne', () => {
     it('should return a player by id', async () => {
       // Arrange
-      mockRepository.findOne.mockResolvedValue(mockPlayer);
+      mockRepository.findOneOrFail.mockResolvedValue(mockPlayer);
 
       // Act
       const result = await service.findOne(1);
 
       // Assert
-      expect(mockRepository.findOne).toHaveBeenCalledWith({
+      expect(mockRepository.findOneOrFail).toHaveBeenCalledWith({
         where: { id: 1 },
       });
       expect(result).toEqual(mockPlayer);
     });
 
-    it('should throw NotFoundException if player not found', async () => {
+    it('should throw EntityNotFoundError if player not found', async () => {
       // Arrange
-      mockRepository.findOne.mockResolvedValue(null);
+      mockRepository.findOneOrFail.mockRejectedValue(
+        new EntityNotFoundError(Player, { id: 1 }),
+      );
 
       // Act & Assert
-      await expect(service.findOne(1)).rejects.toThrow(
-        new NotFoundException('Player with ID 1 not found'),
-      );
+      await expect(service.findOne(1)).rejects.toThrow(EntityNotFoundError);
     });
 
-    it('should throw InternalServerErrorException on database error', async () => {
+    it('should throw Error on database error', async () => {
       // Arrange
-      mockRepository.findOne.mockRejectedValue(new Error('Database error'));
+      mockRepository.findOneOrFail.mockRejectedValue(
+        new Error('Database error'),
+      );
 
       // Act & Assert
-      await expect(service.findOne(1)).rejects.toThrow(
-        InternalServerErrorException,
-      );
+      await expect(service.findOne(1)).rejects.toThrow(Error);
     });
   });
 
@@ -315,16 +314,15 @@ describe('PlayersService', () => {
       const existingPlayer = { ...mockPlayer };
       const updatedPlayer = { ...mockPlayer, ...mockUpdatePlayerDto };
 
-      mockRepository.findOne
-        .mockResolvedValueOnce(existingPlayer) // First call to check existence
-        .mockResolvedValueOnce(updatedPlayer); // Second call to get updated player
+      mockRepository.findOneOrFail.mockResolvedValue(existingPlayer); // Check existence
+      mockRepository.findOneOrFail.mockResolvedValue(updatedPlayer); // Get updated player after update
       mockRepository.update.mockResolvedValue({ affected: 1 });
 
       // Act
       const result = await service.update(1, mockUpdatePlayerDto);
 
       // Assert
-      expect(mockRepository.findOne).toHaveBeenCalledWith({
+      expect(mockRepository.findOneOrFail).toHaveBeenCalledWith({
         where: { id: 1 },
       });
       expect(mockRepository.update).toHaveBeenCalledWith(
@@ -334,13 +332,15 @@ describe('PlayersService', () => {
       expect(result).toEqual(updatedPlayer);
     });
 
-    it('should throw NotFoundException if player not found', async () => {
+    it('should throw EntityNotFoundError if player not found', async () => {
       // Arrange
-      mockRepository.findOne.mockResolvedValue(null);
+      mockRepository.findOneOrFail.mockRejectedValue(
+        new EntityNotFoundError(Player, { id: 1 }),
+      );
 
       // Act & Assert
       await expect(service.update(1, mockUpdatePlayerDto)).rejects.toThrow(
-        new NotFoundException('Player with ID 1 not found'),
+        EntityNotFoundError,
       );
     });
 
@@ -349,8 +349,8 @@ describe('PlayersService', () => {
       const updateWithJerseyDto = { ...mockUpdatePlayerDto, jerseyNumber: 11 };
       const existingPlayer = { ...mockPlayer, jerseyNumber: 10 };
 
+      mockRepository.findOneOrFail.mockResolvedValue(existingPlayer); // Existing player check
       mockRepository.findOne
-        .mockResolvedValueOnce(existingPlayer) // Existing player check
         .mockResolvedValueOnce(null) // No conflicting player
         .mockResolvedValueOnce({ ...existingPlayer, ...updateWithJerseyDto }); // Updated player
       mockRepository.update.mockResolvedValue({ affected: 1 });
@@ -375,9 +375,8 @@ describe('PlayersService', () => {
       const existingPlayer = { ...mockPlayer, jerseyNumber: 10 };
       const conflictingPlayer = { ...mockPlayer, id: 2, jerseyNumber: 11 };
 
-      mockRepository.findOne
-        .mockResolvedValueOnce(existingPlayer) // Existing player check
-        .mockResolvedValueOnce(conflictingPlayer); // Conflicting player found
+      mockRepository.findOneOrFail.mockResolvedValue(existingPlayer); // Existing player check
+      mockRepository.findOne.mockResolvedValue(conflictingPlayer); // Conflicting player found
 
       // Act & Assert
       await expect(service.update(1, updateWithJerseyDto)).rejects.toThrow(
@@ -391,28 +390,28 @@ describe('PlayersService', () => {
   describe('remove', () => {
     it('should remove a player successfully', async () => {
       // Arrange
-      mockRepository.findOne.mockResolvedValue(mockPlayer);
+      mockRepository.findOneOrFail.mockResolvedValue(mockPlayer);
       mockRepository.remove.mockResolvedValue(mockPlayer);
 
       // Act
       await service.remove(1);
 
       // Assert
-      expect(mockRepository.findOne).toHaveBeenCalledWith({
+      expect(mockRepository.findOneOrFail).toHaveBeenCalledWith({
         where: { id: 1 },
         relations: ['contracts', 'transfers', 'statistics'],
       });
       expect(mockRepository.remove).toHaveBeenCalledWith(mockPlayer);
     });
 
-    it('should throw NotFoundException if player not found', async () => {
+    it('should throw EntityNotFoundError if player not found', async () => {
       // Arrange
-      mockRepository.findOne.mockResolvedValue(null);
+      mockRepository.findOneOrFail.mockRejectedValue(
+        new EntityNotFoundError(Player, { id: 1 }),
+      );
 
       // Act & Assert
-      await expect(service.remove(1)).rejects.toThrow(
-        new NotFoundException('Player with ID 1 not found'),
-      );
+      await expect(service.remove(1)).rejects.toThrow(EntityNotFoundError);
     });
   });
 
@@ -435,7 +434,7 @@ describe('PlayersService', () => {
       };
 
       mockRepository.exists.mockResolvedValue(true); // Player exists check
-      mockRepository.findOne.mockResolvedValue(updatedPlayerWithImage); // Updated player with image
+      mockRepository.findOneOrFail.mockResolvedValue(updatedPlayerWithImage); // Updated player with image
       mockRepository.update.mockResolvedValue({ affected: 1 });
 
       jest.spyOn(Date, 'now').mockReturnValue(123456789);
@@ -458,19 +457,21 @@ describe('PlayersService', () => {
       expect(result).toEqual(updatedPlayerWithImage);
     });
 
-    it('should throw NotFoundException if player not found', async () => {
+    it('should throw EntityNotFoundError if player not found', async () => {
       // Arrange
-      mockRepository.exists.mockResolvedValue(false);
+      mockRepository.findOneOrFail.mockRejectedValue(
+        new EntityNotFoundError(Player, { id: 1 }),
+      );
 
       // Act & Assert
       await expect(service.uploadImage(1, mockFile)).rejects.toThrow(
-        new NotFoundException('Player with ID 1 not found'),
+        EntityNotFoundError,
       );
     });
 
     it('should throw BadRequestException if file is invalid', async () => {
       // Arrange
-      mockRepository.exists.mockResolvedValue(true);
+      mockRepository.findOneOrFail.mockResolvedValue(mockPlayer);
       const invalidFile = { buffer: null, originalname: null } as any;
 
       // Act & Assert
@@ -481,7 +482,7 @@ describe('PlayersService', () => {
 
     it('should throw BadRequestException if file is empty', async () => {
       // Arrange
-      mockRepository.exists.mockResolvedValue(true);
+      mockRepository.findOneOrFail.mockResolvedValue(mockPlayer);
       const emptyFile = {
         buffer: Buffer.alloc(0),
         originalname: 'test.jpg',
