@@ -49,3 +49,5 @@ pnpm-debug.log*
 
 # Local config files
 *.local
+
+copilot-instructions.md
