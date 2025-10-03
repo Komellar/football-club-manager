@@ -1,5 +1,5 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@/core/auth/auth.guard';
+import { AuthGuard } from '@/shared/guards/auth.guard';
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe';
 import { CONTRACT_CONSTANTS } from '../constants/contract.constants';
 import { ContractExpiryService } from '../services';

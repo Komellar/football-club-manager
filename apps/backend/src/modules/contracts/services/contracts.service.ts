@@ -15,7 +15,7 @@ import {
   FilterMode,
   type FilterOptions,
 } from '@repo/core';
-import { ListQueryBuilder } from '../../../shared/listQueryBuilder/list-query-builder';
+import { ListQueryBuilder } from '@/shared/query/list-query-builder';
 
 @Injectable()
 export class ContractsService {

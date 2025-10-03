@@ -5,7 +5,7 @@ import {
   ParseIntPipe,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard } from '@/core/auth/auth.guard';
+import { AuthGuard } from '@/shared/guards/auth.guard';
 import { ContractFinancialService } from '../services';
 import {
   type ContractValueCalculation,

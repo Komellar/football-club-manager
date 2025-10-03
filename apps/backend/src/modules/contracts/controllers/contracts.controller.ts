@@ -12,7 +12,7 @@ import {
   UseGuards,
   Query,
 } from '@nestjs/common';
-import { AuthGuard } from '@/core/auth/auth.guard';
+import { AuthGuard } from '@/shared/guards/auth.guard';
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe';
 import { ContractsService } from '../services/contracts.service';
 import {
