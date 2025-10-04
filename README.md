@@ -1,135 +1,109 @@
-# Turborepo starter
+# Football Club Manager
 
-This Turborepo starter is maintained by the Turborepo core team.
+A comprehensive football club management system built with modern web technologies. This monorepo contains a NestJS backend API with full OpenAPI documentation and a Next.js frontend.
 
-## Using this example
+## Features
 
-Run the following command:
+- **Player Management**: Create, update, and manage player profiles with detailed information
+- **Contract Management**: Handle player contracts, transfers, and financial records
+- **Statistics Tracking**: Record and analyze player and team performance data
+- **User Authentication**: JWT-based authentication system
+- **Full API Documentation**: Interactive Swagger/OpenAPI documentation
+- **Type Safety**: End-to-end TypeScript with shared validation schemas
 
-```sh
-npx create-turbo@latest
-```
+### Quick Start
 
-## What's inside?
+1. **Install dependencies:**
 
-This Turborepo includes the following packages/apps:
+   ```bash
+   pnpm install
+   ```
 
-### Apps and Packages
+2. **Set up environment variables:**
 
-- `backend`: a [NestJS](https://nestjs.com/) API server
-- `web`: a [Next.js](https://nextjs.org/) app with UI components
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-- `@repo/core`: shared TypeScript types, Zod validation schemas, and core utilities
+   ```bash
+   # Copy environment templates
+   cp apps/backend/.env.example apps/backend/.env
+   cp apps/web/.env.example apps/web/.env
+   ```
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+3. **Start the database:**
 
-### Utilities
+   ```bash
+   pnpm db:up
+   ```
 
-This Turborepo has some additional tools already setup for you:
+4. **Run database migrations:**
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+   ```bash
+   cd apps/backend
+   pnpm typeorm:migration:run
+   ```
 
-### Build
+5. **Start development servers:**
 
-To build all apps and packages, run the following command:
+   ```bash
+   # Start all services
+   pnpm turbo run dev
 
-```
-cd my-turborepo
+   # Or start individual services
+   pnpm turbo run dev --filter=backend  # API server on http://localhost:3001
+   pnpm turbo run dev --filter=web      # Frontend on http://localhost:3000
+   ```
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
+6. **Access the applications:**
+   - Frontend: http://localhost:3000
+   - API Documentation: http://localhost:4000/api/docs
+   - API Base URL: http://localhost:4000
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
-```
+## Technology Stack
 
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+### Backend
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=web
+- **NestJS**: Node.js framework with TypeScript support
+- **PostgreSQL**: Relational database
+- **TypeORM**: Object-relational mapping with migrations
+- **Zod**: Schema validation and type inference
+- **Swagger/OpenAPI**: Auto-generated API documentation
+- **JWT**: JSON Web Token authentication
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=web
-yarn exec turbo build --filter=web
-pnpm exec turbo build --filter=web
-```
+### Frontend
 
-### Develop
+- **Next.js 15**: React framework with App Router
+- **Tailwind CSS**: Utility-first CSS framework
+- **ShadCN UI**: Modern React component library
+- **React Hook Form**: Form validation with Zod integration
 
-To develop all apps and packages, run the following command:
+### Shared
 
-```
-cd my-turborepo
+- **TypeScript**: End-to-end type safety
+- **Turborepo**: Monorepo build system
+- **ESLint + Prettier**: Code linting and formatting
+- **Zod Schemas**: Shared validation between frontend and backend
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+## Project Structure
 
 ```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
+├── apps/
+│   ├── backend/          # NestJS API server
+│   │   ├── src/
+│   │   │   ├── modules/  # Feature modules (players, contracts, etc.)
+│   │   │   ├── shared/   # Shared utilities and decorators
+│   │   │   └── main.ts   # Application entry point with Swagger setup
+│   │   └── uploads/      # File upload storage
+│   └── web/              # Next.js frontend
+│       ├── app/          # App Router pages
+│       ├── components/   # Reusable UI components
+│       └── lib/          # Frontend utilities
+├── packages/
+│   ├── core/             # Shared types, schemas, and utilities
+│   │   ├── src/
+│   │   │   ├── constants/    # FIFA confederations, nationality codes
+│   │   │   ├── enums/        # Player positions, contract status
+│   │   │   ├── schemas/      # Zod validation schemas
+│   │   │   ├── types/        # TypeScript type definitions
+│   │   │   └── utils/        # Shared utility functions
+│   ├── eslint-config/    # Shared ESLint configurations
+│   └── typescript-config/ # Shared TypeScript configurations
+└── docs/                 # Project documentation
 ```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)

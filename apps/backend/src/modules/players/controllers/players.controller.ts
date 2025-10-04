@@ -16,9 +16,18 @@ import {
   ParseFilePipeBuilder,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { PlayersService } from '../services/players.service';
 import { AuthGuard } from '@/shared/guards/auth.guard';
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe';
+import {
+  CreatePlayer,
+  GetAllPlayers,
+  GetPlayerById,
+  UpdatePlayer,
+  DeletePlayer,
+  UploadPlayerImage,
+} from '../decorators/player-endpoint.decorators';
 import {
   CreatePlayerSchema,
   UpdatePlayerSchema,
@@ -30,6 +39,8 @@ import {
   type PaginatedPlayerListResponseDto,
 } from '@repo/core';
 
+@ApiTags('players')
+@ApiBearerAuth()
 @Controller('players')
 @UseGuards(AuthGuard)
 export class PlayersController {
@@ -37,6 +48,7 @@ export class PlayersController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @CreatePlayer()
   async create(
     @Body(new ZodValidationPipe(CreatePlayerSchema))
     createPlayerDto: CreatePlayerDto,
@@ -45,6 +57,7 @@ export class PlayersController {
   }
 
   @Get()
+  @GetAllPlayers()
   async findAll(
     @Query(new ZodValidationPipe(PlayerListSchema))
     queryDto?: PlayerListDto,
@@ -53,6 +66,7 @@ export class PlayersController {
   }
 
   @Get(':id')
+  @GetPlayerById()
   async findOne(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<PlayerResponseDto> {
@@ -60,6 +74,7 @@ export class PlayersController {
   }
 
   @Patch(':id')
+  @UpdatePlayer()
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body(new ZodValidationPipe(UpdatePlayerSchema))
@@ -70,12 +85,14 @@ export class PlayersController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @DeletePlayer()
   async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.playersService.remove(id);
   }
 
   @Post(':id/upload-image')
   @UseInterceptors(FileInterceptor('image'))
+  @UploadPlayerImage()
   async uploadImage(
     @Param('id', ParseIntPipe) id: number,
     @UploadedFile(

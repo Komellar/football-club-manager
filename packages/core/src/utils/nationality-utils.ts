@@ -6,10 +6,9 @@ import {
   AFC_CODES,
   OFC_CODES,
   VALID_NATIONALITIES,
-  ValidNationality,
-  Confederation,
 } from "../constants/confederations";
 import { NATIONALITY_DISPLAY_NAMES } from "../constants/nationality-names";
+import type { ValidNationality, Confederation } from "../types/nationality";
 
 export type { ValidNationality, Confederation };
 

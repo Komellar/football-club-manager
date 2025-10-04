@@ -12,6 +12,7 @@ import {
   HttpStatus,
   ParseIntPipe,
 } from '@nestjs/common';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { PlayerStatisticsService } from '../services/player-statistics.service';
 import { AuthGuard } from '@/shared/guards/auth.guard';
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe';
@@ -25,8 +26,18 @@ import {
   type PlayerStatisticsQueryDto,
   type PaginationResult,
 } from '@repo/core';
+import {
+  GetAllPlayerStatistics,
+  GetPlayerStatisticsById,
+  GetStatisticsByPlayer,
+  CreatePlayerStatistics,
+  UpdatePlayerStatistics,
+  DeletePlayerStatistics,
+} from '../decorators/player-statistics-endpoint.decorators';
 
 @Controller('statistics')
+@ApiTags('statistics')
+@ApiBearerAuth()
 @UseGuards(AuthGuard)
 export class PlayerStatisticsController {
   constructor(
@@ -34,6 +45,7 @@ export class PlayerStatisticsController {
   ) {}
 
   @Get()
+  @GetAllPlayerStatistics()
   async findAll(
     @Query(new ZodValidationPipe(PlayerStatisticsQuerySchema))
     queryDto?: PlayerStatisticsQueryDto,
@@ -42,6 +54,7 @@ export class PlayerStatisticsController {
   }
 
   @Get(':id')
+  @GetPlayerStatisticsById()
   async findOne(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<PlayerStatisticsResponseDto> {
@@ -49,6 +62,7 @@ export class PlayerStatisticsController {
   }
 
   @Get('player/:playerId')
+  @GetStatisticsByPlayer()
   async getPlayerStatistics(
     @Param('playerId', ParseIntPipe) playerId: number,
     @Query(new ZodValidationPipe(PlayerStatisticsQuerySchema))
@@ -65,6 +79,7 @@ export class PlayerStatisticsController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @CreatePlayerStatistics()
   async create(
     @Body(new ZodValidationPipe(CreatePlayerStatisticsSchema))
     createStatisticsDto: CreatePlayerStatisticsDto,
@@ -73,6 +88,7 @@ export class PlayerStatisticsController {
   }
 
   @Patch(':id')
+  @UpdatePlayerStatistics()
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body(new ZodValidationPipe(UpdatePlayerStatisticsSchema))
@@ -83,6 +99,7 @@ export class PlayerStatisticsController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @DeletePlayerStatistics()
   async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.playerStatisticsService.remove(id);
   }

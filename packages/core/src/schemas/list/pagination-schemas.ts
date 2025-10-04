@@ -1,8 +1,8 @@
 import { z } from "zod";
 
 export const ListQueryParamsSchema = z.object({
-  page: z.number().int().positive().default(1).optional(),
-  limit: z.number().int().positive().max(100).default(10).optional(),
+  page: z.coerce.number().int().positive().default(1).optional(),
+  limit: z.coerce.number().int().positive().max(100).default(10).optional(),
   search: z.string().trim().optional(),
 });
 

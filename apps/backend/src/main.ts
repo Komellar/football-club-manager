@@ -7,6 +7,7 @@ import { join } from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { HttpAdapterHost } from '@nestjs/core';
 import { AllExceptionsFilter } from './shared/filters/all-exceptions.filter';
+import { setupSwagger } from './config/swagger.config';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -28,6 +29,8 @@ async function bootstrap() {
 
   const dataSource = app.get(DataSource);
   await seedRoles(dataSource);
+
+  setupSwagger(app);
 
   const port = process.env.PORT || 4000;
   await app.listen(port);

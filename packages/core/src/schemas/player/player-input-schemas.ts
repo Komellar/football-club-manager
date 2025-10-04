@@ -1,7 +1,8 @@
 import { z } from "zod";
 import { PlayerPosition } from "../../enums/player-position";
 import { isValidPlayerAge } from "../../utils/age-utils";
-import { isValidNationality } from "../../utils/nationality-utils";
+import { VALID_NATIONALITIES } from "../../constants/confederations";
+import type { ValidNationality } from "../../types/nationality";
 
 export const PlayerSchema = z.object({
   id: z.number().int().positive(),
@@ -13,7 +14,7 @@ export const PlayerSchema = z.object({
     PlayerPosition.FORWARD,
   ]),
   dateOfBirth: z.coerce.date(),
-  nationality: z.string(),
+  nationality: z.enum(VALID_NATIONALITIES),
   height: z.number().optional(),
   weight: z.number().optional(),
   jerseyNumber: z.number().optional(),
@@ -53,14 +54,11 @@ export const CreatePlayerSchema = z.object({
     ),
 
   nationality: z
-    .string()
-    .trim()
-    .length(3, "Nationality must be a valid 3-letter ISO country code")
-    .toUpperCase()
-    .refine(
-      (nationality) => isValidNationality(nationality),
-      "Invalid nationality code. Must be a valid FIFA-recognized country"
-    ),
+    .enum(VALID_NATIONALITIES, {
+      message:
+        "Invalid nationality code. Must be a valid FIFA-recognized country",
+    })
+    .describe("Player nationality - 3-letter ISO country code"),
 
   height: z
     .number()

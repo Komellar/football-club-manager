@@ -37,10 +37,10 @@
 
 **Tasks:**
 
-- [ ] Create `AllExceptionsFilter`
-- [ ] Add global filter registration in `main.ts`
-- [ ] Implement structured error responses
-- [ ] Add proper error logging
+- [x] Create `AllExceptionsFilter`
+- [x] Add global filter registration in `main.ts`
+- [x] Implement structured error responses
+- [x] Add proper error logging
 
 **Files to create:**
 
@@ -189,11 +189,11 @@
 
 **Tasks:**
 
-- [ ] Install `@nestjs/swagger`
-- [ ] Add Swagger decorators to controllers
-- [ ] Document all DTOs and responses
-- [ ] Set up API documentation endpoint
-- [ ] Add authentication documentation
+- [x] Install `@nestjs/swagger`
+- [x] Add Swagger decorators to controllers
+- [x] Document all DTOs and responses
+- [x] Set up API documentation endpoint
+- [x] Add authentication documentation
 
 **Files to modify:**
 

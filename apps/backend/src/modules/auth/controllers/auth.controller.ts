@@ -8,6 +8,7 @@ import {
   UseGuards,
   Request,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from '../services/auth.service';
 import { AuthGuard } from '@/shared/guards/auth.guard';
 import { CreateUserApiSchema, LoginSchema } from '@repo/core';
@@ -19,13 +20,20 @@ import type {
 } from '@repo/core';
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe';
 import type { RequestWithUser } from '../types';
+import {
+  LoginUser,
+  RegisterUser,
+  GetCurrentUser,
+} from '../decorators/auth-endpoint.decorators';
 
 @Controller('auth')
+@ApiTags('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
+  @LoginUser()
   async login(
     @Body(new ZodValidationPipe(LoginSchema)) loginDto: LoginDto,
   ): Promise<LoginResponseDto> {
@@ -33,6 +41,8 @@ export class AuthController {
   }
 
   @Post('register')
+  @HttpCode(HttpStatus.CREATED)
+  @RegisterUser()
   async register(
     @Body(new ZodValidationPipe(CreateUserApiSchema))
     registerDto: CreateUserDto,
@@ -42,6 +52,7 @@ export class AuthController {
 
   @Get('profile')
   @UseGuards(AuthGuard)
+  @GetCurrentUser()
   getProfile(@Request() req: RequestWithUser): User {
     return {
       userId: req.user.userId,

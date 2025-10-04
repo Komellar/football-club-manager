@@ -7,11 +7,12 @@ import {
   Param,
   Delete,
   ParseIntPipe,
-  HttpStatus,
-  HttpCode,
   UseGuards,
+  HttpCode,
+  HttpStatus,
   Query,
 } from '@nestjs/common';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@/shared/guards/auth.guard';
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe';
 import { ContractsService } from '../services/contracts.service';
@@ -25,14 +26,24 @@ import {
   type PaginatedContractListResponseDto,
 } from '@repo/core';
 import { Contract } from '@/shared/entities';
+import {
+  CreateContract,
+  GetAllContracts,
+  GetContractById,
+  UpdateContract,
+  DeleteContract,
+} from '../decorators/contract-endpoint.decorators';
 
 @Controller('contracts')
+@ApiTags('contracts')
+@ApiBearerAuth()
 @UseGuards(AuthGuard)
 export class ContractsController {
   constructor(private readonly contractsService: ContractsService) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @CreateContract()
   async create(
     @Body(new ZodValidationPipe(CreateContractSchema))
     createContractDto: CreateContractDto,
@@ -41,6 +52,7 @@ export class ContractsController {
   }
 
   @Get()
+  @GetAllContracts()
   async findAll(
     @Query(new ZodValidationPipe(ContractListSchema))
     query: ContractListDto,
@@ -49,11 +61,13 @@ export class ContractsController {
   }
 
   @Get(':id')
+  @GetContractById()
   async findOne(@Param('id', ParseIntPipe) id: number): Promise<Contract> {
     return await this.contractsService.findOne(id);
   }
 
   @Patch(':id')
+  @UpdateContract()
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body(new ZodValidationPipe(UpdateContractSchema))
@@ -64,6 +78,7 @@ export class ContractsController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @DeleteContract()
   async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return await this.contractsService.remove(id);
   }
