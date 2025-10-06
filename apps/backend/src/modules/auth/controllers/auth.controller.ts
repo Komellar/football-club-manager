@@ -7,8 +7,10 @@ import {
   Get,
   UseGuards,
   Request,
+  Response,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { Response as ExpressResponse } from 'express';
 import { AuthService } from '../services/auth.service';
 import { AuthGuard } from '@/shared/guards/auth.guard';
 import { CreateUserApiSchema, LoginSchema } from '@repo/core';
@@ -36,8 +38,14 @@ export class AuthController {
   @LoginUser()
   async login(
     @Body(new ZodValidationPipe(LoginSchema)) loginDto: LoginDto,
+    @Response({ passthrough: true }) res: ExpressResponse,
   ): Promise<LoginResponseDto> {
-    return this.authService.login(loginDto.email, loginDto.password);
+    const result = await this.authService.login(
+      loginDto.email,
+      loginDto.password,
+    );
+    this.setAuthCookie(res, result.access_token);
+    return result;
   }
 
   @Post('register')
@@ -46,8 +54,26 @@ export class AuthController {
   async register(
     @Body(new ZodValidationPipe(CreateUserApiSchema))
     registerDto: CreateUserDto,
+    @Response({ passthrough: true }) res: ExpressResponse,
   ): Promise<LoginResponseDto> {
-    return this.authService.register(registerDto);
+    const result = await this.authService.register(registerDto);
+    this.setAuthCookie(res, result.access_token);
+    return result;
+  }
+
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  logout(@Response({ passthrough: true }) res: ExpressResponse): {
+    message: string;
+  } {
+    res.clearCookie('auth_token', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+    });
+
+    return { message: 'Logged out successfully' };
   }
 
   @Get('profile')
@@ -60,5 +86,15 @@ export class AuthController {
       email: req.user.email,
       role: req.user.role,
     };
+  }
+
+  private setAuthCookie(res: ExpressResponse, token: string) {
+    res.cookie('auth_token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 24 * 60 * 60 * 1000, // 1 day in milliseconds
+      path: '/',
+    });
   }
 }

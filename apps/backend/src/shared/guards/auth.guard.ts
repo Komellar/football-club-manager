@@ -18,8 +18,8 @@ export class AuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<RequestWithUser>();
-    const token = this.extractTokenFromHeader(request);
 
+    const token = this.extractTokenFromRequest(request);
     if (!token) {
       throw new UnauthorizedException('Access token is required');
     }
@@ -37,13 +37,21 @@ export class AuthGuard implements CanActivate {
     return true;
   }
 
-  private extractTokenFromHeader(request: RequestWithUser): string | undefined {
-    const authHeader = request.headers.authorization;
-    if (!authHeader) {
-      return undefined;
+  private extractTokenFromRequest(
+    request: RequestWithUser,
+  ): string | undefined {
+    // Try to get token from Authorization header first (for SSR)
+    const authHeader = request.headers?.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      return authHeader.substring(7);
     }
 
-    const [type, token] = authHeader.split(' ');
-    return type === 'Bearer' ? token : undefined;
+    // Fall back to cookie (for CSR)
+    return this.extractTokenFromCookie(request);
+  }
+
+  private extractTokenFromCookie(request: RequestWithUser): string | undefined {
+    const cookies = request.cookies as Record<string, string> | undefined;
+    return cookies?.auth_token;
   }
 }

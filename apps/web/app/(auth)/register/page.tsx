@@ -14,7 +14,7 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { registerAction, useAuthStore } from "@/features/auth";
+import { register, useAuthStore } from "@/features/auth";
 import Link from "next/link";
 import { CreateUserDto, CreateUserSchema } from "@repo/core";
 import Image from "next/image";
@@ -35,7 +35,7 @@ export default function RegisterPage() {
 
   const onSubmit = (data: CreateUserDto) => {
     startTransition(async () => {
-      const result = await registerAction(data);
+      const result = await register(data);
 
       if (result?.error) {
         form.setError("root", { message: result.error });
@@ -51,7 +51,7 @@ export default function RegisterPage() {
         return;
       }
 
-      if (result?.success) {
+      if (!result?.error) {
         // Refresh auth state after successful registration
         await checkAuth();
         router.push("/dashboard");

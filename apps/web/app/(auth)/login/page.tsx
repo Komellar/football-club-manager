@@ -15,7 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { LoginDto, LoginSchema } from "@repo/core";
-import { loginAction, useAuthStore } from "@/features/auth";
+import { login, useAuthStore } from "@/features/auth";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -34,7 +34,7 @@ export default function LoginPage() {
 
   function onSubmit(data: LoginDto) {
     startTransition(async () => {
-      const result = await loginAction(data);
+      const result = await login(data);
 
       if (result?.error) {
         form.setError("root", { message: result.error });
@@ -51,7 +51,8 @@ export default function LoginPage() {
         return;
       }
 
-      if (result?.success) {
+      if (!result?.error) {
+        console.log("Login successful");
         // Refresh auth state after successful login
         await checkAuth();
         router.push("/dashboard");

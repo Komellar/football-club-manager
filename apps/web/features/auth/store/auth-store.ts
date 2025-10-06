@@ -2,11 +2,12 @@
 
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import { getProfileAction, logoutAction } from "../actions/auth-actions";
+import { getProfile, logout } from "../utils/auth-api";
 import type { User } from "@repo/core";
 
 interface AuthState {
   user: User | null;
+  token: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   error: string | null;
@@ -14,6 +15,7 @@ interface AuthState {
 
 interface AuthActions {
   setUser: (user: User | null) => void;
+  setToken: (token: string | null) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   checkAuth: () => Promise<void>;
@@ -27,6 +29,7 @@ export const useAuthStore = create<AuthStore>()(
   devtools(
     (set, get) => ({
       user: null,
+      token: null,
       isLoading: true, // Start with loading true to prevent premature redirects
       isAuthenticated: false,
       error: null,
@@ -39,7 +42,16 @@ export const useAuthStore = create<AuthStore>()(
             error: null,
           },
           false,
-          "auth/setUser",
+          "auth/setUser"
+        ),
+
+      setToken: (token) =>
+        set(
+          {
+            token,
+          },
+          false,
+          "auth/setToken"
         ),
 
       setLoading: (loading) =>
@@ -54,7 +66,7 @@ export const useAuthStore = create<AuthStore>()(
           setLoading(true);
           setError(null);
 
-          const userData = await getProfileAction();
+          const userData = await getProfile();
           setUser(userData);
         } catch (error) {
           console.error("Auth check failed:", error);
@@ -70,7 +82,7 @@ export const useAuthStore = create<AuthStore>()(
 
         try {
           setLoading(true);
-          await logoutAction();
+          await logout();
           clearAuth();
         } catch (error) {
           console.error("Logout failed:", error);
@@ -90,11 +102,11 @@ export const useAuthStore = create<AuthStore>()(
             isLoading: false,
           },
           false,
-          "auth/clearAuth",
+          "auth/clearAuth"
         ),
     }),
     {
       name: "auth-store",
-    },
-  ),
+    }
+  )
 );

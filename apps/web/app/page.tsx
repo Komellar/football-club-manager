@@ -1,8 +1,8 @@
+import { getProfile } from "@/features/auth";
 import { redirect } from "next/navigation";
-import { getProfileAction } from "@/features/auth";
 
 export default async function Home() {
-  const user = await getProfileAction();
+  const user = await getProfile();
 
   if (user) {
     redirect("/dashboard");
