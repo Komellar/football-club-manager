@@ -1,9 +1,12 @@
 /**
  * Country code to display name mappings
  * Provides human-readable names for ISO 3166-1 alpha-3 country codes
+ * Also includes custom FIFA codes for UK home nations (ENG, SCO, WAL, NIR)
  */
 
-export const NATIONALITY_DISPLAY_NAMES: Record<string, string> = {
+import { ValidNationality } from "../types";
+
+export const NATIONALITY_DISPLAY_NAMES: Record<ValidNationality, string> = {
   // Major football nations (commonly used)
   ARG: "Argentina",
   AUS: "Australia",
@@ -14,12 +17,13 @@ export const NATIONALITY_DISPLAY_NAMES: Record<string, string> = {
   CHL: "Chile",
   CHN: "China",
   COL: "Colombia",
-  CRO: "Croatia",
   HRV: "Croatia", // Alternative code for Croatia
   CZE: "Czech Republic",
   DNK: "Denmark",
-  ENG: "England", // Special case - not ISO standard
-  GBR: "United Kingdom",
+  ENG: "England", // Custom FIFA code (not ISO 3166-1)
+  SCO: "Scotland", // Custom FIFA code (not ISO 3166-1)
+  WAL: "Wales", // Custom FIFA code (not ISO 3166-1)
+  NIR: "Northern Ireland", // Custom FIFA code (not ISO 3166-1)
   FRA: "France",
   DEU: "Germany",
   GRC: "Greece",

@@ -1,6 +1,7 @@
 /**
  * Football confederation constants
  * Uses ISO 3166-1 alpha-3 country codes organized by FIFA confederations
+ * Includes custom FIFA codes for UK home nations (ENG, SCO, WAL, NIR)
  */
 
 // UEFA (Europe) - Union of European Football Associations
@@ -54,7 +55,10 @@ export const UEFA_CODES = [
   "CHE", // Switzerland
   "TUR", // Turkey
   "UKR", // Ukraine
-  "GBR", // United Kingdom
+  "ENG", // England (Custom FIFA code)
+  "SCO", // Scotland (Custom FIFA code)
+  "WAL", // Wales (Custom FIFA code)
+  "NIR", // Northern Ireland (Custom FIFA code)
   "VAT", // Vatican City
 ] as const;
 
@@ -231,5 +235,3 @@ export const VALID_NATIONALITIES = [
   ...AFC_CODES,
   ...OFC_CODES,
 ] as const;
-
-

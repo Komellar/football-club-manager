@@ -46,7 +46,7 @@ export const CreatePlayerSchema = z.object({
     ])
     .describe("Player position on the field"),
 
-  dateOfBirth: z.coerce
+  dateOfBirth: z
     .date()
     .refine(
       (date) => isValidPlayerAge(date),
@@ -63,8 +63,8 @@ export const CreatePlayerSchema = z.object({
   height: z
     .number()
     .int()
-    .min(120, "Height must be at least 120 cm")
-    .max(220, "Height must be at most 220 cm")
+    .min(100, "Height must be at least 100 cm")
+    .max(250, "Height must be at most 250 cm")
     .optional(),
 
   weight: z
@@ -83,7 +83,7 @@ export const CreatePlayerSchema = z.object({
 
   marketValue: z.number().positive("Market value must be positive").optional(),
 
-  isActive: z.boolean().default(true),
+  isActive: z.boolean(),
 
   imageUrl: z.url("Image URL must be a valid URL").optional(),
 });

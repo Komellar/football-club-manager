@@ -1,8 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import Link from "next/link";
 import { PlayersList } from "@/features/players/components";
 import { getPlayers } from "@/features/players/api";
+
+// Force this page to be dynamic since it fetches authenticated data
+export const dynamic = "force-dynamic";
 
 export default async function PlayersPage() {
   const players = await getPlayers({
@@ -21,10 +25,12 @@ export default async function PlayersPage() {
             Manage your club&apos;s player list
           </p>
         </div>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Player
-        </Button>
+        <Link href="/dashboard/players/new">
+          <Button>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Player
+          </Button>
+        </Link>
       </div>
 
       <Card>

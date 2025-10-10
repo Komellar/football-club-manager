@@ -23,9 +23,10 @@ export function isValidNationality(
 export function getNationalityDisplayName(
   nationality: ValidNationality
 ): string {
+  const upperNationality =
+    nationality.toUpperCase() as keyof typeof NATIONALITY_DISPLAY_NAMES;
   return (
-    NATIONALITY_DISPLAY_NAMES[nationality.toUpperCase()] ||
-    nationality.toUpperCase()
+    NATIONALITY_DISPLAY_NAMES[upperNationality] || nationality.toUpperCase()
   );
 }
 

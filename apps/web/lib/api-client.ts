@@ -17,7 +17,7 @@ const createApiClient = (): AxiosInstance => {
   client.interceptors.request.use(
     async (config) => {
       if (isServer) {
-        // Server-side: Use cookies
+        // Server-side: Use cookies (only in dynamic contexts)
         try {
           const { cookies } = await import("next/headers");
           const cookieStore = await cookies();
