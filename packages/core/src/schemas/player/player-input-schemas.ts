@@ -38,16 +38,21 @@ export const CreatePlayerSchema = z.object({
     ),
 
   position: z
-    .enum([
-      PlayerPosition.GOALKEEPER,
-      PlayerPosition.DEFENDER,
-      PlayerPosition.MIDFIELDER,
-      PlayerPosition.FORWARD,
-    ])
+    .enum(
+      [
+        PlayerPosition.GOALKEEPER,
+        PlayerPosition.DEFENDER,
+        PlayerPosition.MIDFIELDER,
+        PlayerPosition.FORWARD,
+      ],
+      {
+        message: "Invalid player position",
+      }
+    )
     .describe("Player position on the field"),
 
-  dateOfBirth: z
-    .date()
+  dateOfBirth: z.coerce
+    .date<Date>("Invalid date")
     .refine(
       (date) => isValidPlayerAge(date),
       "Player must be between 15 and 50 years old"

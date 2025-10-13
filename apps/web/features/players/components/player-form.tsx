@@ -11,7 +11,6 @@ import { createPlayerAction } from "../actions";
 import { DEFAULT_FORM_VALUES } from "../constants";
 import { CreatePlayerDto, CreatePlayerSchema } from "@repo/core";
 import { PhysicalAttributes, BasicInfo, TeamInfo, PlayerStatus } from "./form";
-import { Calendar } from "@/components/ui/calendar";
 
 export function PlayerForm() {
   const router = useRouter();
@@ -23,7 +22,6 @@ export function PlayerForm() {
   });
 
   const onSubmit = async (data: CreatePlayerDto) => {
-    console.log("Submitting player data:", data);
     startTransition(async () => {
       try {
         await createPlayerAction(data);

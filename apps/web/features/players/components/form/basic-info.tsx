@@ -1,6 +1,5 @@
 import {
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -14,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { NationalityCombobox } from "@/components/shared/form";
 import { NATIONALITY_OPTIONS, POSITION_OPTIONS } from "../../constants";
 import {
   Popover,
@@ -43,16 +43,12 @@ export function BasicInfo() {
             <FormControl>
               <Input placeholder="Enter player name" {...field} />
             </FormControl>
-            <FormDescription>
-              Full name of the player (letters, spaces, hyphens, apostrophes,
-              periods only)
-            </FormDescription>
             <FormMessage />
           </FormItem>
         )}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
         <FormField
           control={control}
           name="position"
@@ -95,7 +91,7 @@ export function BasicInfo() {
                       )}
                     >
                       {field.value ? (
-                        format(field.value, "PPP")
+                        format(field.value, "dd-MM-yyyy")
                       ) : (
                         <span>Pick a date</span>
                       )}
@@ -116,9 +112,6 @@ export function BasicInfo() {
                   />
                 </PopoverContent>
               </Popover>
-              <FormDescription>
-                Player must be between 15 and 50 years old
-              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -131,21 +124,13 @@ export function BasicInfo() {
         render={({ field }) => (
           <FormItem>
             <FormLabel>Nationality *</FormLabel>
-            <Select onValueChange={field.onChange} defaultValue={field.value}>
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select nationality" />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                {NATIONALITY_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <FormDescription>3-letter ISO country code</FormDescription>
+            <FormControl>
+              <NationalityCombobox
+                options={NATIONALITY_OPTIONS}
+                value={field.value}
+                onValueChange={field.onChange}
+              />
+            </FormControl>
             <FormMessage />
           </FormItem>
         )}

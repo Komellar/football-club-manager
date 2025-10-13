@@ -37,7 +37,7 @@ export function MobileNav() {
         <div className="px-7">
           <Link
             href="/dashboard"
-            className="flex items-center"
+            className="flex items-center cursor-pointer"
             onClick={() => setOpen(false)}
           >
             <span className="font-bold">Football Club Manager</span>
@@ -51,10 +51,10 @@ export function MobileNav() {
                 href={item.href}
                 onClick={() => setOpen(false)}
                 className={cn(
-                  "block px-2 py-1 text-lg",
+                  "block px-2 py-1 text-lg cursor-pointer",
                   pathname === item.href
                     ? "text-foreground"
-                    : "text-foreground/60",
+                    : "text-foreground/60"
                 )}
               >
                 {item.label}

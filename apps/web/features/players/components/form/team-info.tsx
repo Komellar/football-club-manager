@@ -9,7 +9,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { handleNumericFieldChange } from "@/utils/form";
+import { NumericInput } from "@/components/shared/form";
 
 export function TeamInfo() {
   const { control } = useFormContext<CreatePlayerDto>();
@@ -18,7 +18,7 @@ export function TeamInfo() {
     <div className="space-y-4">
       <h3 className="text-lg font-medium">Team Information</h3>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
         <FormField
           control={control}
           name="jerseyNumber"
@@ -26,14 +26,10 @@ export function TeamInfo() {
             <FormItem>
               <FormLabel>Jersey Number</FormLabel>
               <FormControl>
-                <Input
-                  type="number"
+                <NumericInput
+                  value={field.value}
+                  onValueChange={field.onChange}
                   placeholder="e.g. 10"
-                  {...field}
-                  value={field.value ?? ""}
-                  onChange={(e) =>
-                    handleNumericFieldChange(e.target.value, field.onChange)
-                  }
                 />
               </FormControl>
               <FormDescription>Jersey number (1-99)</FormDescription>
@@ -47,18 +43,14 @@ export function TeamInfo() {
           name="marketValue"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Market Value</FormLabel>
+              <FormLabel>Market Value (€)</FormLabel>
               <FormControl>
-                <Input
-                  type="number"
-                  placeholder="e.g. 1000000"
-                  value={field.value ?? ""}
-                  onChange={(e) =>
-                    handleNumericFieldChange(e.target.value, field.onChange)
-                  }
+                <NumericInput
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  placeholder="e.g. 1.000.000,00"
                 />
               </FormControl>
-              <FormDescription>Market value in your currency</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -79,7 +71,6 @@ export function TeamInfo() {
                 onChange={field.onChange}
               />
             </FormControl>
-            <FormDescription>Optional: URL to player's photo</FormDescription>
             <FormMessage />
           </FormItem>
         )}

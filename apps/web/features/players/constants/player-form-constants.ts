@@ -3,6 +3,7 @@ import {
   PlayerPosition,
   VALID_NATIONALITIES,
   ValidNationality,
+  NATIONALITY_DISPLAY_NAMES,
 } from "@repo/core";
 
 export const POSITION_OPTIONS = [
@@ -27,24 +28,21 @@ export const POPULAR_NATIONALITIES: ValidNationality[] = [
 
 export const NATIONALITY_OPTIONS: { value: ValidNationality; label: string }[] =
   [
-    ...POPULAR_NATIONALITIES.map((code) => ({ value: code, label: code })),
+    ...POPULAR_NATIONALITIES.map((code) => ({
+      value: code,
+      label: NATIONALITY_DISPLAY_NAMES[code],
+    })),
     ...VALID_NATIONALITIES.filter(
       (code) => !POPULAR_NATIONALITIES.includes(code)
     )
-      .sort()
-      .map((code) => ({ value: code, label: code })),
+      .map((code) => ({
+        value: code,
+        label: NATIONALITY_DISPLAY_NAMES[code],
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label)),
   ];
 
 export const DEFAULT_FORM_VALUES: Partial<CreatePlayerDto> = {
   name: "",
-  // position: PlayerPosition.FORWARD,
-  // dateOfBirth: new Date("2000-01-01"),
-  // nationality: "ENG",
-  nationality: undefined,
-  height: undefined,
-  weight: undefined,
-  jerseyNumber: undefined,
-  marketValue: undefined,
-  imageUrl: undefined,
   isActive: false,
 };

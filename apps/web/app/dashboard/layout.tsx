@@ -1,5 +1,5 @@
-import { Header } from "@/components/shared/navigation/header";
-import { Footer } from "@/components/shared/layout/footer";
+import { Header } from "@/components/navigation";
+import { Footer } from "@/components/layout/footer";
 import { AuthGuard } from "@/features/auth";
 
 export default function DashboardLayout({
