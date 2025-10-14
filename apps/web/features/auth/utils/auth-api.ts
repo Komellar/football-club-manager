@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import {
   LoginSchema,
   CreateUserSchema,
@@ -7,8 +7,7 @@ import {
   type LoginResponseDto,
   type User,
 } from "@repo/core";
-import { apiClient } from "../../../lib/api-client";
-import { AUTH_COOKIE_NAME, COOKIE_MAX_AGE } from "../../../lib/constants";
+import { apiClient } from "@/lib/api-client";
 import { ActionResult } from "@/types/action-result";
 
 async function callAuthAPI(

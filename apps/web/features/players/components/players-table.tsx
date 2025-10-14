@@ -13,25 +13,28 @@ import { Eye, Edit, Trash2 } from "lucide-react";
 import { formatCurrency } from "@/utils/currency";
 import { formatPlayerPosition } from "../utils";
 import { positionColors } from "../constants";
+import { getTranslations } from "next-intl/server";
 
 interface PlayersTableProps {
   players: PlayerResponseDto[];
 }
 
-export function PlayersTable({ players }: PlayersTableProps) {
+export async function PlayersTable({ players }: PlayersTableProps) {
+  const t = await getTranslations("Players");
+
   return (
     <div className="rounded-md border">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Position</TableHead>
-            <TableHead>Age</TableHead>
-            <TableHead>Nationality</TableHead>
-            <TableHead>Jersey #</TableHead>
-            <TableHead>Market Value</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+            <TableHead>{t("name")}</TableHead>
+            <TableHead>{t("position")}</TableHead>
+            <TableHead>{t("age")}</TableHead>
+            <TableHead>{t("nationality")}</TableHead>
+            <TableHead>{t("jerseyNumber")}</TableHead>
+            <TableHead>{t("marketValue")}</TableHead>
+            <TableHead>{t("status")}</TableHead>
+            <TableHead className="text-right">{t("actions")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -56,18 +59,20 @@ export function PlayersTable({ players }: PlayersTableProps) {
               </TableCell>
               <TableCell>
                 <Badge variant={player.isActive ? "default" : "secondary"}>
-                  {player.isActive ? "Active" : "Inactive"}
+                  {player.isActive
+                    ? t("statusValues.active")
+                    : t("statusValues.inactive")}
                 </Badge>
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex items-center justify-end space-x-2">
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" title={t("view")}>
                     <Eye className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" title={t("edit")}>
                     <Edit className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" title={t("delete")}>
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>

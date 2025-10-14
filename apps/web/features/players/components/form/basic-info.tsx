@@ -27,21 +27,28 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns/format";
 import { CreatePlayerDto } from "@repo/core";
 import { Calendar } from "@/components/ui/calendar";
+import { useTranslations } from "next-intl";
 
 export function BasicInfo() {
   const { control } = useFormContext<CreatePlayerDto>();
+  const t = useTranslations("Players");
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-medium">Basic Information</h3>
+      <h3 className="text-lg font-medium">{t("sections.basicInfo")}</h3>
       <FormField
         control={control}
         name="name"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Player Name *</FormLabel>
+            <FormLabel>
+              {t("playerName")} {t("labels.required")}
+            </FormLabel>
             <FormControl>
-              <Input placeholder="Enter player name" {...field} />
+              <Input
+                placeholder={t("placeholders.enterPlayerName")}
+                {...field}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -54,11 +61,15 @@ export function BasicInfo() {
           name="position"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Position *</FormLabel>
+              <FormLabel>
+                {t("position")} {t("labels.required")}
+              </FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select position" />
+                    <SelectValue
+                      placeholder={t("placeholders.selectPosition")}
+                    />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
@@ -79,7 +90,9 @@ export function BasicInfo() {
           name="dateOfBirth"
           render={({ field }) => (
             <FormItem className="flex flex-col">
-              <FormLabel>Date of Birth *</FormLabel>
+              <FormLabel>
+                {t("dateOfBirth")} {t("labels.required")}
+              </FormLabel>
               <Popover>
                 <PopoverTrigger asChild>
                   <FormControl>
@@ -93,7 +106,7 @@ export function BasicInfo() {
                       {field.value ? (
                         format(field.value, "dd-MM-yyyy")
                       ) : (
-                        <span>Pick a date</span>
+                        <span>{t("placeholders.selectDate")}</span>
                       )}
                       <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                     </Button>
@@ -123,12 +136,15 @@ export function BasicInfo() {
         name="nationality"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Nationality *</FormLabel>
+            <FormLabel>
+              {t("nationality")} {t("labels.required")}
+            </FormLabel>
             <FormControl>
               <NationalityCombobox
                 options={NATIONALITY_OPTIONS}
                 value={field.value}
                 onValueChange={field.onChange}
+                placeholder={t("placeholders.selectNationality")}
               />
             </FormControl>
             <FormMessage />

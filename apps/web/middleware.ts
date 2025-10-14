@@ -1,43 +1,40 @@
 import { NextRequest, NextResponse } from "next/server";
-import { jwtDecode } from "jwt-decode";
 import { AUTH_COOKIE_NAME } from "./lib/constants";
+import createIntlMiddleware from "next-intl/middleware";
+import { routing } from "./i18n/routing";
+import {
+  shouldSkipMiddleware,
+  isPublicRoute,
+  createLoginRedirect,
+  extractLocaleFromPath,
+  isValidToken,
+} from "./utils/middleware";
 
-interface JwtPayload {
-  sub: number;
-  email: string;
-  role: string;
-  iat: number;
-  exp: number;
-}
+const intlMiddleware = createIntlMiddleware(routing);
 
 export function middleware(request: NextRequest) {
-  const token = request.cookies.get(AUTH_COOKIE_NAME)?.value;
   const { pathname } = request.nextUrl;
 
-  const publicRoutes = ["/login", "/register", "/"];
-
-  if (publicRoutes.includes(pathname)) {
+  if (shouldSkipMiddleware(pathname)) {
     return NextResponse.next();
   }
 
-  // For protected routes
+  const intlResponse = intlMiddleware(request);
+
+  const { locale, pathWithoutLocale } = extractLocaleFromPath(pathname);
+
+  if (isPublicRoute(pathWithoutLocale)) {
+    return intlResponse;
+  }
+
+  // For protected routes, check authentication
+  const token = request.cookies.get(AUTH_COOKIE_NAME)?.value;
   if (!token || !isValidToken(token)) {
-    const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("redirect", pathname);
+    const loginUrl = createLoginRedirect(locale, request.url, pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  return NextResponse.next();
-}
-
-function isValidToken(token: string): boolean {
-  try {
-    const decoded = jwtDecode<JwtPayload>(token);
-    const currentTime = Date.now() / 1000;
-    return decoded.exp > currentTime;
-  } catch {
-    return false;
-  }
+  return intlResponse;
 }
 
 export const config = {

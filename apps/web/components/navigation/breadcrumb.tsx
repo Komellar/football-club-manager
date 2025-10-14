@@ -4,26 +4,16 @@ import { ChevronRight, Home } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Fragment } from "react";
+import { useTranslations } from "next-intl";
 
 interface BreadcrumbItem {
   label: string;
   href: string;
 }
 
-const routeLabels: Record<string, string> = {
-  dashboard: "Dashboard",
-  players: "Players",
-  contracts: "Contracts",
-  transfers: "Transfers",
-  expenses: "Expenses",
-  revenues: "Revenues",
-  reports: "Reports",
-  profile: "Profile",
-  settings: "Settings",
-};
-
 export function Breadcrumb() {
   const pathname = usePathname();
+  const t = useTranslations("Navigation");
 
   // Generate breadcrumb items from pathname
   const generateBreadcrumbs = (): BreadcrumbItem[] => {
@@ -31,7 +21,7 @@ export function Breadcrumb() {
     const breadcrumbs: BreadcrumbItem[] = [];
 
     // Always start with dashboard
-    breadcrumbs.push({ label: "Dashboard", href: "/dashboard" });
+    breadcrumbs.push({ label: t("dashboard"), href: "/dashboard" });
 
     // Build breadcrumbs for nested paths
     let currentPath = "";
@@ -42,10 +32,16 @@ export function Breadcrumb() {
       currentPath += `/${segment}`;
       const fullPath = `/dashboard${currentPath}`;
 
+      // Try to get translation, fallback to capitalized segment
+      let label: string;
+      try {
+        label = t(segment);
+      } catch {
+        label = segment.charAt(0).toUpperCase() + segment.slice(1);
+      }
+
       breadcrumbs.push({
-        label:
-          routeLabels[segment] ||
-          segment.charAt(0).toUpperCase() + segment.slice(1),
+        label,
         href: fullPath,
       });
     }

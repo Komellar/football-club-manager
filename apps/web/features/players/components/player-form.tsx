@@ -7,12 +7,15 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { createPlayerAction } from "../actions";
 import { DEFAULT_FORM_VALUES } from "../constants";
 import { CreatePlayerDto, CreatePlayerSchema } from "@repo/core";
 import { PhysicalAttributes, BasicInfo, TeamInfo, PlayerStatus } from "./form";
 
 export function PlayerForm() {
+  const t = useTranslations("Players");
+
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -25,12 +28,12 @@ export function PlayerForm() {
     startTransition(async () => {
       try {
         await createPlayerAction(data);
-        toast.success("Player created successfully!");
+        toast.success(t("playerAdded"));
         form.reset();
         router.push("/dashboard/players");
       } catch (error) {
         console.error("Failed to create player:", error);
-        toast.error("Failed to create player. Please try again.");
+        toast.error(t("failedToCreate"));
       }
     });
   };
@@ -42,7 +45,7 @@ export function PlayerForm() {
   return (
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
-        <CardTitle>Add New Player</CardTitle>
+        <CardTitle>{t("addPlayer")}</CardTitle>
       </CardHeader>
       <CardContent>
         <FormProvider {...form}>
@@ -54,10 +57,10 @@ export function PlayerForm() {
 
             <div className="flex justify-end space-x-4 pt-6">
               <Button type="button" variant="outline" onClick={onCancel}>
-                Cancel
+                {t("cancel")}
               </Button>
               <Button type="submit" disabled={isPending}>
-                {isPending ? "Creating..." : "Create Player"}
+                {isPending ? t("save") : t("addPlayer")}
               </Button>
             </div>
           </form>

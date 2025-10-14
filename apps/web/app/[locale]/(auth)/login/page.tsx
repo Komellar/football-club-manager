@@ -18,11 +18,14 @@ import { LoginDto, LoginSchema } from "@repo/core";
 import { login, useAuthStore } from "@/features/auth";
 import Link from "next/link";
 import Image from "next/image";
+import { useTranslations, useLocale } from "next-intl";
 
 export default function LoginPage() {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const checkAuth = useAuthStore((state) => state.checkAuth);
+  const t = useTranslations("Auth");
+  const locale = useLocale();
 
   const form = useForm<LoginDto>({
     resolver: zodResolver(LoginSchema),
@@ -74,12 +77,11 @@ export default function LoginPage() {
 
         <div className="relative z-10 flex flex-col justify-end p-12 text-white">
           <h1 className="text-5xl font-bold mb-4 leading-tight">
-            Welcome
-            <span className="block text-green-400">Back</span>
+            {t("welcome")}
+            <span className="block text-green-400">{t("back")}</span>
           </h1>
           <p className="text-xl text-gray-200 leading-relaxed">
-            Sign in to continue managing your football club with professional
-            tools and insights.
+            {t("descriptions.loginWelcome")}
           </p>
         </div>
       </div>
@@ -90,14 +92,14 @@ export default function LoginPage() {
             <Image
               width={96}
               height={96}
-              alt="Football Club Manager Logo"
+              alt={t("alt.logo")}
               src={"/logo.svg"}
               className="self-center mb-6"
             />
-            <h2 className="text-3xl font-bold text-white mb-2">Sign In</h2>
-            <p className="text-gray-400">
-              Access your football management dashboard
-            </p>
+            <h2 className="text-3xl font-bold text-white mb-2">
+              {t("signIn")}
+            </h2>
+            <p className="text-gray-400">{t("descriptions.loginAccess")}</p>
           </div>
 
           {/* Form */}
@@ -121,12 +123,12 @@ export default function LoginPage() {
                   render={({ field }) => (
                     <FormItem>
                       <label className="text-sm text-gray-300 block mb-2 font-medium">
-                        Email
+                        {t("email")}
                       </label>
                       <FormControl>
                         <Input
                           type="email"
-                          placeholder="Enter your email"
+                          placeholder={t("placeholders.enterEmail")}
                           autoComplete="email"
                           disabled={isPending}
                           className="h-12 px-4 bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder:text-gray-400 focus:border-green-400 focus:ring-2 focus:ring-green-400/20 rounded-lg transition-all"
@@ -144,13 +146,13 @@ export default function LoginPage() {
                   render={({ field }) => (
                     <FormItem>
                       <label className="text-sm text-gray-300 block mb-2 font-medium">
-                        Password
+                        {t("password")}
                       </label>
                       <FormControl>
                         <div className="relative">
                           <Input
                             type="password"
-                            placeholder="Enter your password"
+                            placeholder={t("placeholders.enterPassword")}
                             autoComplete="current-password"
                             disabled={isPending}
                             className="h-12 px-4 bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder:text-gray-400 focus:border-green-400 focus:ring-2 focus:ring-green-400/20 rounded-lg pr-12 transition-all"
@@ -172,10 +174,10 @@ export default function LoginPage() {
                 {isPending ? (
                   <div className="flex items-center space-x-2">
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>Signing in...</span>
+                    <span>{t("signingIn")}</span>
                   </div>
                 ) : (
-                  "Sign In"
+                  t("signIn")
                 )}
               </Button>
             </form>
@@ -183,18 +185,18 @@ export default function LoginPage() {
 
           <div className="flex items-center my-8">
             <div className="flex-1 border-t border-white/20"></div>
-            <span className="px-4 text-gray-400 text-sm">or</span>
+            <span className="px-4 text-gray-400 text-sm">{t("or")}</span>
             <div className="flex-1 border-t border-white/20"></div>
           </div>
 
           <div className="text-center">
             <p className="text-gray-300 text-sm">
-              Don&apos;t have an account?&nbsp;
+              {t("dontHaveAccount")}&nbsp;
               <Link
-                href="/register"
+                href={`/${locale}/register`}
                 className="text-green-400 hover:text-green-300 font-semibold transition-colors"
               >
-                Register
+                {t("register")}
               </Link>
             </p>
           </div>

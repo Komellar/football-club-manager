@@ -1,7 +1,9 @@
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 
-export function Footer() {
+export async function Footer() {
   const currentYear = new Date().getFullYear();
+  const t = await getTranslations("Footer");
 
   return (
     <footer className="border-t bg-white">
@@ -9,23 +11,22 @@ export function Footer() {
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-4">
           {/* Company Info */}
           <div className="space-y-3">
-            <h3 className="text-lg font-semibold">Football Club Manager</h3>
+            <h3 className="text-lg font-semibold">{t("companyName")}</h3>
             <p className="text-sm text-muted-foreground">
-              Complete solution for managing your football club&apos;s finances
-              and player contracts.
+              {t("companyDescription")}
             </p>
           </div>
 
           {/* Quick Links */}
           <div className="space-y-3">
-            <h4 className="text-sm font-semibold">Quick Links</h4>
+            <h4 className="text-sm font-semibold">{t("quickLinks")}</h4>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
                   href="/dashboard"
                   className="text-muted-foreground hover:text-foreground"
                 >
-                  Dashboard
+                  {t("dashboard")}
                 </Link>
               </li>
               <li>
@@ -33,7 +34,7 @@ export function Footer() {
                   href="/dashboard/players"
                   className="text-muted-foreground hover:text-foreground"
                 >
-                  Players
+                  {t("players")}
                 </Link>
               </li>
               <li>
@@ -41,7 +42,7 @@ export function Footer() {
                   href="/dashboard/reports"
                   className="text-muted-foreground hover:text-foreground"
                 >
-                  Reports
+                  {t("reports")}
                 </Link>
               </li>
             </ul>
@@ -49,14 +50,14 @@ export function Footer() {
 
           {/* Support */}
           <div className="space-y-3">
-            <h4 className="text-sm font-semibold">Support</h4>
+            <h4 className="text-sm font-semibold">{t("support")}</h4>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
                   href="/help"
                   className="text-muted-foreground hover:text-foreground"
                 >
-                  Help Center
+                  {t("helpCenter")}
                 </Link>
               </li>
               <li>
@@ -64,7 +65,7 @@ export function Footer() {
                   href="/contact"
                   className="text-muted-foreground hover:text-foreground"
                 >
-                  Contact Us
+                  {t("contactUs")}
                 </Link>
               </li>
               <li>
@@ -72,7 +73,7 @@ export function Footer() {
                   href="/documentation"
                   className="text-muted-foreground hover:text-foreground"
                 >
-                  Documentation
+                  {t("documentation")}
                 </Link>
               </li>
             </ul>
@@ -80,14 +81,14 @@ export function Footer() {
 
           {/* Legal */}
           <div className="space-y-3">
-            <h4 className="text-sm font-semibold">Legal</h4>
+            <h4 className="text-sm font-semibold">{t("legal")}</h4>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
                   href="/privacy"
                   className="text-muted-foreground hover:text-foreground"
                 >
-                  Privacy Policy
+                  {t("privacyPolicy")}
                 </Link>
               </li>
               <li>
@@ -95,7 +96,7 @@ export function Footer() {
                   href="/terms"
                   className="text-muted-foreground hover:text-foreground"
                 >
-                  Terms of Service
+                  {t("termsOfService")}
                 </Link>
               </li>
               <li>
@@ -103,7 +104,7 @@ export function Footer() {
                   href="/cookies"
                   className="text-muted-foreground hover:text-foreground"
                 >
-                  Cookie Policy
+                  {t("cookiePolicy")}
                 </Link>
               </li>
             </ul>
@@ -113,20 +114,20 @@ export function Footer() {
         <div className="mt-8 border-t pt-6">
           <div className="flex flex-col items-center justify-between space-y-2 sm:flex-row sm:space-y-0">
             <p className="text-sm text-muted-foreground">
-              © {currentYear} Football Club Manager. All rights reserved.
+              {t("copyright", { year: currentYear })}
             </p>
             <div className="flex space-x-4 text-sm">
               <Link
                 href="/status"
                 className="text-muted-foreground hover:text-foreground"
               >
-                Status
+                {t("status")}
               </Link>
               <Link
                 href="/api"
                 className="text-muted-foreground hover:text-foreground"
               >
-                API
+                {t("api")}
               </Link>
             </div>
           </div>

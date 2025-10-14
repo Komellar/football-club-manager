@@ -18,11 +18,14 @@ import { register, useAuthStore } from "@/features/auth";
 import Link from "next/link";
 import { CreateUserDto, CreateUserSchema } from "@repo/core";
 import Image from "next/image";
+import { useTranslations, useLocale } from "next-intl";
 
 export default function RegisterPage() {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const checkAuth = useAuthStore((state) => state.checkAuth);
+  const t = useTranslations("Auth");
+  const locale = useLocale();
 
   const form = useForm<CreateUserDto>({
     resolver: zodResolver(CreateUserSchema),
@@ -73,12 +76,11 @@ export default function RegisterPage() {
 
         <div className="relative z-10 flex flex-col justify-end p-12 text-white">
           <h1 className="text-5xl font-bold mb-4 leading-tight">
-            Join the
-            <span className="block text-green-400">Championship</span>
+            {t("joinThe")}
+            <span className="block text-green-400">{t("championship")}</span>
           </h1>
           <p className="text-xl text-gray-200 leading-relaxed">
-            Create your account and start managing your football club with
-            professional tools and insights.
+            {t("descriptions.registerWelcome")}
           </p>
         </div>
       </div>
@@ -89,16 +91,14 @@ export default function RegisterPage() {
             <Image
               width={96}
               height={96}
-              alt="Football Club Manager Logo"
+              alt={t("alt.logo")}
               src={"/logo.svg"}
               className="mb-6 self-center"
             />
             <h2 className="text-3xl font-bold text-white mb-2">
-              Create Account
+              {t("createAccount")}
             </h2>
-            <p className="text-gray-400">
-              Join the ultimate football management experience
-            </p>
+            <p className="text-gray-400">{t("descriptions.registerJoin")}</p>
           </div>
 
           <Form {...form}>
@@ -121,12 +121,12 @@ export default function RegisterPage() {
                   render={({ field }) => (
                     <FormItem>
                       <label className="text-sm text-gray-300 block mb-2 font-medium">
-                        Username
+                        {t("username")}
                       </label>
                       <FormControl>
                         <Input
                           type="text"
-                          placeholder="Enter your username"
+                          placeholder={t("placeholders.enterUsername")}
                           autoComplete="name"
                           disabled={isPending}
                           className="h-12 px-4 bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder:text-gray-400 focus:border-green-400 focus:ring-2 focus:ring-green-400/20 rounded-lg transition-all"
@@ -144,12 +144,12 @@ export default function RegisterPage() {
                   render={({ field }) => (
                     <FormItem>
                       <label className="text-sm text-gray-300 block mb-2 font-medium">
-                        Email
+                        {t("email")}
                       </label>
                       <FormControl>
                         <Input
                           type="email"
-                          placeholder="Enter your email"
+                          placeholder={t("placeholders.enterEmail")}
                           autoComplete="email"
                           disabled={isPending}
                           className="h-12 px-4 bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder:text-gray-400 focus:border-green-400 focus:ring-2 focus:ring-green-400/20 rounded-lg transition-all"
@@ -167,13 +167,13 @@ export default function RegisterPage() {
                   render={({ field }) => (
                     <FormItem>
                       <label className="text-sm text-gray-300 block mb-2 font-medium">
-                        Password
+                        {t("password")}
                       </label>
                       <FormControl>
                         <div className="relative">
                           <Input
                             type="password"
-                            placeholder="Create a password"
+                            placeholder={t("placeholders.createPassword")}
                             autoComplete="new-password"
                             disabled={isPending}
                             className="h-12 px-4 bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder:text-gray-400 focus:border-green-400 focus:ring-2 focus:ring-green-400/20 rounded-lg pr-12 transition-all"
@@ -195,10 +195,10 @@ export default function RegisterPage() {
                 {isPending ? (
                   <div className="flex items-center space-x-2">
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>Creating account...</span>
+                    <span>{t("creatingAccount")}</span>
                   </div>
                 ) : (
-                  "Create Account"
+                  t("createAccount")
                 )}
               </Button>
             </form>
@@ -206,18 +206,18 @@ export default function RegisterPage() {
 
           <div className="flex items-center my-8">
             <div className="flex-1 border-t border-white/20"></div>
-            <span className="px-4 text-gray-400 text-sm">or</span>
+            <span className="px-4 text-gray-400 text-sm">{t("or")}</span>
             <div className="flex-1 border-t border-white/20"></div>
           </div>
 
           <div className="text-center">
             <p className="text-gray-300 text-sm">
-              Already have an account?&nbsp;
+              {t("alreadyHaveAccount")}&nbsp;
               <Link
-                href="/login"
+                href={`/${locale}/login`}
                 className="text-green-400 hover:text-green-300 font-semibold transition-colors"
               >
-                Login
+                {t("login")}
               </Link>
             </p>
           </div>

@@ -10,13 +10,15 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { NumericInput } from "@/components/shared/form";
+import { useTranslations } from "next-intl";
 
 export function TeamInfo() {
   const { control } = useFormContext<CreatePlayerDto>();
+  const t = useTranslations("Players");
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-medium">Team Information</h3>
+      <h3 className="text-lg font-medium">{t("sections.teamInfo")}</h3>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
         <FormField
@@ -24,15 +26,17 @@ export function TeamInfo() {
           name="jerseyNumber"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Jersey Number</FormLabel>
+              <FormLabel>{t("jerseyNumber")}</FormLabel>
               <FormControl>
                 <NumericInput
                   value={field.value}
                   onValueChange={field.onChange}
-                  placeholder="e.g. 10"
+                  placeholder={t("placeholders.enterJerseyNumber")}
                 />
               </FormControl>
-              <FormDescription>Jersey number (1-99)</FormDescription>
+              <FormDescription>
+                {t("descriptions.jerseyNumberRange")}
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -43,12 +47,12 @@ export function TeamInfo() {
           name="marketValue"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Market Value (€)</FormLabel>
+              <FormLabel>{t("marketValue")}</FormLabel>
               <FormControl>
                 <NumericInput
                   value={field.value}
                   onValueChange={field.onChange}
-                  placeholder="e.g. 1.000.000,00"
+                  placeholder={t("placeholders.enterMarketValue")}
                 />
               </FormControl>
               <FormMessage />
@@ -62,7 +66,9 @@ export function TeamInfo() {
         name="imageUrl"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Player Image URL</FormLabel>
+            <FormLabel>
+              {t("profileImage")} {t("labels.optional")}
+            </FormLabel>
             <FormControl>
               <Input
                 type="url"

@@ -4,27 +4,27 @@ import { PlayersPagination } from "./players-pagination";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 
 interface PlayersListProps {
   playersData: PaginatedPlayerListResponseDto;
 }
 
-export function PlayersList({ playersData }: PlayersListProps) {
+export async function PlayersList({ playersData }: PlayersListProps) {
   const { data: players, pagination } = playersData;
+  const t = await getTranslations("Players");
 
   if (players.length === 0) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>No Players Found</CardTitle>
+          <CardTitle>{t("noPlayersFound")}</CardTitle>
         </CardHeader>
         <CardContent className="text-center py-8">
-          <p className="text-muted-foreground mb-4">
-            No players found. Start by adding your first player to the list.
-          </p>
+          <p className="text-muted-foreground mb-4">{t("noPlayersMessage")}</p>
           <Button>
             <Plus className="h-4 w-4 mr-2" />
-            Add Player
+            {t("addPlayer")}
           </Button>
         </CardContent>
       </Card>

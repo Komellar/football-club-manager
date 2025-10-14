@@ -1,41 +1,45 @@
 import Link from "next/link";
+import { getTranslations, getLocale } from "next-intl/server";
 
 interface StaticNavProps {
   className?: string;
 }
 
-export function StaticNav({ className }: StaticNavProps) {
+export async function StaticNav({ className }: StaticNavProps) {
+  const t = await getTranslations('Navigation');
+  const locale = await getLocale();
+  
   return (
     <nav className={className}>
       <Link
-        href="/dashboard"
+        href={`/${locale}/dashboard`}
         className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground cursor-pointer"
       >
-        Dashboard
+        {t('dashboard')}
       </Link>
       <Link
-        href="/dashboard/players"
+        href={`/${locale}/dashboard/players`}
         className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground cursor-pointer"
       >
-        Players
+        {t('players')}
       </Link>
       <Link
-        href="/dashboard/contracts"
+        href={`/${locale}/dashboard/contracts`}
         className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground cursor-pointer"
       >
-        Contracts
+        {t('contracts')}
       </Link>
       <Link
-        href="/dashboard/transfers"
+        href={`/${locale}/dashboard/transfers`}
         className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground cursor-pointer"
       >
-        Transfers
+        {t('transfers')}
       </Link>
       <Link
-        href="/dashboard/reports"
+        href={`/${locale}/dashboard/statistics`}
         className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground cursor-pointer"
       >
-        Reports
+        {t('statistics')}
       </Link>
     </nav>
   );
