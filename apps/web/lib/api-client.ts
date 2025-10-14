@@ -29,12 +29,11 @@ const createApiClient = (): AxiosInstance => {
           console.warn("Failed to get auth cookie:", error);
         }
       } else {
-        // Client-side: Use auth store token
+        // Client-side: Use Redux store token
         try {
-          const { useAuthStore } = await import(
-            "../features/auth/store/auth-store"
-          );
-          const token = useAuthStore.getState().token;
+          const { store } = await import("../store");
+          const state = store.getState();
+          const token = state.auth?.token;
           if (token) {
             config.headers.Authorization = `Bearer ${token}`;
           }
@@ -55,10 +54,9 @@ const createApiClient = (): AxiosInstance => {
       if (error.response?.status === 401 && !isServer) {
         // Clear auth state on client-side 401 errors
         try {
-          const { useAuthStore } = await import(
-            "../features/auth/store/auth-store"
-          );
-          useAuthStore.getState().clearAuth();
+          const { store } = await import("../store");
+          const { clearAuth } = await import("@/features/auth/store");
+          store.dispatch(clearAuth());
         } catch (e) {
           console.warn("Failed to clear auth state:", e);
         }

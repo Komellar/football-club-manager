@@ -43,11 +43,11 @@ export const login = async (data: LoginDto): Promise<ActionResult> => {
     // Backend will handle setting the cookie directly
     const response = await callAuthAPI("login", result.data);
 
-    // Store token in auth store for API requests
+    // Store token in Redux store for API requests
     if (typeof window !== "undefined") {
-      const { useAuthStore } = await import("../store/auth-store");
-      const store = useAuthStore.getState();
-      store.setToken(response.access_token);
+      const { store } = await import("@/store");
+      const { setToken } = await import("../store");
+      store.dispatch(setToken(response.access_token));
     }
 
     return {};
@@ -74,11 +74,11 @@ export const register = async (data: CreateUserDto): Promise<ActionResult> => {
     // Backend will handle setting the cookie directly
     const response = await callAuthAPI("register", result.data);
 
-    // Store token in auth store for API requests
+    // Store token in Redux store for API requests
     if (typeof window !== "undefined") {
-      const { useAuthStore } = await import("../store/auth-store");
-      const store = useAuthStore.getState();
-      store.setToken(response.access_token);
+      const { store } = await import("@/store");
+      const { setToken } = await import("../store");
+      store.dispatch(setToken(response.access_token));
     }
 
     return {};
@@ -92,24 +92,24 @@ export const register = async (data: CreateUserDto): Promise<ActionResult> => {
   }
 };
 
+function clearReduxAuth() {
+  if (typeof window !== "undefined") {
+    import("@/store").then(({ store }) => {
+      import("../store").then(({ clearAuth }) => {
+        store.dispatch(clearAuth());
+      });
+    });
+  }
+}
+
 export const logout = async () => {
   try {
     // Backend will handle clearing the cookie directly
     await apiClient.post("/auth/logout");
-
-    // Clear token from auth store
-    if (typeof window !== "undefined") {
-      const { useAuthStore } = await import("../store/auth-store");
-      const store = useAuthStore.getState();
-      store.clearAuth();
-    }
+    clearReduxAuth();
   } catch (error) {
     // Even if logout fails, clear the local token
-    if (typeof window !== "undefined") {
-      const { useAuthStore } = await import("../store/auth-store");
-      const store = useAuthStore.getState();
-      store.clearAuth();
-    }
+    clearReduxAuth();
     throw error;
   }
 };

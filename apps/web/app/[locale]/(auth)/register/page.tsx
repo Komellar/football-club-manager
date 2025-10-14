@@ -14,7 +14,8 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { register, useAuthStore } from "@/features/auth";
+import { register, checkAuth } from "@/features/auth";
+import { useAppDispatch } from "@/store/hooks";
 import Link from "next/link";
 import { CreateUserDto, CreateUserSchema } from "@repo/core";
 import Image from "next/image";
@@ -23,7 +24,7 @@ import { useTranslations, useLocale } from "next-intl";
 export default function RegisterPage() {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
-  const checkAuth = useAuthStore((state) => state.checkAuth);
+  const dispatch = useAppDispatch();
   const t = useTranslations("Auth");
   const locale = useLocale();
 
@@ -56,7 +57,7 @@ export default function RegisterPage() {
 
       if (!result?.error) {
         // Refresh auth state after successful registration
-        await checkAuth();
+        await dispatch(checkAuth());
         router.push("/dashboard");
       }
     });

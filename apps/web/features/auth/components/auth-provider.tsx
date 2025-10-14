@@ -1,19 +1,20 @@
 "use client";
 
 import { useEffect } from "react";
-import { useAuthStore } from "../store/auth-store";
+import { checkAuth } from "../store/auth-thunks";
+import { useAppDispatch } from "@/store/hooks";
 
 interface AuthProviderProps {
   children: React.ReactNode;
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const checkAuth = useAuthStore((state) => state.checkAuth);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     // Check authentication status when the app initializes
-    checkAuth();
-  }, [checkAuth]);
+    dispatch(checkAuth());
+  }, [dispatch]);
 
   return <>{children}</>;
 }

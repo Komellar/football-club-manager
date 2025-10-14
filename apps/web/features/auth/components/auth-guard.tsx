@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuthStore } from "../store/auth-store";
+import { useAppSelector } from "@/store/hooks";
 import { useTranslations } from "next-intl";
 
 interface AuthGuardProps {
@@ -17,8 +17,8 @@ export function AuthGuard({
   redirectTo = "/login",
 }: AuthGuardProps) {
   const router = useRouter();
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const isLoading = useAuthStore((state) => state.isLoading);
+  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+  const isLoading = useAppSelector((state) => state.auth.isLoading);
 
   useEffect(() => {
     if (!isAuthenticated && !isLoading) {

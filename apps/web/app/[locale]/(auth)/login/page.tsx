@@ -15,7 +15,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { LoginDto, LoginSchema } from "@repo/core";
-import { login, useAuthStore } from "@/features/auth";
+import { login, checkAuth } from "@/features/auth";
+import { useAppDispatch } from "@/store/hooks";
 import Link from "next/link";
 import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
@@ -23,7 +24,7 @@ import { useTranslations, useLocale } from "next-intl";
 export default function LoginPage() {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
-  const checkAuth = useAuthStore((state) => state.checkAuth);
+  const dispatch = useAppDispatch();
   const t = useTranslations("Auth");
   const locale = useLocale();
 
@@ -57,7 +58,7 @@ export default function LoginPage() {
       if (!result?.error) {
         console.log("Login successful");
         // Refresh auth state after successful login
-        await checkAuth();
+        await dispatch(checkAuth());
         router.push("/dashboard");
       }
     });
@@ -102,7 +103,6 @@ export default function LoginPage() {
             <p className="text-gray-400">{t("descriptions.loginAccess")}</p>
           </div>
 
-          {/* Form */}
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               {form.formState.errors.root && (

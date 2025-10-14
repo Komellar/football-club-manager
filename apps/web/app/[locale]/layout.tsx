@@ -6,6 +6,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { routing } from "../../i18n/routing";
 import { notFound } from "next/navigation";
+import { ReduxProviders } from "@/store/providers";
 
 const geistSans = localFont({
   src: "../fonts/GeistVF.woff",
@@ -39,10 +40,12 @@ export default async function LocaleLayout({
   return (
     <html lang={locale}>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <NextIntlClientProvider messages={messages}>
-          <AuthProvider>{children}</AuthProvider>
-          <Toaster />
-        </NextIntlClientProvider>
+        <ReduxProviders>
+          <NextIntlClientProvider messages={messages}>
+            <AuthProvider>{children}</AuthProvider>
+            <Toaster />
+          </NextIntlClientProvider>
+        </ReduxProviders>
       </body>
     </html>
   );

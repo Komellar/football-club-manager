@@ -1,6 +1,7 @@
 "use client";
 
-import { LogoutButton, AuthGuard, useAuthStore } from "@/features/auth";
+import { LogoutButton, AuthGuard } from "@/features/auth";
+import { useAppSelector } from "@/store/hooks";
 import { useTranslations } from "next-intl";
 
 export default function DashboardPage() {
@@ -14,8 +15,8 @@ export default function DashboardPage() {
 function DashboardContent() {
   const t = useTranslations("Dashboard");
   const tCommon = useTranslations("Common");
-  const user = useAuthStore((state) => state.user);
-  const isLoading = useAuthStore((state) => state.isLoading);
+  const user = useAppSelector((state) => state.auth.user);
+  const isLoading = useAppSelector((state) => state.auth.isLoading);
 
   if (isLoading) {
     return (

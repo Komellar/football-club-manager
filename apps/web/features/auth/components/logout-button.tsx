@@ -1,16 +1,21 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useAuthStore } from "../store/auth-store";
+import { logout } from "../store/auth-thunks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useTranslations } from "next-intl";
 
 export function LogoutButton() {
-  const logout = useAuthStore((state) => state.logout);
-  const isLoading = useAuthStore((state) => state.isLoading);
+  const dispatch = useAppDispatch();
+  const isLoading = useAppSelector((state) => state.auth.isLoading);
   const t = useTranslations("Auth");
 
+  const handleLogout = () => {
+    dispatch(logout());
+  };
+
   return (
-    <Button variant="outline" onClick={logout} disabled={isLoading}>
+    <Button variant="outline" onClick={handleLogout} disabled={isLoading}>
       {isLoading ? t("signingOut") : t("signOut")}
     </Button>
   );

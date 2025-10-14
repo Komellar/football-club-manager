@@ -12,7 +12,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useAuthStore } from "@/features/auth";
+import { logout as logoutThunk } from "@/features/auth/store";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useRouter, usePathname } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 
@@ -23,14 +24,14 @@ const locales = [
 
 export function UserNav() {
   const t = useTranslations("Navigation");
-  const user = useAuthStore((state) => state.user);
-  const logout = useAuthStore((state) => state.logout);
+  const user = useAppSelector((state) => state.auth.user);
+  const dispatch = useAppDispatch();
   const router = useRouter();
   const pathname = usePathname();
   const currentLocale = useLocale();
 
   const handleLogout = async () => {
-    await logout();
+    dispatch(logoutThunk());
     router.push("/login");
   };
 
