@@ -15,22 +15,25 @@ export function Breadcrumb() {
   const pathname = usePathname();
   const t = useTranslations("Navigation");
 
-  // Generate breadcrumb items from pathname
   const generateBreadcrumbs = (): BreadcrumbItem[] => {
     const pathSegments = pathname.split("/").filter(Boolean);
     const breadcrumbs: BreadcrumbItem[] = [];
 
-    // Always start with dashboard
-    breadcrumbs.push({ label: t("dashboard"), href: "/dashboard" });
-
-    // Build breadcrumbs for nested paths
+    // Build breadcrumbs for nested paths (skip locale segment if present)
     let currentPath = "";
-    for (let i = 1; i < pathSegments.length; i++) {
+
+    // If first segment is a locale (2 letters), skip it
+    let startIdx = 0;
+    if (pathSegments[0] && pathSegments[0].length === 2) {
+      startIdx = 1;
+    }
+
+    for (let i = startIdx; i < pathSegments.length; i++) {
       const segment = pathSegments[i];
       if (!segment) continue;
-
       currentPath += `/${segment}`;
-      const fullPath = `/dashboard${currentPath}`;
+      // Build full path from segments
+      const fullPath = `/${pathSegments.slice(0, i + 1).join("/")}`;
 
       // Try to get translation, fallback to capitalized segment
       let label: string;
@@ -51,23 +54,16 @@ export function Breadcrumb() {
 
   const breadcrumbs = generateBreadcrumbs();
 
-  // Don't show breadcrumbs on dashboard root
-  if (pathname === "/dashboard") {
+  if (breadcrumbs.length <= 1) {
     return null;
   }
 
   return (
     <nav className="flex items-center space-x-1 text-sm text-muted-foreground">
-      <Link
-        href="/dashboard"
-        className="flex items-center hover:text-foreground"
-      >
-        <Home className="h-4 w-4" />
-      </Link>
-      {breadcrumbs.slice(1).map((item, index) => (
+      {breadcrumbs.map((item, index) => (
         <Fragment key={item.href}>
-          <ChevronRight className="h-4 w-4" />
-          {index === breadcrumbs.length - 2 ? (
+          {index > 0 && <ChevronRight className="h-4 w-4" />}
+          {index === breadcrumbs.length - 1 ? (
             <span className="font-medium text-foreground">{item.label}</span>
           ) : (
             <Link href={item.href} className="hover:text-foreground">

@@ -31,7 +31,7 @@ export async function Footer() {
               </li>
               <li>
                 <Link
-                  href="/dashboard/players"
+                  href="/players"
                   className="text-muted-foreground hover:text-foreground"
                 >
                   {t("players")}
@@ -39,7 +39,7 @@ export async function Footer() {
               </li>
               <li>
                 <Link
-                  href="/dashboard/reports"
+                  href="/reports"
                   className="text-muted-foreground hover:text-foreground"
                 >
                   {t("reports")}

@@ -2,22 +2,24 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormProvider, useForm } from "react-hook-form";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
-import { createPlayerAction } from "../actions";
-import { DEFAULT_FORM_VALUES } from "../constants";
+import { createPlayerAction } from "../../actions";
+import { DEFAULT_FORM_VALUES } from "../../constants";
 import { CreatePlayerDto, CreatePlayerSchema } from "@repo/core";
-import { PhysicalAttributes, BasicInfo, TeamInfo, PlayerStatus } from "./form";
+import { PhysicalAttributes, BasicInfo, TeamInfo, PlayerStatus } from ".";
 
 export function PlayerForm() {
   const t = useTranslations("Players");
 
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [serverError, setServerError] = useState<string | null>(null);
 
   const form = useForm<CreatePlayerDto>({
     resolver: zodResolver(CreatePlayerSchema),
@@ -25,21 +27,29 @@ export function PlayerForm() {
   });
 
   const onSubmit = async (data: CreatePlayerDto) => {
+    setServerError(null); // Clear previous errors
     startTransition(async () => {
       try {
         await createPlayerAction(data);
         toast.success(t("playerAdded"));
         form.reset();
-        router.push("/dashboard/players");
+        router.push("/players");
       } catch (error) {
-        console.error("Failed to create player:", error);
+        let errorMessage = t("failedToCreate");
+        if (error instanceof Error) {
+          errorMessage = error.message;
+        } else if (typeof error === "string") {
+          errorMessage = error;
+        }
+
+        setServerError(errorMessage);
         toast.error(t("failedToCreate"));
       }
     });
   };
 
   const onCancel = () => {
-    router.push("/dashboard/players");
+    router.push("/players");
   };
 
   return (
@@ -48,6 +58,11 @@ export function PlayerForm() {
         <CardTitle>{t("addPlayer")}</CardTitle>
       </CardHeader>
       <CardContent>
+        {serverError && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertDescription>{serverError}</AlertDescription>
+          </Alert>
+        )}
         <FormProvider {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <BasicInfo />

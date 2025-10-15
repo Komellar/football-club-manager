@@ -210,5 +210,10 @@
     "copyright": "© {year} Administrador de Club de Fútbol. Todos los derechos reservados.",
     "status": "Estado",
     "api": "API"
+  },
+  "PlayersPagination": {
+    "showing": "Mostrando {startItem} a {endItem} de {total} jugadores",
+    "previous": "Anterior",
+    "next": "Siguiente"
   }
 }

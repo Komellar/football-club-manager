@@ -210,5 +210,10 @@
     "copyright": "© {year} Football Club Manager. All rights reserved.",
     "status": "Status",
     "api": "API"
+  },
+  "PlayersPagination": {
+    "showing": "Showing {startItem} to {endItem} of {total} players",
+    "previous": "Previous",
+    "next": "Next"
   }
 }

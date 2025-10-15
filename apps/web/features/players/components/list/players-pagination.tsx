@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { PaginationMeta } from "@repo/core";
+import { useTranslations } from "next-intl";
 
 interface PlayersPaginationProps {
   pagination: PaginationMeta;
@@ -10,6 +11,7 @@ export function PlayersPagination({
   pagination,
   onPageChange,
 }: PlayersPaginationProps) {
+  const t = useTranslations("PlayersPagination");
   const { page, limit, total, totalPages, hasNext, hasPrev } = pagination;
 
   const startItem = (page - 1) * limit + 1;
@@ -18,7 +20,7 @@ export function PlayersPagination({
   return (
     <div className="flex items-center justify-between">
       <div className="text-sm text-muted-foreground">
-        Showing {startItem} to {endItem} of {total} players
+        {t("showing", { startItem, endItem, total })}
       </div>
 
       {totalPages > 1 && (
@@ -29,7 +31,7 @@ export function PlayersPagination({
             disabled={!hasPrev}
             onClick={() => onPageChange?.(page - 1)}
           >
-            Previous
+            {t("previous")}
           </Button>
 
           <div className="flex items-center space-x-1">
@@ -67,7 +69,7 @@ export function PlayersPagination({
             disabled={!hasNext}
             onClick={() => onPageChange?.(page + 1)}
           >
-            Next
+            {t("next")}
           </Button>
         </div>
       )}

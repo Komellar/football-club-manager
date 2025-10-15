@@ -11,8 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Eye, Edit, Trash2 } from "lucide-react";
 import { formatCurrency } from "@/utils/currency";
-import { formatPlayerPosition } from "../utils";
-import { positionColors } from "../constants";
+import { formatPlayerPosition } from "../../utils";
+import { positionColors } from "../../constants";
 import { getTranslations } from "next-intl/server";
 
 interface PlayersTableProps {

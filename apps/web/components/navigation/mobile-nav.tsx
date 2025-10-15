@@ -5,22 +5,25 @@ import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import Link from "next/link";
+
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 const navigationItems = [
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/dashboard/players", label: "Players" },
-  { href: "/dashboard/contracts", label: "Contracts" },
-  { href: "/dashboard/transfers", label: "Transfers" },
-  { href: "/dashboard/expenses", label: "Expenses" },
-  { href: "/dashboard/revenues", label: "Revenues" },
-  { href: "/dashboard/reports", label: "Reports" },
+  { href: "/dashboard", key: "dashboard" },
+  { href: "/players", key: "players" },
+  { href: "/contracts", key: "contracts" },
+  { href: "/transfers", key: "transfers" },
+  { href: "/expenses", key: "expenses" },
+  { href: "/revenues", key: "revenues" },
+  { href: "/reports", key: "reports" },
 ];
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const t = useTranslations("Navigation");
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -57,7 +60,7 @@ export function MobileNav() {
                     : "text-foreground/60"
                 )}
               >
-                {item.label}
+                {t(item.key)}
               </Link>
             ))}
           </div>

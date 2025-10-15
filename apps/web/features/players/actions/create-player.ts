@@ -7,5 +7,5 @@ import type { CreatePlayerDto } from "@repo/core";
 export async function createPlayerAction(playerData: CreatePlayerDto) {
   await createPlayer(playerData);
 
-  revalidatePath("/dashboard/players");
+  revalidatePath("/players");
 }

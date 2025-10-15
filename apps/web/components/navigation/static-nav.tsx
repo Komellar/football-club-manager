@@ -6,40 +6,40 @@ interface StaticNavProps {
 }
 
 export async function StaticNav({ className }: StaticNavProps) {
-  const t = await getTranslations('Navigation');
+  const t = await getTranslations("Navigation");
   const locale = await getLocale();
-  
+
   return (
     <nav className={className}>
       <Link
         href={`/${locale}/dashboard`}
         className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground cursor-pointer"
       >
-        {t('dashboard')}
+        {t("dashboard")}
       </Link>
       <Link
-        href={`/${locale}/dashboard/players`}
+        href={`/${locale}/players`}
         className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground cursor-pointer"
       >
-        {t('players')}
+        {t("players")}
       </Link>
       <Link
-        href={`/${locale}/dashboard/contracts`}
+        href={`/${locale}/contracts`}
         className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground cursor-pointer"
       >
-        {t('contracts')}
+        {t("contracts")}
       </Link>
       <Link
-        href={`/${locale}/dashboard/transfers`}
+        href={`/${locale}/transfers`}
         className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground cursor-pointer"
       >
-        {t('transfers')}
+        {t("transfers")}
       </Link>
       <Link
-        href={`/${locale}/dashboard/statistics`}
+        href={`/${locale}/statistics`}
         className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground cursor-pointer"
       >
-        {t('statistics')}
+        {t("statistics")}
       </Link>
     </nav>
   );

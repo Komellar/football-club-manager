@@ -2,7 +2,7 @@ import { Header } from "@/components/navigation";
 import { Footer } from "@/components/layout/footer";
 import { AuthGuard } from "@/features/auth";
 
-export default function DashboardLayout({
+export default function ProtectedLayout({
   children,
 }: {
   children: React.ReactNode;

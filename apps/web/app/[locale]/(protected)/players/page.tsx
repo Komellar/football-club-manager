@@ -30,7 +30,7 @@ export default async function PlayersPage({
           <h1 className="text-3xl font-bold tracking-tight">{t("title")}</h1>
           <p className="text-muted-foreground">{t("managePlayers")}</p>
         </div>
-        <Link href={`/${locale}/dashboard/players/new`}>
+        <Link href={`/${locale}/players/new`}>
           <Button>
             <Plus className="h-4 w-4 mr-2" />
             {t("addPlayer")}
