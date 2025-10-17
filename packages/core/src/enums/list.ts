@@ -5,6 +5,7 @@ export enum CompareOperator {
   GTE = "_gte",
   LTE = "_lte",
   NE = "_ne",
+  BETWEEN = "_between",
 }
 
 export enum FilterMode {
@@ -15,4 +16,5 @@ export enum FilterMode {
   GTE = "gte",
   LTE = "lte",
   NE = "ne",
+  BETWEEN = "between",
 }

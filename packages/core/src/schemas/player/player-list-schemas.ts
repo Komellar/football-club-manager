@@ -3,6 +3,7 @@ import { PlayerPosition } from "../../enums/player-position";
 import { ListQueryParamsSchema } from "../list/pagination-schemas";
 import { createPaginationResponseSchema } from "../../utils/schema-utils";
 import { PlayerResponseSchema } from "./player-response-schemas";
+import { VALID_NATIONALITIES } from "../../constants/confederations";
 
 export const PlayerListSchema = ListQueryParamsSchema.extend({
   where: z
@@ -16,22 +17,18 @@ export const PlayerListSchema = ListQueryParamsSchema.extend({
         ])
         .optional(),
       isActive: z.coerce.boolean().optional(),
-      nationality: z.string().optional(),
-      minAge: z.coerce.number().int().min(0).optional(),
-      maxAge: z.coerce.number().int().min(0).optional(),
-      minHeight: z.coerce.number().positive().optional(),
-      maxHeight: z.coerce.number().positive().optional(),
-      minWeight: z.coerce.number().positive().optional(),
-      maxWeight: z.coerce.number().positive().optional(),
-      minMarketValue: z.coerce.number().positive().optional(),
-      maxMarketValue: z.coerce.number().positive().optional(),
+      nationality: z.enum(VALID_NATIONALITIES).optional(),
+      dateOfBirth: z.array(z.coerce.date()).length(2).optional(),
     })
     .optional(),
-  sortBy: z
-    .enum(["name", "age", "position", "marketValue", "createdAt"])
-    .default("name")
+  sort: z
+    .object({
+      by: z
+        .enum(["name", "age", "position", "marketValue", "createdAt"])
+        .default("name"),
+      order: z.enum(["ASC", "DESC"]).default("ASC").optional(),
+    })
     .optional(),
-  sortOrder: z.enum(["ASC", "DESC"]).default("ASC").optional(),
 });
 
 export const PaginatedPlayerListResponseSchema =

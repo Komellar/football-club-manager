@@ -47,8 +47,16 @@ export class PlayersService {
     queryDto?: Partial<PlayerListDto>,
   ): Promise<PaginatedPlayerListResponseDto> {
     const filterOptions: FilterOptions = {
-      defaultFilterMode: FilterMode.EXACT, // Use exact matching for player filters
+      defaultFilterMode: FilterMode.EXACT,
+      searchOptions: {
+        searchFields: ['name'],
+        searchMode: FilterMode.PARTIAL,
+      },
+      filterModes: {
+        dateOfBirth: FilterMode.BETWEEN,
+      },
     };
+
     return await ListQueryBuilder.executeQuery(
       this.playerRepository,
       queryDto,

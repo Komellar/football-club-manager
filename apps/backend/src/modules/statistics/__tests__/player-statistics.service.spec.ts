@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository, EntityNotFoundError } from 'typeorm';
+import { EntityNotFoundError } from 'typeorm';
 // Removed unused exception imports - services now use global exception filter
 
 import { PlayerStatisticsService } from '../services/player-statistics.service';
@@ -60,12 +60,6 @@ const mockQueryDto: PlayerStatisticsQueryDto = {
   },
 };
 
-// Mock QueryBuilder
-const mockQueryBuilder = {
-  andWhere: jest.fn().mockReturnThis(),
-  orderBy: jest.fn().mockReturnThis(),
-};
-
 // Mock Repository
 const mockRepository = {
   create: jest.fn(),
@@ -87,7 +81,6 @@ jest.mock('../../../shared/helpers/pagination.helper', () => ({
 
 describe('PlayerStatisticsService', () => {
   let service: PlayerStatisticsService;
-  let repository: Repository<PlayerStatistics>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -101,9 +94,6 @@ describe('PlayerStatisticsService', () => {
     }).compile();
 
     service = module.get<PlayerStatisticsService>(PlayerStatisticsService);
-    repository = module.get<Repository<PlayerStatistics>>(
-      getRepositoryToken(PlayerStatistics),
-    );
 
     // Reset all mocks
     jest.clearAllMocks();
@@ -168,9 +158,13 @@ describe('PlayerStatisticsService', () => {
       // Assert
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: {
-          playerId: 1,
-          season: '2023-24',
+          playerId: expect.objectContaining({ _type: 'equal', _value: 1 }),
+          season: expect.objectContaining({
+            _type: 'equal',
+            _value: '2023-24',
+          }),
         },
+        order: undefined,
         skip: 0,
         take: 10,
       });
@@ -188,9 +182,13 @@ describe('PlayerStatisticsService', () => {
       // Assert
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: {
-          playerId: 1,
-          season: '2023-24',
+          playerId: expect.objectContaining({ _type: 'equal', _value: 1 }),
+          season: expect.objectContaining({
+            _type: 'equal',
+            _value: '2023-24',
+          }),
         },
+        order: undefined,
         skip: 0,
         take: 10,
       });

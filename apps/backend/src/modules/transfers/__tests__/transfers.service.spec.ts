@@ -314,17 +314,33 @@ describe('TransfersService', () => {
       expect(transferRepository.findAndCount).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            playerId: 1,
-            transferType: TransferType.SIGNING,
-            transferStatus: TransferStatus.COMPLETED,
+            playerId: expect.objectContaining({ _type: 'equal', _value: 1 }),
+            transferType: expect.objectContaining({
+              _type: 'equal',
+              _value: TransferType.SIGNING,
+            }),
+            transferStatus: expect.objectContaining({
+              _type: 'equal',
+              _value: TransferStatus.COMPLETED,
+            }),
             // fromClub and toClub should be processed with ILike for partial matching
             fromClub: expect.objectContaining({ _type: 'ilike' }),
             toClub: expect.objectContaining({ _type: 'ilike' }),
-            isPermanent: true,
-            // minFee and maxFee now use FilterMode.GTE and FilterMode.LTE directly
-            minFee: expect.objectContaining({ _type: 'moreThanOrEqual' }),
-            maxFee: expect.objectContaining({ _type: 'lessThanOrEqual' }),
+            isPermanent: expect.objectContaining({
+              _type: 'equal',
+              _value: true,
+            }),
+            // minFee and maxFee now use Equal operator (not GTE/LTE)
+            minFee: expect.objectContaining({
+              _type: 'equal',
+              _value: 1000000,
+            }),
+            maxFee: expect.objectContaining({
+              _type: 'equal',
+              _value: 100000000,
+            }),
           }),
+          order: undefined,
           skip: 0,
           take: 10,
         }),

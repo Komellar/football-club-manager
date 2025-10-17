@@ -19,8 +19,10 @@ export default async function PlayersPage({
   const players = await getPlayers({
     page: 1,
     limit: 10,
-    sortBy: "name",
-    sortOrder: "ASC",
+    sort: {
+      by: "name",
+      order: "ASC",
+    },
   });
 
   return (

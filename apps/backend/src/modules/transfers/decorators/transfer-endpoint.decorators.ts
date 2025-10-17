@@ -40,13 +40,15 @@ export const GetAllTransfers = () =>
       name: 'page',
       required: false,
       type: Number,
-      description: 'Page number (default: 1)',
+      description: 'Page number',
+      example: 1,
     }),
     ApiQuery({
       name: 'limit',
       required: false,
       type: Number,
-      description: 'Items per page (default: 10)',
+      description: 'Items per page',
+      example: 10,
     }),
     ApiQuery({
       name: 'playerId',
@@ -55,16 +57,16 @@ export const GetAllTransfers = () =>
       description: 'Filter by player ID',
     }),
     ApiQuery({
-      name: 'fromClubId',
+      name: 'fromClub',
       required: false,
       type: Number,
-      description: 'Filter by source club ID',
+      description: 'Filter by source club',
     }),
     ApiQuery({
-      name: 'toClubId',
+      name: 'toClub',
       required: false,
       type: Number,
-      description: 'Filter by destination club ID',
+      description: 'Filter by destination club',
     }),
     ApiResponse({
       status: 200,

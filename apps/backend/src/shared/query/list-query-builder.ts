@@ -7,9 +7,12 @@ import {
   LessThan,
   MoreThanOrEqual,
   LessThanOrEqual,
+  Between,
   Repository,
   ObjectLiteral,
   And,
+  FindOperator,
+  Equal,
 } from 'typeorm';
 import {
   CompareOperator,
@@ -20,6 +23,7 @@ import {
   type ListQueryParams,
   type PaginationResult,
   type PaginationMeta,
+  type SortParams,
 } from '@repo/core';
 
 export class ListQueryBuilder {
@@ -41,6 +45,7 @@ export class ListQueryBuilder {
       queryDto,
       filterOptions,
     );
+
     const [data, total] = await repository.findAndCount(typeormQuery);
 
     return {
@@ -59,7 +64,6 @@ export class ListQueryBuilder {
       return { skip: (page - 1) * limit, take: limit };
     }
 
-    const searchTerm = queryDto.search;
     const whereClause =
       ((queryDto as Record<string, unknown>)?.where as Record<
         string,
@@ -70,12 +74,15 @@ export class ListQueryBuilder {
 
     const finalWhere = this.addSearchToWhere(
       processedWhere,
-      searchTerm,
+      queryDto.search,
       filterOptions?.searchOptions,
     );
 
+    const order = this.buildOrderClause(queryDto.sort);
+
     return {
       where: finalWhere,
+      order,
       skip: (page - 1) * limit,
       take: limit,
     };
@@ -88,13 +95,10 @@ export class ListQueryBuilder {
     const result: Record<string, unknown> = {};
     const flatFilters = this.flattenFilters(filters);
 
-    const ignoredFilters = options?.ignoredFilters || [];
     const filterModes = options?.filterModes || {};
     const defaultMode = options?.defaultFilterMode || this.DEFAULT_FILTER_MODE;
 
     Object.entries(flatFilters).forEach(([key, value]) => {
-      if (ignoredFilters.includes(key) || value == null) return;
-
       const mode = filterModes[key] || defaultMode;
       const comparable = this.toComparable(value, mode);
 
@@ -153,6 +157,8 @@ export class ListQueryBuilder {
         return { [CompareOperator.LTE]: value };
       case FilterMode.NE:
         return { [CompareOperator.NE]: value };
+      case FilterMode.BETWEEN:
+        return { [CompareOperator.BETWEEN]: value };
       default:
         return { [CompareOperator.EQ]: value };
     }
@@ -161,24 +167,36 @@ export class ListQueryBuilder {
   private static buildFilterOperator(
     comparable: Comparable<unknown>,
     mode: FilterMode,
-  ) {
+  ): unknown {
     const operators = Object.entries(comparable);
-    const conditions = operators
-      .map(([operator, value]) =>
-        this.buildSingleOperator(operator as CompareOperator, value, mode),
-      )
-      .filter((condition) => condition != null);
+    const conditions = operators.map(([operator, value]) =>
+      this.buildSingleOperator(operator as CompareOperator, value, mode),
+    );
 
-    return conditions.length > 1
-      ? And(...(conditions as Parameters<typeof And>))
-      : conditions[0];
+    if (conditions.length === 0) {
+      return undefined;
+    }
+    if (conditions.length === 1) {
+      return conditions[0];
+    }
+
+    return And(...conditions.map((c) => c));
   }
 
   private static buildSingleOperator(
     operator: CompareOperator,
     value: unknown,
     mode: FilterMode,
-  ): unknown {
+  ): FindOperator<unknown> {
+    if (operator === CompareOperator.BETWEEN) {
+      if (!Array.isArray(value) || value.length !== 2) {
+        throw new Error(
+          'BETWEEN operator requires an array of exactly 2 values [min, max]',
+        );
+      }
+      return Between(value[0], value[1]);
+    }
+
     if (Array.isArray(value)) {
       return operator === CompareOperator.EQ ? In(value) : Not(In(value));
     }
@@ -194,14 +212,22 @@ export class ListQueryBuilder {
         return LessThanOrEqual(value);
       case CompareOperator.NE:
         return Not(value);
+
       case CompareOperator.EQ:
       default:
-        if (mode === FilterMode.EXACT) {
-          return value;
-        } else {
-          return ILike(`%${String(value)}%`);
-        }
+        return this.buildEqualityOperator(value, mode);
     }
+  }
+
+  private static buildEqualityOperator(
+    value: unknown,
+    mode: FilterMode,
+  ): FindOperator<unknown> {
+    if (typeof value !== 'string' || mode === FilterMode.EXACT) {
+      return Equal(value);
+    }
+
+    return ILike(`%${String(value)}%`);
   }
 
   private static addSearchToWhere(
@@ -241,6 +267,16 @@ export class ListQueryBuilder {
       ...where,
       ...searchCondition,
     }));
+  }
+
+  private static buildOrderClause(
+    sort?: SortParams,
+  ): Record<string, 'ASC' | 'DESC'> | undefined {
+    if (!sort?.by) {
+      return undefined;
+    }
+
+    return { [sort.by]: sort.order || 'ASC' };
   }
 
   private static buildPagination(

@@ -32,11 +32,14 @@ export const ContractListSchema = ListQueryParamsSchema.extend({
       currency: z.string().length(3).optional(),
     })
     .optional(),
-  sortBy: z
-    .enum(["startDate", "endDate", "salary", "createdAt"])
-    .default("createdAt")
+  sort: z
+    .object({
+      by: z
+        .enum(["startDate", "endDate", "salary", "createdAt"])
+        .default("createdAt"),
+      order: z.enum(["ASC", "DESC"]).default("DESC").optional(),
+    })
     .optional(),
-  sortOrder: z.enum(["ASC", "DESC"]).default("DESC").optional(),
 });
 
 export const PaginatedContractListResponseSchema =

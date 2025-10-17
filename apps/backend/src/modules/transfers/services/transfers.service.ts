@@ -62,12 +62,10 @@ export class TransfersService {
     queryDto?: Partial<TransferListDto>,
   ): Promise<PaginatedTransferResponseDto> {
     const filterOptions: FilterOptions = {
-      defaultFilterMode: FilterMode.EXACT, // Default to exact matching
+      defaultFilterMode: FilterMode.EXACT,
       filterModes: {
         fromClub: FilterMode.PARTIAL,
         toClub: FilterMode.PARTIAL,
-        minFee: FilterMode.GTE,
-        maxFee: FilterMode.LTE,
       },
       searchOptions: {
         searchFields: ['fromClub', 'toClub'],

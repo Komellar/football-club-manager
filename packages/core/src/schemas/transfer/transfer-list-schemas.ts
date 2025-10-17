@@ -30,8 +30,12 @@ export const TransferListSchema = ListQueryParamsSchema.extend({
       fromClub: z.string().optional(),
       toClub: z.string().optional(),
       isPermanent: z.coerce.boolean().optional(),
-      minFee: z.coerce.number().positive().optional(),
-      maxFee: z.coerce.number().positive().optional(),
+    })
+    .optional(),
+  sort: z
+    .object({
+      by: z.enum(["transferDate", "fee", "createdAt"]).default("transferDate"),
+      order: z.enum(["ASC", "DESC"]).default("DESC").optional(),
     })
     .optional(),
 });

@@ -18,6 +18,11 @@ jest.mock('typeorm', () => ({
     _type: 'lessThanOrEqual',
     _value: value,
   })),
+  Between: jest.fn((min, max) => ({
+    _type: 'between',
+    _value: [min, max],
+  })),
+  Equal: jest.fn((value) => ({ _type: 'equal', _value: value })),
   And: jest.fn((...conditions) => ({ _type: 'and', _conditions: conditions })),
 }));
 
@@ -117,8 +122,9 @@ describe('ListQueryBuilder', () => {
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: {
           name: { _type: 'ilike', _value: '%John%' }, // Default PARTIAL mode
-          age: { _type: 'ilike', _value: '%25%' },
+          age: { _type: 'equal', _value: 25 }, // Numbers use Equal()
         },
+        order: undefined,
         skip: 0,
         take: 10,
       });
@@ -137,6 +143,7 @@ describe('ListQueryBuilder', () => {
 
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: { age: { _type: 'moreThan', _value: 18 } },
+        order: undefined,
         skip: 0,
         take: 10,
       });
@@ -149,6 +156,7 @@ describe('ListQueryBuilder', () => {
 
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: { age: { _type: 'lessThan', _value: 65 } },
+        order: undefined,
         skip: 0,
         take: 10,
       });
@@ -161,6 +169,7 @@ describe('ListQueryBuilder', () => {
 
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: { age: { _type: 'moreThanOrEqual', _value: 18 } },
+        order: undefined,
         skip: 0,
         take: 10,
       });
@@ -173,6 +182,7 @@ describe('ListQueryBuilder', () => {
 
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: { age: { _type: 'lessThanOrEqual', _value: 65 } },
+        order: undefined,
         skip: 0,
         take: 10,
       });
@@ -185,6 +195,7 @@ describe('ListQueryBuilder', () => {
 
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: { age: { _type: 'not', _value: 25 } },
+        order: undefined,
         skip: 0,
         take: 10,
       });
@@ -199,6 +210,7 @@ describe('ListQueryBuilder', () => {
 
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: { age: { _type: 'in', _value: [18, 25, 30] } },
+        order: undefined,
         skip: 0,
         take: 10,
       });
@@ -215,6 +227,7 @@ describe('ListQueryBuilder', () => {
         where: {
           age: { _type: 'not', _value: { _type: 'in', _value: [18, 25, 30] } },
         },
+        order: undefined,
         skip: 0,
         take: 10,
       });
@@ -248,6 +261,7 @@ describe('ListQueryBuilder', () => {
             ],
           },
         },
+        order: undefined,
         skip: 0,
         take: 10,
       });
@@ -260,6 +274,7 @@ describe('ListQueryBuilder', () => {
 
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: { age: { _type: 'moreThanOrEqual', _value: 18 } },
+        order: undefined,
         skip: 0,
         take: 10,
       });
@@ -278,6 +293,7 @@ describe('ListQueryBuilder', () => {
 
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: { name: { _type: 'ilike', _value: '%John%' } },
+        order: undefined,
         skip: 0,
         take: 10,
       });
@@ -296,7 +312,8 @@ describe('ListQueryBuilder', () => {
       );
 
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
-        where: { name: 'John' },
+        where: { name: { _type: 'equal', _value: 'John' } },
+        order: undefined,
         skip: 0,
         take: 10,
       });
@@ -318,9 +335,10 @@ describe('ListQueryBuilder', () => {
 
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: {
-          name: 'John',
-          email: 'john@test.com',
+          name: { _type: 'equal', _value: 'John' },
+          email: { _type: 'equal', _value: 'john@test.com' },
         },
+        order: undefined,
         skip: 0,
         take: 10,
       });
@@ -343,8 +361,10 @@ describe('ListQueryBuilder', () => {
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: {
           name: { _type: 'ilike', _value: '%John%' },
+          age: { _type: 'equal', _value: 25 }, // Numbers use Equal()
           email: { _type: 'ilike', _value: '%john@test.com%' },
         },
+        order: undefined,
         skip: 0,
         take: 10,
       });
@@ -375,6 +395,7 @@ describe('ListQueryBuilder', () => {
           { name: { _type: 'ilike', _value: '%test%' } },
           { email: { _type: 'ilike', _value: '%test%' } },
         ],
+        order: undefined,
         skip: 0,
         take: 10,
       });
@@ -397,14 +418,15 @@ describe('ListQueryBuilder', () => {
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: [
           {
-            age: { _type: 'ilike', _value: '%25%' },
+            age: { _type: 'equal', _value: 25 }, // Numbers use Equal()
             name: { _type: 'ilike', _value: '%John%' },
           },
           {
-            age: { _type: 'ilike', _value: '%25%' },
+            age: { _type: 'equal', _value: 25 }, // Numbers use Equal()
             email: { _type: 'ilike', _value: '%John%' },
           },
         ],
+        order: undefined,
         skip: 0,
         take: 10,
       });
@@ -427,6 +449,7 @@ describe('ListQueryBuilder', () => {
 
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: [{ name: 'test' }],
+        order: undefined,
         skip: 0,
         take: 10,
       });
@@ -454,6 +477,7 @@ describe('ListQueryBuilder', () => {
             email: { _type: 'ilike', _value: '%test%' },
           },
         ],
+        order: undefined,
         skip: 0,
         take: 10,
       });
@@ -482,6 +506,7 @@ describe('ListQueryBuilder', () => {
           name: { _type: 'ilike', _value: '%John%' },
           email: { _type: 'ilike', _value: '%john@test.com%' },
         },
+        order: undefined,
         skip: 0,
         take: 10,
       });
@@ -503,6 +528,7 @@ describe('ListQueryBuilder', () => {
 
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: { name: { _type: 'ilike', _value: '%John%' } },
+        order: undefined,
         skip: 0,
         take: 10,
       });
@@ -531,6 +557,7 @@ describe('ListQueryBuilder', () => {
         where: {
           'user.profile.name': { _type: 'ilike', _value: '%John%' },
         },
+        order: undefined,
         skip: 0,
         take: 10,
       });
@@ -551,6 +578,7 @@ describe('ListQueryBuilder', () => {
         where: {
           'user.age': { _type: 'moreThanOrEqual', _value: 18 },
         },
+        order: undefined,
         skip: 0,
         take: 10,
       });
@@ -571,6 +599,7 @@ describe('ListQueryBuilder', () => {
 
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: { name: { _type: 'ilike', _value: '%John%' } },
+        order: undefined,
         skip: 0,
         take: 10,
       });
@@ -581,6 +610,7 @@ describe('ListQueryBuilder', () => {
 
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: {},
+        order: undefined,
         skip: 0,
         take: 10,
       });
@@ -593,6 +623,7 @@ describe('ListQueryBuilder', () => {
 
       expect(mockRepository.findAndCount).toHaveBeenCalledWith({
         where: {},
+        order: undefined,
         skip: 0, // Uses default page (1) when 0: (1-1) * 10 = 0
         take: 10, // Uses default limit when 0
       });

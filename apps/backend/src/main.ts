@@ -9,9 +9,22 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { HttpAdapterHost } from '@nestjs/core';
 import { AllExceptionsFilter } from './shared/filters/all-exceptions.filter';
 import { setupSwagger } from './config/swagger.config';
+import * as qs from 'qs';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  // Configure Express to properly parse nested query parameters
+  app.set('query parser', (str: string) => {
+    return qs.parse(str, {
+      allowDots: false,
+      depth: 5,
+      arrayLimit: 50,
+      parseArrays: true,
+      allowPrototypes: false,
+      plainObjects: true,
+    });
+  });
 
   const httpAdapterHost = app.get(HttpAdapterHost);
   app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost));

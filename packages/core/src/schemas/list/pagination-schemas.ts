@@ -1,9 +1,17 @@
 import { z } from "zod";
 
+export const SortParamsSchema = z
+  .object({
+    by: z.string(),
+    order: z.enum(["ASC", "DESC"]).default("ASC").optional(),
+  })
+  .optional();
+
 export const ListQueryParamsSchema = z.object({
   page: z.coerce.number().int().positive().default(1).optional(),
   limit: z.coerce.number().int().positive().max(100).default(10).optional(),
-  search: z.string().trim().optional(),
+  search: z.string().optional(),
+  sort: SortParamsSchema,
 });
 
 export const PaginationResultSchema = z.object({
@@ -32,3 +40,5 @@ export type PaginationResult<T> = {
   data: T[];
   pagination: PaginationMeta;
 };
+
+export type SortParams = z.infer<typeof SortParamsSchema>;

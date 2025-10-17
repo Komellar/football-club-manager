@@ -69,8 +69,10 @@ const mockUpdatePlayerDto: UpdatePlayerDto = {
 const mockQueryDto: PlayerListDto = {
   page: 1,
   limit: 10,
-  sortBy: 'name',
-  sortOrder: 'ASC',
+  sort: {
+    by: 'name',
+    order: 'ASC',
+  },
   where: {
     position: PlayerPosition.FORWARD,
     isActive: true,
@@ -79,14 +81,7 @@ const mockQueryDto: PlayerListDto = {
   search: 'John',
 };
 
-// Mock QueryBuilder
-const mockQueryBuilder = {
-  andWhere: jest.fn().mockReturnThis(),
-  orderBy: jest.fn().mockReturnThis(),
-  skip: jest.fn().mockReturnThis(),
-  take: jest.fn().mockReturnThis(),
-  getManyAndCount: jest.fn(),
-};
+// Mock Repository
 
 // Mock Repository
 const mockRepository = {
@@ -204,11 +199,30 @@ describe('PlayersService', () => {
       const result = await service.findAll(mockQueryDto);
 
       // Assert
-      expect(mockRepository.findAndCount).toHaveBeenCalledWith({
-        where: mockQueryDto.where,
-        skip: 0,
-        take: 10,
-      });
+      expect(mockRepository.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.arrayContaining([
+            expect.objectContaining({
+              position: expect.objectContaining({
+                _type: 'equal',
+                _value: PlayerPosition.FORWARD,
+              }),
+              isActive: expect.objectContaining({
+                _type: 'equal',
+                _value: true,
+              }),
+              nationality: expect.objectContaining({
+                _type: 'equal',
+                _value: 'ESP',
+              }),
+              name: expect.objectContaining({ _type: 'ilike' }),
+            }),
+          ]),
+          order: { name: 'ASC' },
+          skip: 0,
+          take: 10,
+        }),
+      );
       expect(result).toEqual({
         data: [mockPlayer],
         pagination: {
@@ -229,7 +243,7 @@ describe('PlayersService', () => {
         where: {
           position: PlayerPosition.MIDFIELDER,
           isActive: false,
-          nationality: 'GER',
+          nationality: 'DEU' as const,
         },
         page: 2,
         limit: 5,
@@ -240,11 +254,27 @@ describe('PlayersService', () => {
       await service.findAll(queryWithFilters);
 
       // Assert
-      expect(mockRepository.findAndCount).toHaveBeenCalledWith({
-        where: queryWithFilters.where,
-        skip: 5,
-        take: 5,
-      });
+      expect(mockRepository.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            position: expect.objectContaining({
+              _type: 'equal',
+              _value: PlayerPosition.MIDFIELDER,
+            }),
+            isActive: expect.objectContaining({
+              _type: 'equal',
+              _value: false,
+            }),
+            nationality: expect.objectContaining({
+              _type: 'equal',
+              _value: 'DEU',
+            }),
+          }),
+          order: undefined,
+          skip: 5,
+          take: 5,
+        }),
+      );
     });
 
     it('should handle default pagination when no query provided', async () => {

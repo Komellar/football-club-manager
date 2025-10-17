@@ -8,6 +8,7 @@ export const CompareOperatorSchema = z.enum([
   CompareOperator.GTE,
   CompareOperator.LTE,
   CompareOperator.NE,
+  CompareOperator.BETWEEN,
 ]);
 
 export const FilterModeSchema = z.enum([
@@ -18,6 +19,7 @@ export const FilterModeSchema = z.enum([
   FilterMode.GTE,
   FilterMode.LTE,
   FilterMode.NE,
+  FilterMode.BETWEEN,
 ]);
 
 export const FilterSearchOptionsSchema = z.object({
