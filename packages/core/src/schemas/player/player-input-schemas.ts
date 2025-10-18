@@ -7,12 +7,7 @@ import type { ValidNationality } from "../../types/nationality";
 export const PlayerSchema = z.object({
   id: z.number().int().positive(),
   name: z.string(),
-  position: z.enum([
-    PlayerPosition.GOALKEEPER,
-    PlayerPosition.DEFENDER,
-    PlayerPosition.MIDFIELDER,
-    PlayerPosition.FORWARD,
-  ]),
+  position: z.enum(PlayerPosition),
   dateOfBirth: z.coerce.date(),
   nationality: z.enum(VALID_NATIONALITIES),
   height: z.number().optional(),
@@ -38,17 +33,9 @@ export const CreatePlayerSchema = z.object({
     ),
 
   position: z
-    .enum(
-      [
-        PlayerPosition.GOALKEEPER,
-        PlayerPosition.DEFENDER,
-        PlayerPosition.MIDFIELDER,
-        PlayerPosition.FORWARD,
-      ],
-      {
-        message: "Invalid player position",
-      }
-    )
+    .enum(PlayerPosition, {
+      message: "Invalid player position",
+    })
     .describe("Player position on the field"),
 
   dateOfBirth: z.coerce

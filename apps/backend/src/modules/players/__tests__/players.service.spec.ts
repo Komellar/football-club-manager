@@ -11,6 +11,7 @@ import { Player } from '@/shared/entities/player.entity';
 
 import {
   PlayerPosition,
+  SortOrder,
   CreatePlayerDto,
   UpdatePlayerDto,
   PlayerListDto,
@@ -71,7 +72,7 @@ const mockQueryDto: PlayerListDto = {
   limit: 10,
   sort: {
     by: 'name',
-    order: 'ASC',
+    order: SortOrder.ASC,
   },
   where: {
     position: PlayerPosition.FORWARD,
@@ -218,7 +219,7 @@ describe('PlayersService', () => {
               name: expect.objectContaining({ _type: 'ilike' }),
             }),
           ]),
-          order: { name: 'ASC' },
+          order: { name: SortOrder.ASC },
           skip: 0,
           take: 10,
         }),
@@ -247,7 +248,7 @@ describe('PlayersService', () => {
         },
         page: 2,
         limit: 5,
-        order: { name: 'DESC' as const },
+        order: { name: SortOrder.DESC },
       };
 
       // Act

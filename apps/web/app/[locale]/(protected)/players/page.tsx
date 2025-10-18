@@ -5,6 +5,7 @@ import Link from "next/link";
 import { PlayersList } from "@/features/players/components";
 import { getPlayers } from "@/features/players/api";
 import { getTranslations } from "next-intl/server";
+import { SortOrder } from "@repo/core";
 
 // Force this page to be dynamic since it fetches authenticated data
 export const dynamic = "force-dynamic";
@@ -21,7 +22,7 @@ export default async function PlayersPage({
     limit: 10,
     sort: {
       by: "name",
-      order: "ASC",
+      order: SortOrder.ASC,
     },
   });
 

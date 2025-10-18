@@ -1,9 +1,10 @@
 import { z } from "zod";
+import { SortOrder } from "../../enums";
 
 export const SortParamsSchema = z
   .object({
     by: z.string(),
-    order: z.enum(["ASC", "DESC"]).default("ASC").optional(),
+    order: z.enum(SortOrder).default(SortOrder.ASC).optional(),
   })
   .optional();
 

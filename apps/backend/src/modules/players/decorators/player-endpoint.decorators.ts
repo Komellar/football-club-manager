@@ -13,6 +13,7 @@ import {
   ApiConsumes,
   ApiBody,
 } from '@nestjs/swagger';
+import { SortOrder } from '@repo/core';
 import { PlayerPosition, VALID_NATIONALITIES } from '@repo/core';
 import { PlayerApiBody } from './player-api.decorators';
 
@@ -131,8 +132,8 @@ export const GetAllPlayers = () =>
       name: 'sort[order]',
       required: false,
       description: 'Sort order',
-      enum: ['ASC', 'DESC'],
-      example: 'ASC',
+      enum: SortOrder,
+      example: SortOrder.ASC,
     }),
 
     ApiOkResponse({ description: 'Players retrieved successfully' }),

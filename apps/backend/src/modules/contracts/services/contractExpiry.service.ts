@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ContractStatus } from '@repo/core';
+import { ContractStatus, SortOrder } from '@repo/core';
 import { Contract } from '@/shared/entities';
 
 @Injectable()
@@ -23,7 +23,7 @@ export class ContractExpiryService {
         currentDate: new Date(),
         futureDate,
       })
-      .orderBy('contract.endDate', 'ASC')
+      .orderBy('contract.endDate', SortOrder.ASC)
       .getMany();
   }
 
@@ -41,7 +41,7 @@ export class ContractExpiryService {
         pastDate,
         currentDate: new Date(),
       })
-      .orderBy('contract.endDate', 'DESC')
+      .orderBy('contract.endDate', SortOrder.DESC)
       .getMany();
   }
 }

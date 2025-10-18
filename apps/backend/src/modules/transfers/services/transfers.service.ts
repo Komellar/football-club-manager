@@ -3,7 +3,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Transfer } from '@/shared/entities/transfer.entity';
 import { Player } from '@/shared/entities/player.entity';
-import { TransferStatus, TransferType, FilterMode } from '@repo/core';
+import {
+  TransferStatus,
+  TransferType,
+  FilterMode,
+  SortOrder,
+} from '@repo/core';
 import type {
   CreateTransferDto,
   UpdateTransferDto,
@@ -39,7 +44,7 @@ export class TransfersService {
           playerId: createTransferDto.playerId,
           transferStatus: TransferStatus.COMPLETED,
         },
-        order: { transferDate: 'DESC' },
+        order: { transferDate: SortOrder.DESC },
       });
 
       if (
@@ -100,7 +105,7 @@ export class TransfersService {
 
     const transfers = await this.transferRepository.find({
       where: { playerId },
-      order: { transferDate: 'DESC' },
+      order: { transferDate: SortOrder.DESC },
     });
 
     const currentTransfer = transfers.find(

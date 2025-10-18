@@ -17,22 +17,9 @@ export const CreateTransferSchema = z
       .min(3, "To club is required")
       .max(100, "To club name must be less than 100 characters"),
 
-    transferType: z.enum([
-      TransferType.SIGNING,
-      TransferType.LOAN,
-      TransferType.LOAN_RETURN,
-      TransferType.SALE,
-      TransferType.RELEASE,
-      TransferType.RETIREMENT,
-    ]),
+    transferType: z.enum(TransferType),
 
-    transferStatus: z
-      .enum([
-        TransferStatus.PENDING,
-        TransferStatus.COMPLETED,
-        TransferStatus.CANCELLED,
-      ])
-      .default(TransferStatus.PENDING),
+    transferStatus: z.enum(TransferStatus).default(TransferStatus.PENDING),
 
     transferDate: z.coerce.date(),
 

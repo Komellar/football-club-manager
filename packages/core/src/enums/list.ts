@@ -18,3 +18,8 @@ export enum FilterMode {
   NE = "ne",
   BETWEEN = "between",
 }
+
+export enum SortOrder {
+  ASC = "ASC",
+  DESC = "DESC",
+}

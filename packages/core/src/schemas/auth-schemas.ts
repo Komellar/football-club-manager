@@ -25,7 +25,7 @@ export const CreateUserSchema = z.object({
       "Password must contain at least one lowercase letter, one uppercase letter, and one number"
     ),
 
-  roleName: z.enum([RoleType.ADMIN, RoleType.USER]).optional(),
+  roleName: z.enum(RoleType).optional(),
 });
 
 // Schema for API requests with default role
@@ -51,7 +51,7 @@ export const UserResponseSchema = z.object({
   email: z.email("Invalid email format"),
   role: z.object({
     id: z.number().int().positive("Role ID must be a positive integer"),
-    name: z.enum([RoleType.ADMIN, RoleType.USER]),
+    name: z.enum(RoleType),
   }),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
@@ -65,7 +65,7 @@ export const LoginResponseSchema = z.object({
     id: z.number().int().positive("User ID must be a positive integer"),
     name: z.string().trim().min(1, "Name cannot be empty"),
     email: z.email("Invalid email format"),
-    role: z.enum([RoleType.ADMIN, RoleType.USER]),
+    role: z.enum(RoleType),
   }),
 });
 
@@ -75,26 +75,7 @@ export const UserSchema = z.object({
   userId: z.number().int().positive("User ID must be a positive integer"),
   name: z.string().trim().min(1, "Name cannot be empty"),
   email: z.email("Invalid email format"),
-  role: z.enum([RoleType.ADMIN, RoleType.USER]),
+  role: z.enum(RoleType),
 });
 
 export type User = z.infer<typeof UserSchema>;
-
-// Additional utility schemas for Zod v4
-export const IdSchema = z.object({
-  id: z.coerce.number().int().positive("ID must be a positive integer"),
-});
-
-export const PaginationSchema = z.object({
-  page: z.coerce.number().int().min(1, "Page must be at least 1").default(1),
-  limit: z.coerce
-    .number()
-    .int()
-    .min(1, "Limit must be at least 1")
-    .max(100, "Limit cannot exceed 100")
-    .default(10),
-  sortBy: z.string().optional(),
-  sortOrder: z.enum(["asc", "desc"]).default("asc"),
-});
-
-export type PaginationDto = z.infer<typeof PaginationSchema>;

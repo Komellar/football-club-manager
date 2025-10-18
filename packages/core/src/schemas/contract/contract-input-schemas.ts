@@ -4,19 +4,8 @@ import { ContractStatus, ContractType } from "../../enums";
 export const ContractSchema = z.object({
   id: z.number().int().positive(),
   playerId: z.number().int().positive(),
-  contractType: z.enum([
-    ContractType.PERMANENT,
-    ContractType.LOAN,
-    ContractType.TRIAL,
-    ContractType.YOUTH,
-    ContractType.PROFESSIONAL,
-  ]),
-  status: z.enum([
-    ContractStatus.ACTIVE,
-    ContractStatus.EXPIRED,
-    ContractStatus.TERMINATED,
-    ContractStatus.PENDING,
-  ]),
+  contractType: z.enum(ContractType),
+  status: z.enum(ContractStatus),
   startDate: z.coerce.date(),
   endDate: z.coerce.date(),
   salary: z.number().positive(),

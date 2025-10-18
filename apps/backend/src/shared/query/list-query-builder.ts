@@ -17,6 +17,7 @@ import {
 import {
   CompareOperator,
   FilterMode,
+  SortOrder,
   type Comparable,
   type FilterOptions,
   type SearchOptions,
@@ -271,12 +272,12 @@ export class ListQueryBuilder {
 
   private static buildOrderClause(
     sort?: SortParams,
-  ): Record<string, 'ASC' | 'DESC'> | undefined {
+  ): Record<string, SortOrder> | undefined {
     if (!sort?.by) {
       return undefined;
     }
 
-    return { [sort.by]: sort.order || 'ASC' };
+    return { [sort.by]: sort.order || SortOrder.ASC };
   }
 
   private static buildPagination(

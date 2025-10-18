@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { TransferType, TransferStatus } from "../../enums/transfer";
+import { SortOrder } from "../../enums/list";
 import { ListQueryParamsSchema } from "../list/pagination-schemas";
 import { createPaginationResponseSchema } from "../../utils/schema-utils";
 import { DateRangeQuerySchema } from "../list/date-range-schemas";
@@ -10,23 +11,8 @@ export const TransferListSchema = ListQueryParamsSchema.extend({
     .object({
       ...DateRangeQuerySchema.shape,
       playerId: z.coerce.number().int().positive().optional(),
-      transferType: z
-        .enum([
-          TransferType.SIGNING,
-          TransferType.LOAN,
-          TransferType.LOAN_RETURN,
-          TransferType.SALE,
-          TransferType.RELEASE,
-          TransferType.RETIREMENT,
-        ])
-        .optional(),
-      transferStatus: z
-        .enum([
-          TransferStatus.PENDING,
-          TransferStatus.COMPLETED,
-          TransferStatus.CANCELLED,
-        ])
-        .optional(),
+      transferType: z.enum(TransferType).optional(),
+      transferStatus: z.enum(TransferStatus).optional(),
       fromClub: z.string().optional(),
       toClub: z.string().optional(),
       isPermanent: z.coerce.boolean().optional(),
@@ -35,7 +21,7 @@ export const TransferListSchema = ListQueryParamsSchema.extend({
   sort: z
     .object({
       by: z.enum(["transferDate", "fee", "createdAt"]).default("transferDate"),
-      order: z.enum(["ASC", "DESC"]).default("DESC").optional(),
+      order: z.enum(SortOrder).default(SortOrder.DESC).optional(),
     })
     .optional(),
 });

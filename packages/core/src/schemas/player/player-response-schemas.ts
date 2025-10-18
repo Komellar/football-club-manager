@@ -5,12 +5,7 @@ import { createPaginationResponseSchema } from "../../utils/schema-utils";
 export const PlayerResponseSchema = z.object({
   id: z.number().int().positive(),
   name: z.string(),
-  position: z.enum([
-    PlayerPosition.GOALKEEPER,
-    PlayerPosition.DEFENDER,
-    PlayerPosition.MIDFIELDER,
-    PlayerPosition.FORWARD,
-  ]),
+  position: z.enum(PlayerPosition),
   dateOfBirth: z.coerce.date(),
   nationality: z.string(),
   height: z.number().optional(),

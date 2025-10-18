@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { ContractStatus, ContractType } from "../../enums";
+import { SortOrder } from "../../enums/list";
 import { ListQueryParamsSchema } from "../list/pagination-schemas";
 import { createPaginationResponseSchema } from "../../utils/schema-utils";
 import { DateRangeQuerySchema } from "../list/date-range-schemas";
@@ -10,23 +11,8 @@ export const ContractListSchema = ListQueryParamsSchema.extend({
     .object({
       ...DateRangeQuerySchema.shape,
       playerId: z.coerce.number().int().positive().optional(),
-      status: z
-        .enum([
-          ContractStatus.ACTIVE,
-          ContractStatus.EXPIRED,
-          ContractStatus.TERMINATED,
-          ContractStatus.PENDING,
-        ])
-        .optional(),
-      contractType: z
-        .enum([
-          ContractType.PERMANENT,
-          ContractType.LOAN,
-          ContractType.TRIAL,
-          ContractType.YOUTH,
-          ContractType.PROFESSIONAL,
-        ])
-        .optional(),
+      status: z.enum(ContractStatus).optional(),
+      contractType: z.enum(ContractType).optional(),
       minSalary: z.coerce.number().positive().optional(),
       maxSalary: z.coerce.number().positive().optional(),
       currency: z.string().length(3).optional(),
@@ -37,7 +23,7 @@ export const ContractListSchema = ListQueryParamsSchema.extend({
       by: z
         .enum(["startDate", "endDate", "salary", "createdAt"])
         .default("createdAt"),
-      order: z.enum(["ASC", "DESC"]).default("DESC").optional(),
+      order: z.enum(SortOrder).default(SortOrder.DESC).optional(),
     })
     .optional(),
 });

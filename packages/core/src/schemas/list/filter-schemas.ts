@@ -1,26 +1,9 @@
 import { z } from "zod";
 import { CompareOperator, FilterMode } from "../../enums";
 
-export const CompareOperatorSchema = z.enum([
-  CompareOperator.EQ,
-  CompareOperator.GT,
-  CompareOperator.LT,
-  CompareOperator.GTE,
-  CompareOperator.LTE,
-  CompareOperator.NE,
-  CompareOperator.BETWEEN,
-]);
+export const CompareOperatorSchema = z.enum(CompareOperator);
 
-export const FilterModeSchema = z.enum([
-  FilterMode.EXACT,
-  FilterMode.PARTIAL,
-  FilterMode.GT,
-  FilterMode.LT,
-  FilterMode.GTE,
-  FilterMode.LTE,
-  FilterMode.NE,
-  FilterMode.BETWEEN,
-]);
+export const FilterModeSchema = z.enum(FilterMode);
 
 export const FilterSearchOptionsSchema = z.object({
   searchFields: z.array(z.string()).min(1),
