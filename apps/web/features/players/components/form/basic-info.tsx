@@ -75,7 +75,7 @@ export function BasicInfo() {
                 <SelectContent>
                   {POSITION_OPTIONS.map((option) => (
                     <SelectItem key={option.value} value={option.value}>
-                      {option.label}
+                      {option.labelKey}
                     </SelectItem>
                   ))}
                 </SelectContent>

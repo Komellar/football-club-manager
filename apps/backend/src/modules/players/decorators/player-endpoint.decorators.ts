@@ -102,20 +102,6 @@ export const GetAllPlayers = () =>
       enum: VALID_NATIONALITIES,
     }),
     ApiQuery({
-      name: 'where[dateOfBirth][0]',
-      required: false,
-      description: 'Filter by earliest date of birth (YYYY-MM-DD)',
-      type: String,
-      example: '1990-01-01',
-    }),
-    ApiQuery({
-      name: 'where[dateOfBirth][1]',
-      required: false,
-      description: 'Filter by latest date of birth (YYYY-MM-DD)',
-      type: String,
-      example: '2000-01-01',
-    }),
-    ApiQuery({
       name: 'search',
       required: false,
       description: 'Search players by name',

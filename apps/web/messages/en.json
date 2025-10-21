@@ -123,7 +123,23 @@
     "descriptions": {
       "activePlayerStatus": "Whether the player is currently active in the squad",
       "jerseyNumberRange": "Jersey number (1-99)"
-    }
+    },
+    "filters": "Filters",
+    "applyFilters": "Apply Filters",
+    "clearFilters": "Clear Filters",
+    "allPositions": "All Positions",
+    "allStatuses": "All Statuses",
+    "allNationalities": "All Nationalities",
+    "activeFilters": "Active",
+    "filterPlayersDescription": "Filter players by position, status, nationality, and date of birth",
+    "from": "From",
+    "to": "To",
+    "goalkeeper": "Goalkeeper",
+    "defender": "Defender",
+    "midfielder": "Midfielder",
+    "forward": "Forward",
+    "active": "Active",
+    "inactive": "Inactive"
   },
   "Transfers": {
     "title": "Transfers",
@@ -182,7 +198,10 @@
     "dateFormat": "MM/dd/yyyy",
     "currency": "$",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "filters": "Filters",
+    "applyFilters": "Apply Filters",
+    "clearFilters": "Clear Filters"
   },
   "Dashboard": {
     "title": "Dashboard",

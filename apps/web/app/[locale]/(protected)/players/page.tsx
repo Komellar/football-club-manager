@@ -1,29 +1,38 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import Link from "next/link";
-import { PlayersList } from "@/features/players/components";
+import { Players } from "@/features/players/components/table/players";
 import { getPlayers } from "@/features/players/api";
 import { getTranslations } from "next-intl/server";
 import { SortOrder } from "@repo/core";
+import { parseSearchParams } from "@/utils/searchParams";
 
 // Force this page to be dynamic since it fetches authenticated data
 export const dynamic = "force-dynamic";
 
+// Accept searchParams for SSR hydration
 export default async function PlayersPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams?: Promise<Record<string, string | string[]>>;
 }) {
   const { locale } = await params;
   const t = await getTranslations("Players");
+
+  const resolvedSearchParams = await searchParams;
+  const parsed = parseSearchParams(resolvedSearchParams);
+
+  const page = Number(parsed.page) || 1;
+  const limit = Number(parsed.limit) || 10;
+  const where = parsed.where as Record<string, unknown> | undefined;
+
   const players = await getPlayers({
-    page: 1,
-    limit: 10,
-    sort: {
-      by: "name",
-      order: SortOrder.ASC,
-    },
+    page,
+    limit,
+    sort: { by: "name", order: SortOrder.ASC },
+    where,
   });
 
   return (
@@ -41,14 +50,7 @@ export default async function PlayersPage({
         </Link>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("playerList")}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <PlayersList playersData={players} />
-        </CardContent>
-      </Card>
+      <Players data={players} />
     </div>
   );
 }

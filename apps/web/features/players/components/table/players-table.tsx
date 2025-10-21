@@ -1,18 +1,23 @@
+"use client";
+
 import { PaginatedPlayerListResponseDto } from "@repo/core";
-import { PlayersTable } from "./players-table";
+import { DataTable } from "@/components/shared/data-table/data-table";
+import { createPlayerColumns } from "./columns";
 import { PlayersPagination } from "./players-pagination";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { getTranslations } from "next-intl/server";
+import { useTranslations } from "next-intl";
 
 interface PlayersListProps {
   playersData: PaginatedPlayerListResponseDto;
 }
 
-export async function PlayersList({ playersData }: PlayersListProps) {
+export function PlayersTable({ playersData }: PlayersListProps) {
+  const t = useTranslations("Players");
   const { data: players, pagination } = playersData;
-  const t = await getTranslations("Players");
+
+  const columns = createPlayerColumns();
 
   if (players.length === 0) {
     return (
@@ -33,7 +38,11 @@ export async function PlayersList({ playersData }: PlayersListProps) {
 
   return (
     <div className="space-y-4">
-      <PlayersTable players={players} />
+      <DataTable
+        columns={columns}
+        data={players}
+        noResultsMessage={t("noPlayersFound")}
+      />
       <PlayersPagination pagination={pagination} />
     </div>
   );

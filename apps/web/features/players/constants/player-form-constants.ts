@@ -7,10 +7,15 @@ import {
 } from "@repo/core";
 
 export const POSITION_OPTIONS = [
-  { value: PlayerPosition.GOALKEEPER, label: "Goalkeeper" },
-  { value: PlayerPosition.DEFENDER, label: "Defender" },
-  { value: PlayerPosition.MIDFIELDER, label: "Midfielder" },
-  { value: PlayerPosition.FORWARD, label: "Forward" },
+  { value: PlayerPosition.GOALKEEPER, labelKey: "goalkeeper" },
+  { value: PlayerPosition.DEFENDER, labelKey: "defender" },
+  { value: PlayerPosition.MIDFIELDER, labelKey: "midfielder" },
+  { value: PlayerPosition.FORWARD, labelKey: "forward" },
+];
+
+export const STATUS_OPTIONS = [
+  { value: "true", labelKey: "statusValues.active" },
+  { value: "false", labelKey: "statusValues.inactive" },
 ];
 
 export const POPULAR_NATIONALITIES: ValidNationality[] = [

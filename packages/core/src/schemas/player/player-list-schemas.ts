@@ -6,15 +6,24 @@ import { createPaginationResponseSchema } from "../../utils/schema-utils";
 import { PlayerResponseSchema } from "./player-response-schemas";
 import { VALID_NATIONALITIES } from "../../constants/confederations";
 
-export const PlayerListSchema = ListQueryParamsSchema.extend({
-  where: z
-    .object({
-      position: z.enum(PlayerPosition).optional(),
-      isActive: z.coerce.boolean().optional(),
-      nationality: z.enum(VALID_NATIONALITIES).optional(),
-      dateOfBirth: z.array(z.coerce.date()).length(2).optional(),
-    })
+export const PlayerListFiltersSchema = z.object({
+  position: z.enum(PlayerPosition).optional(),
+  isActive: z
+    .union([
+      z.boolean(),
+      z
+        .string()
+        .transform(
+          (val) => val === "true" || (val === "false" ? false : undefined)
+        )
+        .pipe(z.boolean()),
+    ])
     .optional(),
+  nationality: z.enum(VALID_NATIONALITIES).optional(),
+});
+
+export const PlayerListSchema = ListQueryParamsSchema.extend({
+  where: PlayerListFiltersSchema.optional(),
   sort: z
     .object({
       by: z
@@ -28,6 +37,7 @@ export const PlayerListSchema = ListQueryParamsSchema.extend({
 export const PaginatedPlayerListResponseSchema =
   createPaginationResponseSchema(PlayerResponseSchema);
 
+export type PlayerListFilters = z.infer<typeof PlayerListFiltersSchema>;
 export type PlayerListDto = z.infer<typeof PlayerListSchema>;
 export type PaginatedPlayerListResponseDto = z.infer<
   typeof PaginatedPlayerListResponseSchema

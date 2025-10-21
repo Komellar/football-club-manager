@@ -123,7 +123,23 @@
     "descriptions": {
       "activePlayerStatus": "Si el jugador está actualmente activo en la plantilla",
       "jerseyNumberRange": "Número de camiseta (1-99)"
-    }
+    },
+    "filters": "Filtros",
+    "applyFilters": "Aplicar Filtros",
+    "clearFilters": "Limpiar Filtros",
+    "allPositions": "Todas las Posiciones",
+    "allStatuses": "Todos los Estados",
+    "allNationalities": "Todas las Nacionalidades",
+    "activeFilters": "Activo",
+    "filterPlayersDescription": "Filtrar jugadores por posición, estado, nacionalidad y fecha de nacimiento",
+    "from": "Desde",
+    "to": "Hasta",
+    "goalkeeper": "Portero",
+    "defender": "Defensa",
+    "midfielder": "Centrocampista",
+    "forward": "Delantero",
+    "active": "Activo",
+    "inactive": "Inactivo"
   },
   "Transfers": {
     "title": "Transferencias",
@@ -182,7 +198,10 @@
     "dateFormat": "dd/MM/yyyy",
     "currency": "$",
     "yes": "Sí",
-    "no": "No"
+    "no": "No",
+    "filters": "Filtros",
+    "applyFilters": "Aplicar Filtros",
+    "clearFilters": "Limpiar Filtros"
   },
   "Dashboard": {
     "title": "Tablero",
