@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Players } from "@/features/players/components/table/players";
 import { getPlayers } from "@/features/players/api";
 import { getTranslations } from "next-intl/server";
-import { SortOrder } from "@repo/core";
+import { PlayerListSchema, SortOrder } from "@repo/core";
 import { parseSearchParams } from "@/utils/searchParams";
 
 // Force this page to be dynamic since it fetches authenticated data
@@ -24,16 +24,14 @@ export default async function PlayersPage({
   const resolvedSearchParams = await searchParams;
   const parsed = parseSearchParams(resolvedSearchParams);
 
-  const page = Number(parsed.page) || 1;
-  const limit = Number(parsed.limit) || 10;
-  const where = parsed.where as Record<string, unknown> | undefined;
-
-  const players = await getPlayers({
-    page,
-    limit,
-    sort: { by: "name", order: SortOrder.ASC },
-    where,
+  const validatedParams = PlayerListSchema.parse({
+    page: parsed.page,
+    limit: parsed.limit,
+    where: parsed.where,
+    sort: parsed.sort,
   });
+
+  const players = await getPlayers(validatedParams);
 
   return (
     <div className="space-y-6">

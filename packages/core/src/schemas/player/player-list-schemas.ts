@@ -6,6 +6,15 @@ import { createPaginationResponseSchema } from "../../utils/schema-utils";
 import { PlayerResponseSchema } from "./player-response-schemas";
 import { VALID_NATIONALITIES } from "../../constants/confederations";
 
+export const PLAYER_SORT_COLUMNS = [
+  "name",
+  "dateOfBirth",
+  "position",
+  "marketValue",
+  "createdAt",
+] as const;
+export type PlayerSortColumn = (typeof PLAYER_SORT_COLUMNS)[number];
+
 export const PlayerListFiltersSchema = z.object({
   position: z.enum(PlayerPosition).optional(),
   isActive: z
@@ -26,9 +35,7 @@ export const PlayerListSchema = ListQueryParamsSchema.extend({
   where: PlayerListFiltersSchema.optional(),
   sort: z
     .object({
-      by: z
-        .enum(["name", "age", "position", "marketValue", "createdAt"])
-        .default("name"),
+      by: z.enum(PLAYER_SORT_COLUMNS).default("name"),
       order: z.enum(SortOrder).default(SortOrder.ASC).optional(),
     })
     .optional(),

@@ -11,14 +11,17 @@ export function parseSearchParams(
 
   // Build query string from searchParams
   const queryString = new URLSearchParams(
-    Object.entries(searchParams).reduce((acc, [k, v]) => {
-      if (typeof k === "string" && typeof v === "string") {
-        acc[k] = v;
-      } else if (Array.isArray(v) && typeof v[0] === "string") {
-        acc[k] = v[0];
-      }
-      return acc;
-    }, {} as Record<string, string>)
+    Object.entries(searchParams).reduce(
+      (acc, [k, v]) => {
+        if (typeof k === "string" && typeof v === "string") {
+          acc[k] = v;
+        } else if (Array.isArray(v) && typeof v[0] === "string") {
+          acc[k] = v[0];
+        }
+        return acc;
+      },
+      {} as Record<string, string>
+    )
   ).toString();
 
   // Parse with qs to handle bracket notation (e.g., where[key]=value)
