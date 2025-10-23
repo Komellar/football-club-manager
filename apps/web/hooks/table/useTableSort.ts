@@ -2,8 +2,13 @@
 
 import { useCallback, useMemo, useTransition } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { SortOrder, SortParams, SortParamsSchema } from "@repo/core";
-import qs from "qs";
+import { SortOrder } from "@repo/core";
+import {
+  parseSortFromQuery,
+  updateQueryWithSort,
+  clearSortParams,
+  isSorted as isSortedUtil,
+} from "@/utils/table/sort";
 
 export interface SortState<T extends string = string> {
   by: T;
@@ -30,19 +35,7 @@ export function useTableSort<T extends string>({
 
   // Parse sort from URL
   const urlSort = useMemo(() => {
-    const parsed = qs.parse(searchParams.toString());
-    const sortFromUrl = parsed.sort as SortParams;
-
-    const { data, success } = SortParamsSchema.safeParse(sortFromUrl);
-
-    if (success && data) {
-      return {
-        by: data.by as T,
-        order: data.order as SortOrder,
-      };
-    }
-
-    return defaultSort;
+    return parseSortFromQuery<T>(searchParams.toString(), defaultSort);
   }, [searchParams, defaultSort]);
 
   const toggleSort = useCallback(
@@ -51,19 +44,14 @@ export function useTableSort<T extends string>({
         const current = new URLSearchParams(searchParams.toString());
         const isSameColumn = urlSort.by === column;
         const isAsc = urlSort.order === SortOrder.ASC;
-
+        let query: string;
         if (isSameColumn && isAsc) {
-          current.set("sort[by]", column);
-          current.set("sort[order]", SortOrder.DESC);
+          query = updateQueryWithSort(current, column, SortOrder.DESC);
         } else if (isSameColumn) {
-          current.delete("sort[by]");
-          current.delete("sort[order]");
+          query = clearSortParams(current);
         } else {
-          current.set("sort[by]", column);
-          current.set("sort[order]", SortOrder.ASC);
+          query = updateQueryWithSort(current, column, SortOrder.ASC);
         }
-
-        const query = current.toString();
         router.push(query ? `${pathname}?${query}` : pathname);
       });
     },
@@ -72,10 +60,7 @@ export function useTableSort<T extends string>({
 
   const isSorted = useCallback(
     (column: T): SortOrder | undefined => {
-      if (urlSort.by === column) {
-        return urlSort.order;
-      }
-      return undefined;
+      return isSortedUtil<T>(urlSort, column);
     },
     [urlSort]
   );

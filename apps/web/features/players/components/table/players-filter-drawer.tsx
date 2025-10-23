@@ -4,24 +4,24 @@ import { useTranslations } from "next-intl";
 import {
   PlayerPosition,
   ValidNationality,
-  PlayerListFilters,
+  PlayerListFiltersSchema,
 } from "@repo/core";
 import {
   NATIONALITY_OPTIONS,
   POSITION_OPTIONS,
   STATUS_OPTIONS,
 } from "../../constants/player-form-constants";
-import { UseTableFiltersReturn } from "@/hooks";
+import { useTableFilters } from "@/hooks";
 import { FilterDrawer } from "@/components/shared/data-table/filter-drawer";
 import { FilterSelect } from "@/components/shared/data-table/filter-select";
 import { updateFilter } from "@/utils/table/drawer";
 
-interface PlayersFilterDrawerProps {
-  filterHook: UseTableFiltersReturn<PlayerListFilters>;
-}
-
-export function PlayersFilterDrawer({ filterHook }: PlayersFilterDrawerProps) {
+export function PlayersFilterDrawer() {
   const t = useTranslations("Players");
+
+  const filterHook = useTableFilters({
+    schema: PlayerListFiltersSchema,
+  });
 
   return (
     <FilterDrawer

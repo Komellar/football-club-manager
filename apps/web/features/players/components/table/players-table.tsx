@@ -1,23 +1,30 @@
 "use client";
 
-import { PaginatedPlayerListResponseDto, PlayerSortColumn } from "@repo/core";
+import {
+  PaginatedPlayerListResponseDto,
+  PlayerSortColumn,
+  SortOrder,
+} from "@repo/core";
 import { DataTable } from "@/components/shared/data-table/data-table";
 import { createPlayerColumns } from "./columns";
-import { PlayersPagination } from "./players-pagination";
+import { TablePagination } from "@/components/shared/data-table/table-pagination";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { UseTableSortReturn } from "@/hooks";
+import { useTableSort } from "@/hooks";
 
 interface PlayersListProps {
   playersData: PaginatedPlayerListResponseDto;
-  sortHook: UseTableSortReturn<PlayerSortColumn>;
 }
 
-export function PlayersTable({ playersData, sortHook }: PlayersListProps) {
+export function PlayersTable({ playersData }: PlayersListProps) {
   const t = useTranslations("Players");
   const { data: players, pagination } = playersData;
+
+  const sortHook = useTableSort<PlayerSortColumn>({
+    defaultSort: { by: "name", order: SortOrder.ASC },
+  });
 
   const columns = createPlayerColumns(sortHook);
 
@@ -45,7 +52,7 @@ export function PlayersTable({ playersData, sortHook }: PlayersListProps) {
         data={players}
         noResultsMessage={t("noPlayersFound")}
       />
-      <PlayersPagination pagination={pagination} />
+      <TablePagination pagination={pagination} />
     </div>
   );
 }

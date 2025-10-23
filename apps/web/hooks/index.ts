@@ -10,3 +10,9 @@ export type {
   UseTableSortOptions,
   UseTableSortReturn,
 } from "./table/useTableSort";
+export { useTablePagination } from "./table/useTablePagination";
+export type {
+  PaginationState,
+  UseTablePaginationOptions,
+  UseTablePaginationReturn,
+} from "./table/useTablePagination";

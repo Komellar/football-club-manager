@@ -230,6 +230,14 @@
     "status": "Estado",
     "api": "API"
   },
+  "TablePagination": {
+    "showing": "Mostrando {startItem} a {endItem} de {total} resultados",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "goToPage": "Ir a la página {page}",
+    "itemsPerPage": "Elementos por página",
+    "itemsPerPageShort": "{count} / página"
+  },
   "PlayersPagination": {
     "showing": "Mostrando {startItem} a {endItem} de {total} jugadores",
     "previous": "Anterior",
