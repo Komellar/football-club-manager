@@ -16,6 +16,7 @@ const NumericInput = React.forwardRef<HTMLInputElement, NumericInputProps>(
   ({ className, value, onValueChange, ...props }, ref) => {
     return (
       <NumericFormat
+        decimalScale={2}
         {...props}
         customInput={Input}
         className={cn(className)}

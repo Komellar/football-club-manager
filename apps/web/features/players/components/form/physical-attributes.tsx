@@ -36,6 +36,7 @@ export function PhysicalAttributes() {
                   onChange={(e) =>
                     handleNumericFieldChange(e.target.value, field.onChange)
                   }
+                  decimalScale={0}
                 />
               </FormControl>
               <FormMessage />

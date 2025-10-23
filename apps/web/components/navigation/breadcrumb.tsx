@@ -31,6 +31,12 @@ export function Breadcrumb() {
     for (let i = startIdx; i < pathSegments.length; i++) {
       const segment = pathSegments[i];
       if (!segment) continue;
+
+      // Skip numeric segments (like [id] dynamic routes)
+      if (/^\d+$/.test(segment)) {
+        continue;
+      }
+
       currentPath += `/${segment}`;
       // Build full path from segments
       const fullPath = `/${pathSegments.slice(0, i + 1).join("/")}`;

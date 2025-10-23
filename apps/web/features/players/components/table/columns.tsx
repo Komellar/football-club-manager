@@ -12,6 +12,7 @@ import { useTranslations } from "next-intl";
 import { UseTableSortReturn } from "@/hooks";
 import { SortableHeader } from "@/components/shared/data-table/sortable-header";
 import { DeletePlayerDialog } from "../delete-player-dialog";
+import Link from "next/link";
 
 export const createPlayerColumns = (
   sortHook: UseTableSortReturn<PlayerSortColumn>
@@ -102,9 +103,11 @@ export const createPlayerColumns = (
             <Button variant="ghost" size="sm" title={t("view")}>
               <Eye className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="sm" title={t("edit")}>
-              <Edit className="h-4 w-4" />
-            </Button>
+            <Link href={`/players/${player.id}/edit`}>
+              <Button variant="ghost" size="sm" title={t("edit")}>
+                <Edit className="h-4 w-4" />
+              </Button>
+            </Link>
             <DeletePlayerDialog playerId={player.id} playerName={player.name} />
           </div>
         );

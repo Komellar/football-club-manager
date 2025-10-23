@@ -8,7 +8,6 @@ import { ListQueryBuilder } from '@/shared/query/list-query-builder';
 import { FilterOptions, FilterMode } from '@repo/core';
 import type {
   CreatePlayerDto,
-  UpdatePlayerDto,
   PlayerResponseDto,
   PlayerListDto,
   PaginatedPlayerListResponseDto,
@@ -66,7 +65,7 @@ export class PlayersService {
 
   async update(
     id: number,
-    updatePlayerDto: UpdatePlayerDto,
+    updatePlayerDto: CreatePlayerDto,
   ): Promise<PlayerResponseDto> {
     const existingPlayer = await this.playerRepository.findOneOrFail({
       where: { id },

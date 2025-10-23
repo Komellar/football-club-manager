@@ -2,7 +2,6 @@ import { z } from "zod";
 import { PlayerPosition } from "../../enums/player-position";
 import { isValidPlayerAge } from "../../utils/age-utils";
 import { VALID_NATIONALITIES } from "../../constants/confederations";
-import type { ValidNationality } from "../../types/nationality";
 
 export const PlayerSchema = z.object({
   id: z.number().int().positive(),
@@ -80,8 +79,5 @@ export const CreatePlayerSchema = z.object({
   imageUrl: z.url("Image URL must be a valid URL").optional(),
 });
 
-export const UpdatePlayerSchema = CreatePlayerSchema.partial();
-
 export type Player = z.infer<typeof PlayerSchema>;
 export type CreatePlayerDto = z.infer<typeof CreatePlayerSchema>;
-export type UpdatePlayerDto = z.infer<typeof UpdatePlayerSchema>;

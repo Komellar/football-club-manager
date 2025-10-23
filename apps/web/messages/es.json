@@ -1,6 +1,6 @@
 {
   "Navigation": {
-    "dashboard": "Tablero",
+    "dashboard": "Panel de Control",
     "players": "Jugadores",
     "transfers": "Transferencias",
     "contracts": "Contratos",
@@ -12,7 +12,8 @@
     "expenses": "Gastos",
     "revenues": "Ingresos",
     "reports": "Informes",
-    "new": "Nuevo"
+    "new": "Nuevo",
+    "edit": "Editar"
   },
   "Auth": {
     "login": "Iniciar Sesión",
@@ -65,6 +66,7 @@
     "playerList": "Lista de jugadores",
     "managePlayers": "Gestiona la lista de jugadores de tu club",
     "createPlayerProfile": "Crear un nuevo perfil de jugador para tu plantilla",
+    "updatePlayerProfile": "Actualizar el perfil de {name}",
     "name": "Nombre",
     "firstName": "Nombre",
     "lastName": "Apellido",
@@ -81,6 +83,8 @@
     "status": "Estado",
     "actions": "Acciones",
     "save": "Guardar",
+    "saving": "Guardando...",
+    "saveChanges": "Guardar Cambios",
     "cancel": "Cancelar",
     "delete": "Eliminar",
     "deletePlayer": "Eliminar Jugador",
@@ -95,6 +99,7 @@
     "playerUpdated": "Jugador actualizado exitosamente",
     "playerDeleted": "Jugador eliminado exitosamente",
     "failedToCreate": "Error al crear el jugador. Inténtalo de nuevo.",
+    "failedToUpdate": "Error al actualizar el jugador. Inténtalo de nuevo.",
     "failedToDelete": "Error al eliminar el jugador. Inténtalo de nuevo.",
     "errorLoading": "Encontramos un error al cargar los jugadores.",
     "somethingWentWrong": "Algo salió mal",

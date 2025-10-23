@@ -5,7 +5,6 @@ import type {
   PaginatedPlayerListResponseDto,
   PlayerResponseDto,
   CreatePlayerDto,
-  UpdatePlayerDto,
 } from "@repo/core";
 
 export async function getPlayers(
@@ -32,6 +31,7 @@ export async function getPlayerById(id: number): Promise<PlayerResponseDto> {
     const { data }: AxiosResponse<PlayerResponseDto> = await apiClient.get(
       `/players/${id}`
     );
+    console.log("data", data);
     return data;
   } catch (error) {
     if (error instanceof AxiosError) {
@@ -64,7 +64,7 @@ export async function createPlayer(
 
 export async function updatePlayer(
   id: number,
-  playerData: UpdatePlayerDto
+  playerData: CreatePlayerDto
 ): Promise<PlayerResponseDto> {
   try {
     const { data }: AxiosResponse<PlayerResponseDto> = await apiClient.patch(

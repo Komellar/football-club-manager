@@ -13,7 +13,6 @@ import {
   PlayerPosition,
   SortOrder,
   CreatePlayerDto,
-  UpdatePlayerDto,
   PlayerListDto,
 } from '@repo/core';
 
@@ -62,10 +61,16 @@ const mockCreatePlayerDto: CreatePlayerDto = {
   isActive: true,
 };
 
-const mockUpdatePlayerDto: UpdatePlayerDto = {
+const mockUpdatePlayerDto: CreatePlayerDto = {
   name: 'John Updated',
+  position: PlayerPosition.FORWARD,
+  dateOfBirth: new Date('1995-01-01'),
+  nationality: 'ESP',
   height: 185,
   weight: 80,
+  jerseyNumber: 11,
+  marketValue: 55000000,
+  isActive: true,
 };
 
 const mockQueryDto: PlayerListDto = {

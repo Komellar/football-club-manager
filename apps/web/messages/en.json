@@ -12,7 +12,8 @@
     "expenses": "Expenses",
     "revenues": "Revenues",
     "reports": "Reports",
-    "new": "New"
+    "new": "New",
+    "edit": "Edit"
   },
   "Auth": {
     "login": "Login",
@@ -65,6 +66,7 @@
     "playerList": "Player list",
     "managePlayers": "Manage your club's player list",
     "createPlayerProfile": "Create a new player profile for your squad",
+    "updatePlayerProfile": "Update the profile for {name}",
     "name": "Name",
     "firstName": "First Name",
     "lastName": "Last Name",
@@ -81,6 +83,8 @@
     "status": "Status",
     "actions": "Actions",
     "save": "Save",
+    "saving": "Saving...",
+    "saveChanges": "Save Changes",
     "cancel": "Cancel",
     "delete": "Delete",
     "deletePlayer": "Delete Player",
@@ -95,6 +99,7 @@
     "playerUpdated": "Player updated successfully",
     "playerDeleted": "Player deleted successfully",
     "failedToCreate": "Failed to create player. Please try again.",
+    "failedToUpdate": "Failed to update player. Please try again.",
     "failedToDelete": "Failed to delete player. Please try again.",
     "errorLoading": "We encountered an error while loading the players.",
     "somethingWentWrong": "Something went wrong",
