@@ -8,9 +8,9 @@ import {
 import { DataTable } from "@/components/shared/data-table/data-table";
 import { createPlayerColumns } from "./columns";
 import { TablePagination } from "@/components/shared/data-table/table-pagination";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useTableSort } from "@/hooks";
 
@@ -30,18 +30,15 @@ export function PlayersTable({ playersData }: PlayersListProps) {
 
   if (players.length === 0) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("noPlayersFound")}</CardTitle>
-        </CardHeader>
-        <CardContent className="text-center py-8">
-          <p className="text-muted-foreground mb-4">{t("noPlayersMessage")}</p>
-          <Button>
+      <div className="text-center p-10">
+        <p className="text-muted-foreground mb-4">{t("noPlayersMessage")}</p>
+        <Button asChild>
+          <Link href="/players/new">
             <Plus className="h-4 w-4 mr-2" />
             {t("addPlayer")}
-          </Button>
-        </CardContent>
-      </Card>
+          </Link>
+        </Button>
+      </div>
     );
   }
 

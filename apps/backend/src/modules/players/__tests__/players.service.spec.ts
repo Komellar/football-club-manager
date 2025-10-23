@@ -34,6 +34,7 @@ const mockPlayer = {
   updatedAt: new Date(),
   transfers: [],
   contracts: [],
+  statistics: [],
   get age() {
     const today = new Date();
     const birthDate = new Date(this.dateOfBirth);

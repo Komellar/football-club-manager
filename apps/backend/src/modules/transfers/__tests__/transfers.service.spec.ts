@@ -29,6 +29,7 @@ const createMockPlayer = (overrides = {}): Player => ({
   updatedAt: new Date('2024-01-01'),
   transfers: [],
   contracts: [],
+  statistics: [],
   get age() {
     return new Date().getFullYear() - this.dateOfBirth.getFullYear();
   },

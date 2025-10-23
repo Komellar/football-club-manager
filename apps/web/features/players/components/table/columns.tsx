@@ -11,6 +11,7 @@ import { positionColors } from "../../constants";
 import { useTranslations } from "next-intl";
 import { UseTableSortReturn } from "@/hooks";
 import { SortableHeader } from "@/components/shared/data-table/sortable-header";
+import { DeletePlayerDialog } from "../delete-player-dialog";
 
 export const createPlayerColumns = (
   sortHook: UseTableSortReturn<PlayerSortColumn>
@@ -104,9 +105,7 @@ export const createPlayerColumns = (
             <Button variant="ghost" size="sm" title={t("edit")}>
               <Edit className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="sm" title={t("delete")}>
-              <Trash2 className="h-4 w-4" />
-            </Button>
+            <DeletePlayerDialog playerId={player.id} playerName={player.name} />
           </div>
         );
       },

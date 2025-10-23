@@ -17,9 +17,11 @@ export function Players({ data }: PlayersClientProps) {
     <div className="space-y-6">
       <PlayersFilterDrawer />
       <Card>
-        <CardHeader>
-          <CardTitle>{t("playerList")}</CardTitle>
-        </CardHeader>
+        {data.data.length ? (
+          <CardHeader>
+            <CardTitle>{t("playerList")}</CardTitle>
+          </CardHeader>
+        ) : null}
         <CardContent>
           <PlayersTable playersData={data} />
         </CardContent>

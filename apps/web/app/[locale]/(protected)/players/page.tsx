@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Players } from "@/features/players/components/table/players";
 import { getPlayers } from "@/features/players/api";
 import { getTranslations } from "next-intl/server";
-import { PlayerListSchema, SortOrder } from "@repo/core";
+import { PlayerListSchema } from "@repo/core";
 import { parseSearchParams } from "@/utils/searchParams";
 
 // Force this page to be dynamic since it fetches authenticated data
@@ -24,12 +24,7 @@ export default async function PlayersPage({
   const resolvedSearchParams = await searchParams;
   const parsed = parseSearchParams(resolvedSearchParams);
 
-  const validatedParams = PlayerListSchema.parse({
-    page: parsed.page,
-    limit: parsed.limit,
-    where: parsed.where,
-    sort: parsed.sort,
-  });
+  const validatedParams = PlayerListSchema.parse(parsed);
 
   const players = await getPlayers(validatedParams);
 

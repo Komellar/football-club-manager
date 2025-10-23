@@ -11,6 +11,7 @@ import {
 import { PlayerPosition } from '@repo/core';
 import { Transfer } from './transfer.entity';
 import { Contract } from './contract.entity';
+import { PlayerStatistics } from './player-statistics.entity';
 
 @Entity('players')
 @Index(['position', 'isActive'])
@@ -74,6 +75,9 @@ export class Player {
 
   @OneToMany(() => Contract, (contract) => contract.player)
   contracts: Relation<Contract[]>;
+
+  @OneToMany(() => PlayerStatistics, (stats) => stats.player, { cascade: true })
+  statistics: PlayerStatistics[];
 
   get age(): number {
     const today = new Date();
