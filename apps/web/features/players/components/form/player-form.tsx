@@ -30,10 +30,10 @@ export function PlayerForm() {
     setServerError(null); // Clear previous errors
     startTransition(async () => {
       try {
-        await createPlayerAction(data);
+        const result = await createPlayerAction(data);
         toast.success(t("playerAdded"));
         form.reset();
-        router.push("/players");
+        router.push(`/players/${result.id}`);
       } catch (error) {
         let errorMessage = t("failedToCreate");
         if (error instanceof Error) {

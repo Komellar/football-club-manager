@@ -56,7 +56,6 @@ export default function LoginPage() {
       }
 
       if (!result?.error) {
-        console.log("Login successful");
         // Refresh auth state after successful login
         await dispatch(checkAuth());
         router.push("/dashboard");

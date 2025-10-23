@@ -22,11 +22,13 @@ import { useRouter } from "next/navigation";
 interface DeletePlayerDialogProps {
   playerId: number;
   playerName: string;
+  redirectPath?: string;
 }
 
 export function DeletePlayerDialog({
   playerId,
   playerName,
+  redirectPath,
 }: DeletePlayerDialogProps) {
   const t = useTranslations("Players");
   const [open, setOpen] = useState(false);
@@ -39,7 +41,11 @@ export function DeletePlayerDialog({
         await deletePlayerAction(playerId);
         toast.success(t("playerDeleted"));
         setOpen(false);
-        router.refresh();
+        if (redirectPath) {
+          router.push(redirectPath);
+        } else {
+          router.refresh();
+        }
       } catch (error) {
         toast.error(
           error instanceof Error ? error.message : t("failedToDelete")

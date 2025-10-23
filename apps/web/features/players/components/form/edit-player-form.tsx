@@ -40,7 +40,7 @@ export function EditPlayerForm({ player }: EditPlayerFormProps) {
       try {
         await updatePlayerAction(player.id, data);
         toast.success(t("playerUpdated"));
-        router.push("/players");
+        router.push(`/players/${player.id}`);
       } catch (error) {
         let errorMessage = t("failedToUpdate");
         if (error instanceof Error) {

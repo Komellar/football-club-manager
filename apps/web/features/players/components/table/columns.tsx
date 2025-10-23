@@ -100,9 +100,11 @@ export const createPlayerColumns = (
 
         return (
           <div className="flex items-center justify-end space-x-2">
-            <Button variant="ghost" size="sm" title={t("view")}>
-              <Eye className="h-4 w-4" />
-            </Button>
+            <Link href={`/players/${player.id}`}>
+              <Button variant="ghost" size="sm" title={t("view")}>
+                <Eye className="h-4 w-4" />
+              </Button>
+            </Link>
             <Link href={`/players/${player.id}/edit`}>
               <Button variant="ghost" size="sm" title={t("edit")}>
                 <Edit className="h-4 w-4" />

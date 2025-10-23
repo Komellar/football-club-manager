@@ -5,7 +5,8 @@ import { createPlayer } from "../api/players";
 import type { CreatePlayerDto } from "@repo/core";
 
 export async function createPlayerAction(playerData: CreatePlayerDto) {
-  await createPlayer(playerData);
+  const result = await createPlayer(playerData);
 
   revalidatePath("/players");
+  return result;
 }

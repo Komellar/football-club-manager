@@ -31,7 +31,6 @@ export async function getPlayerById(id: number): Promise<PlayerResponseDto> {
     const { data }: AxiosResponse<PlayerResponseDto> = await apiClient.get(
       `/players/${id}`
     );
-    console.log("data", data);
     return data;
   } catch (error) {
     if (error instanceof AxiosError) {
