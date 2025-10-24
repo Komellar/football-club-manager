@@ -172,15 +172,83 @@
   "Contracts": {
     "title": "Contratos",
     "addContract": "Agregar Contrato",
+    "createContract": "Crear Contrato",
+    "createContractDescription": "Crear un nuevo contrato para un jugador",
+    "editContract": "Editar Contrato",
+    "contractDetails": "Detalles del Contrato",
+    "contractList": "Lista de contratos",
+    "manageContracts": "Gestiona los contratos de jugadores de tu club",
+    "noContractsMessage": "No se encontraron contratos. Agrega tu primer contrato para comenzar.",
+    "noContractsFound": "No se encontraron contratos",
+    "contractCreated": "Contrato creado exitosamente",
+    "failedToCreate": "Error al crear el contrato",
+    "errorLoading": "Error al cargar los contratos",
+    "errorMessage": "Algo salió mal. Por favor, inténtalo de nuevo.",
+    "tryAgain": "Intentar de Nuevo",
     "player": "Jugador",
+    "playerId": "ID del Jugador",
     "salary": "Salario",
     "startDate": "Fecha de Inicio",
     "endDate": "Fecha de Finalización",
     "contractType": "Tipo de Contrato",
     "bonuses": "Bonos",
-    "active": "Activo",
+    "signOnFee": "Prima de Fichaje",
+    "agentFee": "Comisión del Agente",
+    "releaseClause": "Cláusula de Rescisión",
+    "notes": "Notas",
+    "currency": "Moneda",
+    "status": "Estado",
+    "duration": "Duración",
+    "remainingMonths": "Meses Restantes",
+    "months": "meses",
+    "contractExpired": "Contrato Vencido",
+    "expiringSoon": "Por Vencer",
     "expired": "Vencido",
-    "terminated": "Terminado"
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "saving": "Guardando...",
+    "edit": "Editar",
+    "view": "Ver",
+    "actions": "Acciones",
+    "types": {
+      "permanent": "Permanente",
+      "loan": "Préstamo",
+      "trial": "Prueba",
+      "youth": "Juvenil",
+      "professional": "Profesional"
+    },
+    "statuses": {
+      "active": "Activo",
+      "pending": "Pendiente",
+      "expired": "Vencido",
+      "terminated": "Terminado"
+    },
+    "sections": {
+      "basicInfo": "Información Básica",
+      "dates": "Período del Contrato",
+      "financial": "Detalles Financieros",
+      "contractPeriod": "Período del Contrato",
+      "additionalInfo": "Información Adicional"
+    },
+    "labels": {
+      "required": "*"
+    },
+    "placeholders": {
+      "selectContractType": "Seleccionar tipo de contrato",
+      "selectStatus": "Seleccionar estado",
+      "selectCurrency": "Seleccionar moneda",
+      "selectStartDate": "Seleccionar fecha de inicio",
+      "selectEndDate": "Seleccionar fecha de finalización",
+      "selectPlayer": "Seleccionar un jugador",
+      "loading": "Cargando...",
+      "notes": "Agrega notas adicionales...",
+      "enterPlayerId": "Ingresa el ID del jugador"
+    },
+    "descriptions": {
+      "monthlySalary": "Monto del salario mensual",
+      "bonuses": "Bonos e incentivos por rendimiento",
+      "notes": "Términos y notas adicionales del contrato"
+    }
   },
   "Statistics": {
     "title": "Estadísticas",

@@ -89,8 +89,8 @@
 #### 2.3.1 Player List & Basic UI
 
 - [x] Create player list page with shadcn/ui Table component
-- [ ] Build player form using React Hook Form from ShadCN + Zod resolver
-- [ ] Add player detail view with server components
+- [x] Build player form using React Hook Form from ShadCN + Zod resolver
+- [x] Add player detail view with server components
 
 #### 2.3.2 Advanced Player UI Features
 

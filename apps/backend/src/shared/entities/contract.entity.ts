@@ -13,10 +13,6 @@ import { ContractStatus, ContractType } from '@repo/core';
 import { Player } from './player.entity';
 
 @Entity('contracts')
-@Index(['playerId', 'status'])
-@Index(['startDate', 'endDate'])
-@Index(['status'])
-@Index(['contractType'])
 export class Contract {
   @PrimaryGeneratedColumn()
   id: number;
@@ -52,9 +48,6 @@ export class Contract {
     comment: 'Monthly salary in the specified currency',
   })
   salary: number;
-
-  @Column({ type: 'varchar', length: 3, default: 'EUR' })
-  currency: string;
 
   @Column({
     type: 'decimal',
@@ -109,37 +102,4 @@ export class Contract {
   })
   @JoinColumn({ name: 'player_id' })
   player: Relation<Player>;
-
-  get isActive(): boolean {
-    return this.status === ContractStatus.ACTIVE;
-  }
-
-  get isExpired(): boolean {
-    const now = new Date();
-    return this.endDate < now;
-  }
-
-  get daysUntilExpiry(): number {
-    const now = new Date();
-    const timeDiff = this.endDate.getTime() - now.getTime();
-    return Math.ceil(timeDiff / (1000 * 3600 * 24));
-  }
-
-  get totalValue(): number {
-    const monthsDiff = this.getMonthsDifference(this.startDate, this.endDate);
-    const salaryTotal = this.salary * monthsDiff;
-    const bonusesTotal = this.bonuses || 0;
-    const signOnFeeTotal = this.signOnFee || 0;
-    return salaryTotal + bonusesTotal + signOnFeeTotal;
-  }
-
-  private getMonthsDifference(startDate: Date, endDate: Date): number {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-
-    const yearsDiff = end.getFullYear() - start.getFullYear();
-    const monthsDiff = end.getMonth() - start.getMonth();
-
-    return yearsDiff * 12 + monthsDiff;
-  }
 }

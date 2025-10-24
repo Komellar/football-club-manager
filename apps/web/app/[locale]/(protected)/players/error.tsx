@@ -37,7 +37,7 @@ export default function PlayersError({ error, reset }: ErrorPageProps) {
               {t("tryAgain")}
             </Button>
             <Button
-              onClick={() => (window.location.href = "/dashboard")}
+              onClick={() => (window.location.href = "/players")}
               variant="outline"
             >
               {t("backToPlayers")}

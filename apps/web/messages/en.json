@@ -172,15 +172,83 @@
   "Contracts": {
     "title": "Contracts",
     "addContract": "Add Contract",
+    "createContract": "Create Contract",
+    "createContractDescription": "Create a new contract for a player",
+    "editContract": "Edit Contract",
+    "contractDetails": "Contract Details",
+    "contractList": "Contract list",
+    "manageContracts": "Manage your club's player contracts",
+    "noContractsMessage": "No contracts found. Add your first contract to get started.",
+    "noContractsFound": "No contracts found",
+    "contractCreated": "Contract created successfully",
+    "failedToCreate": "Failed to create contract",
+    "errorLoading": "Error loading contracts",
+    "errorMessage": "Something went wrong. Please try again.",
+    "tryAgain": "Try Again",
     "player": "Player",
+    "playerId": "Player ID",
     "salary": "Salary",
     "startDate": "Start Date",
     "endDate": "End Date",
     "contractType": "Contract Type",
     "bonuses": "Bonuses",
-    "active": "Active",
+    "signOnFee": "Sign-on Fee",
+    "agentFee": "Agent Fee",
+    "releaseClause": "Release Clause",
+    "notes": "Notes",
+    "currency": "Currency",
+    "status": "Status",
+    "duration": "Duration",
+    "remainingMonths": "Remaining Months",
+    "months": "months",
+    "contractExpired": "Contract Expired",
+    "expiringSoon": "Expiring Soon",
     "expired": "Expired",
-    "terminated": "Terminated"
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving...",
+    "edit": "Edit",
+    "view": "View",
+    "actions": "Actions",
+    "types": {
+      "permanent": "Permanent",
+      "loan": "Loan",
+      "trial": "Trial",
+      "youth": "Youth",
+      "professional": "Professional"
+    },
+    "statuses": {
+      "active": "Active",
+      "pending": "Pending",
+      "expired": "Expired",
+      "terminated": "Terminated"
+    },
+    "sections": {
+      "basicInfo": "Basic Information",
+      "dates": "Contract Period",
+      "financial": "Financial Details",
+      "contractPeriod": "Contract Period",
+      "additionalInfo": "Additional Information"
+    },
+    "labels": {
+      "required": "*"
+    },
+    "placeholders": {
+      "selectContractType": "Select contract type",
+      "selectStatus": "Select status",
+      "selectCurrency": "Select currency",
+      "selectStartDate": "Select start date",
+      "selectEndDate": "Select end date",
+      "selectPlayer": "Select a player",
+      "loading": "Loading...",
+      "notes": "Add any additional notes...",
+      "enterPlayerId": "Enter player ID"
+    },
+    "descriptions": {
+      "monthlySalary": "Monthly Salary",
+      "bonuses": "Performance bonuses and incentives",
+      "notes": "Additional contract terms and notes"
+    }
   },
   "Statistics": {
     "title": "Statistics",

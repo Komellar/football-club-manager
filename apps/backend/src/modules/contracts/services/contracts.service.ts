@@ -96,7 +96,6 @@ export class ContractsService {
       startDate: contract.startDate,
       endDate: contract.endDate,
       salary: contract.salary,
-      currency: contract.currency,
       bonuses: contract.bonuses,
       signOnFee: contract.signOnFee,
       releaseClause: contract.releaseClause,
