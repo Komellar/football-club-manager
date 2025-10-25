@@ -6,6 +6,18 @@ import { createPaginationResponseSchema } from "../../utils/schema-utils";
 import { DateRangeQuerySchema } from "../list/date-range-schemas";
 import { ContractResponseSchema } from "./contract-response-schemas";
 
+export const CONTRACT_SORT_COLUMNS = [
+  "contractType",
+  "status",
+  "startDate",
+  "endDate",
+  "salary",
+  "createdAt",
+  "bonuses",
+  "releaseClause",
+] as const;
+export type ContractSortColumn = (typeof CONTRACT_SORT_COLUMNS)[number];
+
 export const ContractListSchema = ListQueryParamsSchema.extend({
   where: z
     .object({
@@ -13,16 +25,11 @@ export const ContractListSchema = ListQueryParamsSchema.extend({
       playerId: z.coerce.number().int().positive().optional(),
       status: z.enum(ContractStatus).optional(),
       contractType: z.enum(ContractType).optional(),
-      minSalary: z.coerce.number().positive().optional(),
-      maxSalary: z.coerce.number().positive().optional(),
-      currency: z.string().length(3).optional(),
     })
     .optional(),
   sort: z
     .object({
-      by: z
-        .enum(["startDate", "endDate", "salary", "createdAt"])
-        .default("createdAt"),
+      by: z.enum(CONTRACT_SORT_COLUMNS).default("createdAt"),
       order: z.enum(SortOrder).default(SortOrder.DESC).optional(),
     })
     .optional(),

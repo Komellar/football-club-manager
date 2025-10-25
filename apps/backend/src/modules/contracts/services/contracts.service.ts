@@ -44,6 +44,7 @@ export class ContractsService {
       this.contractRepository,
       queryDto,
       filterOptions,
+      ['player'],
     );
 
     return {

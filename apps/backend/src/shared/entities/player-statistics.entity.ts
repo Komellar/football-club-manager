@@ -6,12 +6,10 @@ import {
   JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
-  Index,
 } from 'typeorm';
 import { Player } from './player.entity';
 
 @Entity('player_statistics')
-@Index(['playerId', 'season'], { unique: true })
 export class PlayerStatistics {
   @PrimaryGeneratedColumn()
   id: number;

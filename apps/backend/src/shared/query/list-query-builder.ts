@@ -36,6 +36,7 @@ export class ListQueryBuilder {
     repository: Repository<T>,
     queryDto?: Partial<Q & ListQueryParams>,
     filterOptions?: FilterOptions,
+    relations?: string[],
   ): Promise<PaginationResult<T>> {
     const page = queryDto?.page || this.DEFAULT_PAGE;
     const limit = queryDto?.limit || this.DEFAULT_LIMIT;
@@ -45,6 +46,7 @@ export class ListQueryBuilder {
       limit,
       queryDto,
       filterOptions,
+      relations,
     );
 
     const [data, total] = await repository.findAndCount(typeormQuery);
@@ -60,9 +62,14 @@ export class ListQueryBuilder {
     limit: number,
     queryDto?: Partial<T & ListQueryParams>,
     filterOptions?: FilterOptions,
+    relations?: string[],
   ): FindManyOptions {
     if (!queryDto) {
-      return { skip: (page - 1) * limit, take: limit };
+      return {
+        skip: (page - 1) * limit,
+        take: limit,
+        ...(relations && { relations }),
+      };
     }
 
     const whereClause =
@@ -86,6 +93,7 @@ export class ListQueryBuilder {
       order,
       skip: (page - 1) * limit,
       take: limit,
+      ...(relations && { relations }),
     };
   }
 

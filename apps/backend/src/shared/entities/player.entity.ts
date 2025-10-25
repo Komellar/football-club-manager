@@ -14,12 +14,6 @@ import { Contract } from './contract.entity';
 import { PlayerStatistics } from './player-statistics.entity';
 
 @Entity('players')
-@Index(['position', 'isActive'])
-@Index(['nationality'])
-@Index(['jerseyNumber'], {
-  unique: true,
-  where: 'jersey_number IS NOT NULL AND is_active = true',
-})
 export class Player {
   @PrimaryGeneratedColumn()
   id: number;

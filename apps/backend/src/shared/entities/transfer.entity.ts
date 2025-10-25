@@ -6,16 +6,11 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
-  Index,
 } from 'typeorm';
 import { Player } from './player.entity';
 import { TransferType, TransferStatus } from '@repo/core';
 
 @Entity('transfers')
-@Index(['playerId', 'transferDate'])
-@Index(['transferType', 'transferStatus'])
-@Index(['fromClub'])
-@Index(['toClub'])
 export class Transfer {
   @PrimaryGeneratedColumn()
   id: number;
