@@ -29,7 +29,21 @@ export function calculateRemainingMonths(endDate: Date): number {
   return Math.max(0, diffMonths);
 }
 
-export function isContractExpiringSoon(endDate: Date, monthsThreshold = 6): boolean {
+export function calculateDurationInMonths(
+  startDate: Date,
+  endDate: Date
+): number {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const diffTime = end.getTime() - start.getTime();
+  const diffMonths = Math.ceil(diffTime / (1000 * 60 * 60 * 24 * 30));
+  return Math.max(0, diffMonths);
+}
+
+export function isContractExpiringSoon(
+  endDate: Date,
+  monthsThreshold = 6
+): boolean {
   const remainingMonths = calculateRemainingMonths(endDate);
   return remainingMonths <= monthsThreshold && remainingMonths > 0;
 }
@@ -40,15 +54,18 @@ export function isContractExpired(endDate: Date): boolean {
   return end < now;
 }
 
-export function formatContractDateRange(startDate: Date, endDate: Date): string {
+export function formatContractDateRange(
+  startDate: Date,
+  endDate: Date
+): string {
   const start = new Date(startDate);
   const end = new Date(endDate);
-  
+
   const options: Intl.DateTimeFormatOptions = {
     year: "numeric",
     month: "short",
     day: "numeric",
   };
-  
+
   return `${start.toLocaleDateString("en-US", options)} - ${end.toLocaleDateString("en-US", options)}`;
 }

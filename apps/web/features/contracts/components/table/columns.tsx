@@ -16,6 +16,7 @@ import {
   formatContractStatus,
   isContractExpiringSoon,
 } from "../../utils";
+import { format } from "date-fns";
 
 export const createContractColumns = (
   sortHook: UseTableSortReturn<ContractSortColumn>
@@ -84,15 +85,7 @@ export const createContractColumns = (
       header: createSortableHeader("startDate", "startDate"),
       cell: ({ row }) => {
         const startDate = row.getValue("startDate") as Date;
-        return (
-          <div>
-            {new Date(startDate).toLocaleDateString("en-GB", {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            })}
-          </div>
-        );
+        return <div>{format(new Date(startDate), "dd MMM yyyy")}</div>;
       },
     },
     {
@@ -104,13 +97,7 @@ export const createContractColumns = (
 
         return (
           <div className="flex items-center gap-2">
-            <span>
-              {new Date(endDate).toLocaleDateString("en-GB", {
-                year: "numeric",
-                month: "short",
-                day: "numeric",
-              })}
-            </span>
+            <span>{format(new Date(endDate), "dd MMM yyyy")}</span>
             {expiringSoon && (
               <AlertTriangle className="w-4 h-4 text-yellow-600" />
             )}

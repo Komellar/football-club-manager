@@ -248,7 +248,17 @@
       "monthlySalary": "Monthly Salary",
       "bonuses": "Performance bonuses and incentives",
       "notes": "Additional contract terms and notes"
-    }
+    },
+    "contractFor": "Contract for {player}",
+    "delete": "Delete",
+    "deleteConfirmTitle": "Delete Contract",
+    "deleteConfirmDescription": "Are you sure you want to delete this contract? This action cannot be undone.",
+    "deleteConfirmDescriptionWithPlayer": "Are you sure you want to delete the contract for {player}? This action cannot be undone.",
+    "deleting": "Deleting...",
+    "contractDeleted": "Contract deleted successfully",
+    "errorTitle": "Error Loading Contract",
+    "errorDescription": "There was a problem loading the contract details.",
+    "unknownError": "An unknown error occurred"
   },
   "Statistics": {
     "title": "Statistics",

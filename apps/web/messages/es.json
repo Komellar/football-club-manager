@@ -248,7 +248,17 @@
       "monthlySalary": "Monto del salario mensual",
       "bonuses": "Bonos e incentivos por rendimiento",
       "notes": "Términos y notas adicionales del contrato"
-    }
+    },
+    "contractFor": "Contrato para {player}",
+    "delete": "Eliminar",
+    "deleteConfirmTitle": "Eliminar Contrato",
+    "deleteConfirmDescription": "¿Estás seguro de que quieres eliminar este contrato? Esta acción no se puede deshacer.",
+    "deleteConfirmDescriptionWithPlayer": "¿Estás seguro de que quieres eliminar el contrato de {player}? Esta acción no se puede deshacer.",
+    "deleting": "Eliminando...",
+    "contractDeleted": "Contrato eliminado exitosamente",
+    "errorTitle": "Error al Cargar el Contrato",
+    "errorDescription": "Hubo un problema al cargar los detalles del contrato.",
+    "unknownError": "Ocurrió un error desconocido"
   },
   "Statistics": {
     "title": "Estadísticas",
