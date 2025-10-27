@@ -10,7 +10,5 @@ export const contractStatusColors: Record<ContractStatus, string> = {
 export const contractTypeColors: Record<ContractType, string> = {
   [ContractType.PERMANENT]: "bg-blue-100 text-blue-800",
   [ContractType.LOAN]: "bg-purple-100 text-purple-800",
-  [ContractType.TRIAL]: "bg-orange-100 text-orange-800",
   [ContractType.YOUTH]: "bg-cyan-100 text-cyan-800",
-  [ContractType.PROFESSIONAL]: "bg-indigo-100 text-indigo-800",
 };

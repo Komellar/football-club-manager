@@ -4,9 +4,7 @@ export function formatContractType(type: ContractType): string {
   const typeMap: Record<ContractType, string> = {
     [ContractType.PERMANENT]: "Permanent",
     [ContractType.LOAN]: "Loan",
-    [ContractType.TRIAL]: "Trial",
     [ContractType.YOUTH]: "Youth",
-    [ContractType.PROFESSIONAL]: "Professional",
   };
   return typeMap[type] || type;
 }

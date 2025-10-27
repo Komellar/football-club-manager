@@ -94,8 +94,8 @@
 
 #### 2.3.2 Advanced Player UI Features
 
-- [ ] Implement contract management UI with forms
-- [ ] Add search and filtering with URL state management
+- [x] Implement contract management UI with forms
+- [x] Add search and filtering with URL state management
 - [ ] Create player profile pages with statistics
 - [ ] Add player image upload interface
 

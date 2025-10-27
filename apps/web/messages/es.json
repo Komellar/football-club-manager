@@ -154,7 +154,16 @@
     "midfielder": "Centrocampista",
     "forward": "Delantero",
     "active": "Activo",
-    "inactive": "Inactivo"
+    "inactive": "Inactivo",
+    "activeContract": "Contrato Activo",
+    "noActiveContract": "No hay contrato activo para este jugador",
+    "contractHistory": "Historial de Contratos",
+    "clubFinancialSummary": "Resumen Financiero del Club",
+    "totalActiveValue": "Valor Total Activo",
+    "monthlyCommitment": "Compromiso Mensual",
+    "averageSalary": "Salario Promedio",
+    "totalContracts": "Total de Contratos",
+    "upcomingExpiries": "Vencimientos Próximos"
   },
   "Transfers": {
     "title": "Transferencias",
@@ -213,9 +222,7 @@
     "types": {
       "permanent": "Permanente",
       "loan": "Préstamo",
-      "trial": "Prueba",
-      "youth": "Juvenil",
-      "professional": "Profesional"
+      "youth": "Juvenil"
     },
     "statuses": {
       "active": "Activo",
@@ -263,7 +270,9 @@
     "errorTitle": "Error al Cargar el Contrato",
     "errorDescription": "Hubo un problema al cargar los detalles del contrato.",
     "errorEditDescription": "Hubo un problema al cargar el contrato para editar.",
-    "unknownError": "Ocurrió un error desconocido"
+    "unknownError": "Ocurrió un error desconocido",
+    "contractsErrorTitle": "Error de contrato",
+    "contractsErrorMessage": "No se pudieron cargar los contratos. Por favor, inténtelo de nuevo."
   },
   "Statistics": {
     "title": "Estadísticas",

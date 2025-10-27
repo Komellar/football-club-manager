@@ -154,7 +154,16 @@
     "midfielder": "Midfielder",
     "forward": "Forward",
     "active": "Active",
-    "inactive": "Inactive"
+    "inactive": "Inactive",
+    "activeContract": "Active Contract",
+    "noActiveContract": "No active contract for this player",
+    "contractHistory": "Contract History",
+    "clubFinancialSummary": "Club Financial Summary",
+    "totalActiveValue": "Total Active Value",
+    "monthlyCommitment": "Monthly Commitment",
+    "averageSalary": "Average Salary",
+    "totalContracts": "Total Contracts",
+    "upcomingExpiries": "Upcoming Expiries"
   },
   "Transfers": {
     "title": "Transfers",
@@ -213,9 +222,7 @@
     "types": {
       "permanent": "Permanent",
       "loan": "Loan",
-      "trial": "Trial",
-      "youth": "Youth",
-      "professional": "Professional"
+      "youth": "Youth"
     },
     "statuses": {
       "active": "Active",
@@ -263,7 +270,9 @@
     "errorTitle": "Error Loading Contract",
     "errorDescription": "There was a problem loading the contract details.",
     "errorEditDescription": "There was a problem loading the contract for editing.",
-    "unknownError": "An unknown error occurred"
+    "unknownError": "An unknown error occurred",
+    "contractsErrorTitle": "Contract Error",
+    "contractsErrorMessage": "Failed to load contracts. Please try again."
   },
   "Statistics": {
     "title": "Statistics",

@@ -8,6 +8,8 @@ import type {
   UpdateContractDto,
   ContractRenewalDto,
   ContractNewRenewalDto,
+  ContractFinancialSummary,
+  ContractValueCalculation,
 } from "@repo/core";
 
 export async function getContracts(
@@ -136,5 +138,38 @@ export async function createRenewalContract(
       throw new Error(errorMessage);
     }
     throw new Error("Failed to create renewal contract");
+  }
+}
+
+export async function getFinancialSummary(): Promise<ContractFinancialSummary> {
+  try {
+    const { data }: AxiosResponse<ContractFinancialSummary> =
+      await apiClient.get("/contracts/financial/summary");
+    return data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      const errorMessage =
+        error.response?.data?.message || "Failed to fetch financial summary";
+      throw new Error(errorMessage);
+    }
+    throw new Error("Failed to fetch financial summary");
+  }
+}
+
+export async function getContractValueCalculation(
+  id: number
+): Promise<ContractValueCalculation> {
+  try {
+    const { data }: AxiosResponse<ContractValueCalculation> =
+      await apiClient.get(`/contracts/financial/${id}/value-calculation`);
+    return data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      const errorMessage =
+        error.response?.data?.message ||
+        "Failed to fetch contract value calculation";
+      throw new Error(errorMessage);
+    }
+    throw new Error("Failed to fetch contract value calculation");
   }
 }

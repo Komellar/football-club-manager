@@ -110,9 +110,7 @@ export class ContractFinancialService {
     const contractsByType: Record<ContractType, number> = {
       [ContractType.PERMANENT]: 0,
       [ContractType.LOAN]: 0,
-      [ContractType.TRIAL]: 0,
       [ContractType.YOUTH]: 0,
-      [ContractType.PROFESSIONAL]: 0,
     };
 
     const metrics = contracts.reduce(
@@ -205,15 +203,21 @@ export class ContractFinancialService {
     return { totalMonths, remainingMonths };
   }
 
-  private calculateMonthsDifference(startDate: Date, endDate: Date): number {
-    if (endDate <= startDate) return 0;
+  private calculateMonthsDifference(
+    startDate: Date | string,
+    endDate: Date | string,
+  ): number {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
 
-    const yearsDiff = endDate.getFullYear() - startDate.getFullYear();
-    const monthsDiff = endDate.getMonth() - startDate.getMonth();
+    if (end <= start) return 0;
+
+    const yearsDiff = end.getFullYear() - start.getFullYear();
+    const monthsDiff = end.getMonth() - start.getMonth();
     const baseMonths = yearsDiff * 12 + monthsDiff;
 
     // If there are any days beyond the start day, count as an additional month
-    if (endDate.getDate() > startDate.getDate()) {
+    if (end.getDate() > start.getDate()) {
       return baseMonths + 1;
     }
 

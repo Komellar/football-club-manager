@@ -1,11 +1,17 @@
-import { PlayerDetails } from "@/features/players/components/player-details";
 import { getPlayerById } from "@/features/players/api/players";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Edit, Trash2 } from "lucide-react";
+import { ArrowLeft, Edit } from "lucide-react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { DeletePlayerDialog } from "@/features/players/components/delete-player-dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Suspense } from "react";
+import {
+  PlayerContractsTab,
+  PlayerContractsTabSkeleton,
+  PlayerDetailsTab,
+} from "@/features/players/components/tabs";
 
 export default async function PlayerDetailsPage({
   params,
@@ -58,7 +64,22 @@ export default async function PlayerDetailsPage({
         </div>
       </div>
 
-      <PlayerDetails player={player} />
+      <Tabs defaultValue="details" className="w-full">
+        <TabsList>
+          <TabsTrigger value="details">{t("playerDetails")}</TabsTrigger>
+          <TabsTrigger value="contracts">{t("activeContract")}</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="details" className="mt-6">
+          <PlayerDetailsTab player={player} />
+        </TabsContent>
+
+        <TabsContent value="contracts" className="mt-6">
+          <Suspense fallback={<PlayerContractsTabSkeleton />}>
+            <PlayerContractsTab playerId={playerId} />
+          </Suspense>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

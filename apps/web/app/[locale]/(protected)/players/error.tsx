@@ -21,7 +21,7 @@ export default function PlayersError({ error, reset }: ErrorPageProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-red-600">
+          <CardTitle className="text-red-600 text-center">
             {t("somethingWentWrong")}
           </CardTitle>
         </CardHeader>
