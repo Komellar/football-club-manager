@@ -32,11 +32,9 @@ export function PhysicalAttributes() {
               <FormControl>
                 <NumericInput
                   placeholder={t("placeholders.enterHeight")}
-                  value={field.value}
-                  onChange={(e) =>
-                    handleNumericFieldChange(e.target.value, field.onChange)
-                  }
                   decimalScale={0}
+                  onValueChange={field.onChange}
+                  {...field}
                 />
               </FormControl>
               <FormMessage />
@@ -53,10 +51,8 @@ export function PhysicalAttributes() {
               <FormControl>
                 <NumericInput
                   placeholder={t("placeholders.enterWeight")}
-                  value={field.value}
-                  onChange={(e) =>
-                    handleNumericFieldChange(e.target.value, field.onChange)
-                  }
+                  onValueChange={field.onChange}
+                  {...field}
                 />
               </FormControl>
               <FormMessage />

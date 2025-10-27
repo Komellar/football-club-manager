@@ -17,6 +17,7 @@ import {
   isContractExpiringSoon,
 } from "../../utils";
 import { format } from "date-fns";
+import { DeleteContractDialog } from "../delete-contract-dialog";
 
 export const createContractColumns = (
   sortHook: UseTableSortReturn<ContractSortColumn>
@@ -39,7 +40,7 @@ export const createContractColumns = (
       cell: ({ row }) => {
         const player = row.getValue("player") as ContractResponseDto["player"];
         return (
-          <div className="font-medium">
+          <div className="font-medium min-w-25">
             {player ? (
               <Link href={`/players/${player.id}`} className="hover:underline">
                 {player.name}{" "}
@@ -64,18 +65,6 @@ export const createContractColumns = (
             className={contractTypeColors[contractType]}
           >
             {formatContractType(contractType)}
-          </Badge>
-        );
-      },
-    },
-    {
-      accessorKey: "status",
-      header: createSortableHeader("status", "status"),
-      cell: ({ row }) => {
-        const status = row.getValue("status") as ContractResponseDto["status"];
-        return (
-          <Badge variant="secondary" className={contractStatusColors[status]}>
-            {formatContractStatus(status)}
           </Badge>
         );
       },
@@ -130,13 +119,25 @@ export const createContractColumns = (
       },
     },
     {
+      accessorKey: "status",
+      header: createSortableHeader("status", "status"),
+      cell: ({ row }) => {
+        const status = row.getValue("status") as ContractResponseDto["status"];
+        return (
+          <Badge variant="secondary" className={contractStatusColors[status]}>
+            {formatContractStatus(status)}
+          </Badge>
+        );
+      },
+    },
+    {
       id: "actions",
-      header: () => <div className="text-right">{t("actions")}</div>,
+      header: () => <div className="text-left">{t("actions")}</div>,
       cell: ({ row }) => {
         const contract = row.original;
 
         return (
-          <div className="flex items-center justify-end space-x-2">
+          <div className="flex items-center justify-start space-x-2">
             <Link href={`/contracts/${contract.id}`}>
               <Button variant="ghost" size="sm" title={t("view")}>
                 <Eye className="h-4 w-4" />
@@ -147,6 +148,10 @@ export const createContractColumns = (
                 <Edit className="h-4 w-4" />
               </Button>
             </Link>
+            <DeleteContractDialog
+              contractId={contract.id}
+              playerName={contract.player?.name}
+            />
           </div>
         );
       },

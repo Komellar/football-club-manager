@@ -250,6 +250,10 @@
       "notes": "Additional contract terms and notes"
     },
     "contractFor": "Contract for {player}",
+    "editingContractFor": "Editing contract for {player}",
+    "contractUpdated": "Contract updated successfully",
+    "failedToUpdate": "Failed to update contract",
+    "saveChanges": "Save Changes",
     "delete": "Delete",
     "deleteConfirmTitle": "Delete Contract",
     "deleteConfirmDescription": "Are you sure you want to delete this contract? This action cannot be undone.",
@@ -258,6 +262,7 @@
     "contractDeleted": "Contract deleted successfully",
     "errorTitle": "Error Loading Contract",
     "errorDescription": "There was a problem loading the contract details.",
+    "errorEditDescription": "There was a problem loading the contract for editing.",
     "unknownError": "An unknown error occurred"
   },
   "Statistics": {

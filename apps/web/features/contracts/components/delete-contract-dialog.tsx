@@ -50,9 +50,8 @@ export function DeleteContractDialog({
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
-        <Button variant="destructive" size="sm">
-          <Trash2 className="h-4 w-4 mr-2" />
-          {t("delete")}
+        <Button variant="ghost" size="sm" title={t("delete")}>
+          <Trash2 className="h-4 w-4" />
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
@@ -60,7 +59,9 @@ export function DeleteContractDialog({
           <AlertDialogTitle>{t("deleteConfirmTitle")}</AlertDialogTitle>
           <AlertDialogDescription>
             {playerName
-              ? t("deleteConfirmDescriptionWithPlayer", { player: playerName })
+              ? t("deleteConfirmDescriptionWithPlayer", {
+                  player: playerName,
+                })
               : t("deleteConfirmDescription")}
           </AlertDialogDescription>
         </AlertDialogHeader>

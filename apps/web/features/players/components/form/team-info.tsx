@@ -29,9 +29,9 @@ export function TeamInfo() {
               <FormLabel>{t("jerseyNumber")}</FormLabel>
               <FormControl>
                 <NumericInput
-                  value={field.value}
-                  onValueChange={field.onChange}
                   placeholder={t("placeholders.enterJerseyNumber")}
+                  onValueChange={field.onChange}
+                  {...field}
                 />
               </FormControl>
               <FormDescription>
@@ -50,9 +50,9 @@ export function TeamInfo() {
               <FormLabel>{t("marketValue")}</FormLabel>
               <FormControl>
                 <NumericInput
-                  value={field.value}
-                  onValueChange={field.onChange}
                   placeholder={t("placeholders.enterMarketValue")}
+                  onValueChange={field.onChange}
+                  {...field}
                 />
               </FormControl>
               <FormMessage />

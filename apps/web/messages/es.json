@@ -250,6 +250,10 @@
       "notes": "Términos y notas adicionales del contrato"
     },
     "contractFor": "Contrato para {player}",
+    "editingContractFor": "Editando contrato para {player}",
+    "contractUpdated": "Contrato actualizado exitosamente",
+    "failedToUpdate": "Error al actualizar el contrato",
+    "saveChanges": "Guardar Cambios",
     "delete": "Eliminar",
     "deleteConfirmTitle": "Eliminar Contrato",
     "deleteConfirmDescription": "¿Estás seguro de que quieres eliminar este contrato? Esta acción no se puede deshacer.",
@@ -258,6 +262,7 @@
     "contractDeleted": "Contrato eliminado exitosamente",
     "errorTitle": "Error al Cargar el Contrato",
     "errorDescription": "Hubo un problema al cargar los detalles del contrato.",
+    "errorEditDescription": "Hubo un problema al cargar el contrato para editar.",
     "unknownError": "Ocurrió un error desconocido"
   },
   "Statistics": {

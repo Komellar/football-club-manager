@@ -49,7 +49,7 @@ export function ContractDates() {
                       )}
                     >
                       {field.value ? (
-                        format(new Date(field.value), "PPP")
+                        format(field.value, "dd-MM-yyyy")
                       ) : (
                         <span>{t("placeholders.selectStartDate")}</span>
                       )}
@@ -63,6 +63,8 @@ export function ContractDates() {
                     selected={field.value ? new Date(field.value) : undefined}
                     onSelect={field.onChange}
                     disabled={(date) => date < new Date("1900-01-01")}
+                    defaultMonth={field.value}
+                    captionLayout="dropdown"
                   />
                 </PopoverContent>
               </Popover>
@@ -90,7 +92,7 @@ export function ContractDates() {
                       )}
                     >
                       {field.value ? (
-                        format(new Date(field.value), "PPP")
+                        format(field.value, "dd-MM-yyyy")
                       ) : (
                         <span>{t("placeholders.selectEndDate")}</span>
                       )}
@@ -104,6 +106,8 @@ export function ContractDates() {
                     selected={field.value ? new Date(field.value) : undefined}
                     onSelect={field.onChange}
                     disabled={(date) => date < new Date("1900-01-01")}
+                    defaultMonth={field.value}
+                    captionLayout="dropdown"
                   />
                 </PopoverContent>
               </Popover>

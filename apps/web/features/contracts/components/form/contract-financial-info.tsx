@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import {
   FormControl,
   FormField,
@@ -35,8 +36,8 @@ export function ContractFinancialInfo() {
               <FormControl>
                 <NumericInput
                   placeholder="0"
-                  value={field.value}
                   onValueChange={field.onChange}
+                  {...field}
                 />
               </FormControl>
               <FormDescription>
@@ -55,8 +56,8 @@ export function ContractFinancialInfo() {
               <FormControl>
                 <NumericInput
                   placeholder="0"
-                  value={field.value}
                   onValueChange={field.onChange}
+                  {...field}
                 />
               </FormControl>
               <FormDescription>{t("descriptions.bonuses")}</FormDescription>
@@ -76,8 +77,8 @@ export function ContractFinancialInfo() {
               <FormControl>
                 <NumericInput
                   placeholder="0"
-                  value={field.value}
                   onValueChange={field.onChange}
+                  {...field}
                 />
               </FormControl>
               <FormMessage />
@@ -93,8 +94,8 @@ export function ContractFinancialInfo() {
               <FormControl>
                 <NumericInput
                   placeholder="0"
-                  value={field.value}
                   onValueChange={field.onChange}
+                  {...field}
                 />
               </FormControl>
               <FormMessage />
@@ -113,8 +114,8 @@ export function ContractFinancialInfo() {
               <FormControl>
                 <NumericInput
                   placeholder="0"
-                  value={field.value}
                   onValueChange={field.onChange}
+                  {...field}
                 />
               </FormControl>
               <FormMessage />

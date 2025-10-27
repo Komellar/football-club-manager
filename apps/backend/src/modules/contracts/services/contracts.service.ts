@@ -72,7 +72,7 @@ export class ContractsService {
       );
     }
 
-    await this.contractRepository.save(updateContractDto);
+    await this.contractRepository.update(id, updateContractDto);
     return await this.contractRepository.findOneOrFail({
       where: { id },
       relations: ['player'],
@@ -104,14 +104,7 @@ export class ContractsService {
       notes: contract.notes,
       createdAt: contract.createdAt,
       updatedAt: contract.updatedAt,
-      player: contract.player
-        ? {
-            id: contract.player.id,
-            name: contract.player.name,
-            position: contract.player.position,
-            jerseyNumber: contract.player.jerseyNumber,
-          }
-        : undefined,
+      player: contract.player,
     };
   }
 }

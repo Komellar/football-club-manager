@@ -25,51 +25,58 @@ import { useTranslations } from "next-intl";
 
 interface ContractBasicInfoProps {
   disablePlayerSelect?: boolean;
-  playersPromise: Promise<{ data: PlayerResponseDto[] }>;
+  playersPromise?: Promise<{ data: PlayerResponseDto[] }>;
+  player?: PlayerResponseDto;
 }
 
 export function ContractBasicInfo({
   disablePlayerSelect = false,
   playersPromise,
+  player,
 }: ContractBasicInfoProps) {
   const { control } = useFormContext<CreateContractDto>();
+
   const t = useTranslations("Contracts");
 
-  const players = use(playersPromise).data;
+  const players = playersPromise ? use(playersPromise).data : [];
 
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-medium">{t("sections.basicInfo")}</h3>
 
-      {!disablePlayerSelect && players.length > 0 && (
-        <FormField
-          control={control}
-          name="playerId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>
-                {t("player")} {t("labels.required")}
-              </FormLabel>
-              <Select onValueChange={(value) => field.onChange(Number(value))}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder={t("placeholders.selectPlayer")} />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {players.map((player) => (
-                    <SelectItem key={player.id} value={player.id.toString()}>
-                      {player.name}
-                      {player.jerseyNumber && ` #${player.jerseyNumber}`}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      )}
+      <FormField
+        control={control}
+        name="playerId"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>
+              {t("player")} {t("labels.required")}
+            </FormLabel>
+            <Select
+              onValueChange={(value) => field.onChange(Number(value))}
+              disabled={disablePlayerSelect}
+              value={field.value?.toString()}
+            >
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder={t("placeholders.selectPlayer")}>
+                    {disablePlayerSelect ? player?.name : undefined}
+                  </SelectValue>
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                {players?.map((p) => (
+                  <SelectItem key={p.id} value={p.id.toString()}>
+                    {p.name}
+                    {p.jerseyNumber && ` #${p.jerseyNumber}`}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
         <FormField

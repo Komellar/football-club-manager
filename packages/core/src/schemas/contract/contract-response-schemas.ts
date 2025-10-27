@@ -1,16 +1,10 @@
 import { z } from "zod";
 import { ContractSchema } from "./contract-input-schemas";
 import { createPaginationResponseSchema } from "../../utils/schema-utils";
+import { PlayerResponseSchema } from "../player";
 
 export const ContractResponseSchema = ContractSchema.extend({
-  player: z
-    .object({
-      id: z.number(),
-      name: z.string(),
-      position: z.string(),
-      jerseyNumber: z.number().optional(),
-    })
-    .optional(),
+  player: PlayerResponseSchema.optional(),
 });
 
 export const PaginatedContractResponseSchema = createPaginationResponseSchema(

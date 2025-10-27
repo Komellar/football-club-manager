@@ -1,36 +1,48 @@
 "use client";
 
 import * as React from "react";
-import { NumericFormat, NumericFormatProps } from "react-number-format";
+import {
+  NumberFormatValues,
+  NumericFormat,
+  NumericFormatProps,
+} from "react-number-format";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
 export interface NumericInputProps
-  extends Omit<NumericFormatProps, "customInput" | "onValueChange" | "value"> {
+  extends Omit<
+    NumericFormatProps,
+    "customInput" | "onValueChange" | "value" | "onChange"
+  > {
   value?: number;
   onValueChange?: (value: number | undefined) => void;
   className?: string;
 }
 
-const NumericInput = React.forwardRef<HTMLInputElement, NumericInputProps>(
-  ({ className, value, onValueChange, ...props }, ref) => {
-    return (
-      <NumericFormat
-        decimalScale={2}
-        {...props}
-        customInput={Input}
-        className={cn(className)}
-        value={value ?? ""}
-        onValueChange={(values) => {
-          onValueChange?.(values.floatValue);
-        }}
-        getInputRef={ref}
-        thousandSeparator="."
-        decimalSeparator=","
-      />
-    );
-  }
-);
+const NumericInput = ({
+  className,
+  value,
+  onValueChange,
+  ...props
+}: NumericInputProps) => {
+  return (
+    <NumericFormat
+      decimalScale={2}
+      thousandSeparator="."
+      decimalSeparator=","
+      value={value}
+      customInput={Input}
+      allowNegative={false}
+      fixedDecimalScale={true}
+      className={cn(className)}
+      onValueChange={(values: NumberFormatValues) => {
+        onValueChange?.(Number(values.floatValue));
+      }}
+      {...props}
+      onChange={undefined}
+    />
+  );
+};
 
 NumericInput.displayName = "NumericInput";
 

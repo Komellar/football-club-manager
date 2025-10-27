@@ -94,12 +94,12 @@ export const createPlayerColumns = (
     },
     {
       id: "actions",
-      header: () => <div className="text-right">{t("actions")}</div>,
+      header: () => <div className="text-left">{t("actions")}</div>,
       cell: ({ row }) => {
         const player = row.original;
 
         return (
-          <div className="flex items-center justify-end space-x-2">
+          <div className="flex items-center justify-start space-x-2">
             <Link href={`/players/${player.id}`}>
               <Button variant="ghost" size="sm" title={t("view")}>
                 <Eye className="h-4 w-4" />
