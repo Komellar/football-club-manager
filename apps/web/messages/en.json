@@ -156,6 +156,7 @@
     "active": "Active",
     "inactive": "Inactive",
     "activeContract": "Active Contract",
+    "contracts": "Contracts",
     "noActiveContract": "No active contract for this player",
     "contractHistory": "Contract History",
     "clubFinancialSummary": "Club Financial Summary",
@@ -272,7 +273,14 @@
     "errorEditDescription": "There was a problem loading the contract for editing.",
     "unknownError": "An unknown error occurred",
     "contractsErrorTitle": "Contract Error",
-    "contractsErrorMessage": "Failed to load contracts. Please try again."
+    "contractsErrorMessage": "Failed to load contracts. Please try again.",
+    "expiringContracts": "Expiring Contracts",
+    "expiringContractsDescription": "Contracts expiring in the next {days} days",
+    "criticalExpiry": "Urgent Action Required",
+    "criticalExpiryDescription": "{count} {count, plural, one {contract expires} other {contracts expire}} in less than 2 weeks",
+    "viewAllExpiring": "View {count} more expiring {count, plural, one {contract} other {contracts}}",
+    "showDetails": "Show contract details",
+    "hideDetails": "Hide contract details"
   },
   "Statistics": {
     "title": "Statistics",

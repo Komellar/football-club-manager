@@ -10,6 +10,7 @@ import type {
   ContractNewRenewalDto,
   ContractFinancialSummary,
   ContractValueCalculation,
+  ExpiryQuery,
 } from "@repo/core";
 
 export async function getContracts(
@@ -171,5 +172,27 @@ export async function getContractValueCalculation(
       throw new Error(errorMessage);
     }
     throw new Error("Failed to fetch contract value calculation");
+  }
+}
+
+export async function getExpiringContracts(
+  params?: ExpiryQuery
+): Promise<ContractResponseDto[]> {
+  try {
+    const { data }: AxiosResponse<ContractResponseDto[]> = await apiClient.get(
+      "/contracts/expiry/expiring",
+      {
+        params,
+      }
+    );
+
+    return data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      const errorMessage =
+        error.response?.data?.message || "Failed to fetch expiring contracts";
+      throw new Error(errorMessage);
+    }
+    throw new Error("Failed to fetch expiring contracts");
   }
 }

@@ -67,7 +67,7 @@ export default async function PlayerDetailsPage({
       <Tabs defaultValue="details" className="w-full">
         <TabsList>
           <TabsTrigger value="details">{t("playerDetails")}</TabsTrigger>
-          <TabsTrigger value="contracts">{t("activeContract")}</TabsTrigger>
+          <TabsTrigger value="contracts">{t("contracts")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="details" className="mt-6">

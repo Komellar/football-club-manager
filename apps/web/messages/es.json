@@ -156,6 +156,7 @@
     "active": "Activo",
     "inactive": "Inactivo",
     "activeContract": "Contrato Activo",
+    "contracts": "Contratos",
     "noActiveContract": "No hay contrato activo para este jugador",
     "contractHistory": "Historial de Contratos",
     "clubFinancialSummary": "Resumen Financiero del Club",
@@ -272,7 +273,14 @@
     "errorEditDescription": "Hubo un problema al cargar el contrato para editar.",
     "unknownError": "Ocurrió un error desconocido",
     "contractsErrorTitle": "Error de contrato",
-    "contractsErrorMessage": "No se pudieron cargar los contratos. Por favor, inténtelo de nuevo."
+    "contractsErrorMessage": "No se pudieron cargar los contratos. Por favor, inténtelo de nuevo.",
+    "expiringContracts": "Contratos por Vencer",
+    "expiringContractsDescription": "Contratos que vencen en los próximos {days} días",
+    "criticalExpiry": "Acción Urgente Requerida",
+    "criticalExpiryDescription": "{count} {count, plural, one {contrato vence} other {contratos vencen}} en menos de 2 semanas",
+    "viewAllExpiring": "Ver {count} {count, plural, one {contrato} other {contratos}} más por vencer",
+    "showDetails": "Mostrar detalles de contratos",
+    "hideDetails": "Ocultar detalles de contratos"
   },
   "Statistics": {
     "title": "Estadísticas",

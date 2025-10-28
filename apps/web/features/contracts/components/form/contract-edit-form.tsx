@@ -14,13 +14,9 @@ import {
   UpdateContractSchema,
   ContractResponseDto,
 } from "@repo/core";
-import {
-  ContractBasicInfo,
-  ContractFinancialInfo,
-  ContractDates,
-} from "./form";
-import { updateContractAction } from "../actions/contract-actions";
-import { transformToFormValues } from "../utils";
+import { ContractBasicInfo, ContractFinancialInfo, ContractDates } from "./";
+import { updateContractAction } from "../../actions/contract-actions";
+import { transformToFormValues } from "../../utils";
 
 interface ContractEditFormProps {
   contract: ContractResponseDto;

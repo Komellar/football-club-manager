@@ -1,11 +1,13 @@
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { getContracts } from "@/features/contracts/api";
 import { getTranslations } from "next-intl/server";
 import { ContractListSchema } from "@repo/core";
 import { parseSearchParams } from "@/utils/searchParams";
 import { Contracts } from "@/features/contracts/components/table/contracts";
+import { ExpiringContractsServer } from "@/features/contracts/components/expiring-contracts";
+import { Suspense } from "react";
 
 // Force this page to be dynamic since it fetches authenticated data
 export const dynamic = "force-dynamic";
@@ -42,7 +44,21 @@ export default async function ContractsPage({
         </Link>
       </div>
 
+      <Suspense fallback={<ExpiringContractsSkeleton />}>
+        <ExpiringContractsServer days={360} />
+      </Suspense>
+
       <Contracts data={contracts} />
+    </div>
+  );
+}
+
+function ExpiringContractsSkeleton() {
+  return (
+    <div className="border border-amber-200 bg-amber-50/50 rounded-lg p-6">
+      <div className="flex items-center justify-center py-8">
+        <Loader2 className="h-8 w-8 animate-spin text-amber-600" />
+      </div>
     </div>
   );
 }
