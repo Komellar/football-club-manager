@@ -1,8 +1,5 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { DataSource } from 'typeorm';
-import { seedRoles } from './database/seeders/role.seeder';
-import { seedPlayers } from './database/seeders/player.seeder';
 import * as cookieParser from 'cookie-parser';
 import { join } from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
@@ -40,10 +37,6 @@ async function bootstrap() {
   app.useStaticAssets(join(process.cwd(), 'uploads'), {
     prefix: '/uploads/',
   });
-
-  const dataSource = app.get(DataSource);
-  await seedRoles(dataSource);
-  await seedPlayers(dataSource);
 
   setupSwagger(app);
 
