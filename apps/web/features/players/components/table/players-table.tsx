@@ -23,7 +23,7 @@ export function PlayersTable({ playersData }: PlayersListProps) {
   const { data: players, pagination } = playersData;
 
   const sortHook = useTableSort<PlayerSortColumn>({
-    defaultSort: { by: "name", order: SortOrder.ASC },
+    defaultSort: { by: "createdAt", order: SortOrder.ASC },
   });
 
   const columns = createPlayerColumns(sortHook);

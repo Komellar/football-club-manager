@@ -35,7 +35,7 @@ export const PlayerListSchema = ListQueryParamsSchema.extend({
   where: PlayerListFiltersSchema.optional(),
   sort: z
     .object({
-      by: z.enum(PLAYER_SORT_COLUMNS).default("name"),
+      by: z.enum(PLAYER_SORT_COLUMNS).default("createdAt"),
       order: z.enum(SortOrder).default(SortOrder.ASC).optional(),
     })
     .optional(),

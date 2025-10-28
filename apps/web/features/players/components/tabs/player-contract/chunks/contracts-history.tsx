@@ -20,9 +20,12 @@ export async function ContractsHistory({ contracts }: ContractsHistoryProps) {
   const t = await getTranslations("Players");
   const tc = await getTranslations("Contracts");
 
-  const notActiveContracts = contracts.filter(
-    (c) => c.status !== ContractStatus.ACTIVE
-  );
+  const historicalContracts = contracts
+    .filter((c) => c.status !== ContractStatus.ACTIVE)
+    .sort(
+      (a, b) =>
+        new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
+    );
 
   return (
     <Card>
@@ -34,7 +37,7 @@ export async function ContractsHistory({ contracts }: ContractsHistoryProps) {
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
-          {notActiveContracts.map((contract) => (
+          {historicalContracts.map((contract) => (
             <div
               key={contract.id}
               className="flex items-center justify-between p-3 border rounded-lg"
