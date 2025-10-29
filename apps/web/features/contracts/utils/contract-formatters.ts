@@ -33,9 +33,20 @@ export function calculateDurationInMonths(
 ): number {
   const start = new Date(startDate);
   const end = new Date(endDate);
-  const diffTime = end.getTime() - start.getTime();
-  const diffMonths = Math.ceil(diffTime / (1000 * 60 * 60 * 24 * 30));
-  return Math.max(0, diffMonths);
+
+  if (end <= start) return 0;
+
+  const yearsDiff = end.getFullYear() - start.getFullYear();
+  const monthsDiff = end.getMonth() - start.getMonth();
+  const baseMonths = yearsDiff * 12 + monthsDiff;
+
+  // If there are any days beyond the start day, count as an additional month
+  if (end.getDate() > start.getDate()) {
+    return baseMonths + 1;
+  }
+
+  // If same day or end day is earlier, but we have some duration, count at least 1 month
+  return Math.max(1, baseMonths);
 }
 
 export function isContractExpiringSoon(

@@ -281,7 +281,12 @@
     "criticalExpiryDescription": "{count} {count, plural, one {contrato vence} other {contratos vencen}} en menos de 2 semanas",
     "viewAllExpiring": "Ver {count} {count, plural, one {contrato} other {contratos}} más por vencer",
     "showDetails": "Mostrar detalles de contratos",
-    "hideDetails": "Ocultar detalles de contratos"
+    "hideDetails": "Ocultar detalles de contratos",
+    "totalContractValue": "Valor Total del Contrato",
+    "remainingValue": "Valor Restante",
+    "remaining": "restante",
+    "monthsRemaining": "meses restantes",
+    "valueCalculationError": "No se pudo cargar el cálculo del valor del contrato. Los demás detalles financieros se muestran a continuación."
   },
   "Statistics": {
     "title": "Estadísticas",

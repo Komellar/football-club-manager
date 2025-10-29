@@ -24,13 +24,3 @@ export function isValidPlayerAge(
   const age = calculateAge(dateOfBirth);
   return age >= minAge && age <= maxAge;
 }
-
-export function getAgeCategory(dateOfBirth: Date): string {
-  const age = calculateAge(dateOfBirth);
-
-  if (age < 18) return "Youth";
-  if (age < 23) return "Young";
-  if (age < 30) return "Prime";
-  if (age < 35) return "Experienced";
-  return "Veteran";
-}

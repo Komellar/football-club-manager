@@ -3,19 +3,25 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useTranslations } from "next-intl";
-import { ContractResponseDto } from "@repo/core";
-import { formatCurrency } from "@/utils/currency";
+import { ContractResponseDto, ContractValueCalculation } from "@repo/core";
 import { format } from "date-fns";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ExternalLink } from "lucide-react";
-import { calculateDurationInMonths, getStatusBadgeVariant } from "../utils";
+import { ExternalLink, Loader2 } from "lucide-react";
+import { calculateDurationInMonths, getStatusBadgeVariant } from "../../utils";
+import { Suspense } from "react";
+import { ContractFinancialDetails } from "./contract-financial-details";
+import { formatCurrency } from "@/utils/currency";
 
 interface ContractDetailsProps {
   contract: ContractResponseDto;
+  valueCalculationPromise: Promise<ContractValueCalculation | null>;
 }
 
-export function ContractDetails({ contract }: ContractDetailsProps) {
+export function ContractDetails({
+  contract,
+  valueCalculationPromise,
+}: ContractDetailsProps) {
   const t = useTranslations("Contracts");
 
   const formatDate = (date: Date | string) => {
@@ -114,6 +120,12 @@ export function ContractDetails({ contract }: ContractDetailsProps) {
           <CardTitle>{t("sections.financial")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          <Suspense fallback={<Loader2 />}>
+            <ContractFinancialDetails
+              valueCalculationPromise={valueCalculationPromise}
+            />
+          </Suspense>
+
           <div>
             <label className="text-sm font-medium text-muted-foreground">
               {t("salary")}

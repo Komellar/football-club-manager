@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
@@ -8,9 +7,10 @@ import {
   ContractDetails,
   DeleteContractDialog,
 } from "@/features/contracts/components";
-import { getContractById } from "@/features/contracts/api/contracts";
-import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import {
+  getContractById,
+  getContractValueCalculation,
+} from "@/features/contracts/api/contracts";
 
 interface ContractDetailsPageProps {
   params: Promise<{
@@ -36,6 +36,13 @@ export default async function ContractDetailsPage({
   if (!contract) {
     notFound();
   }
+
+  const valueCalculationPromise = getContractValueCalculation(contractId).catch(
+    (error) => {
+      console.error("Failed to fetch value calculation:", error);
+      return null;
+    }
+  );
 
   return (
     <div className="space-y-6">
@@ -72,36 +79,10 @@ export default async function ContractDetailsPage({
         </div>
       </div>
 
-      <Suspense fallback={<ContractDetailsSkeleton />}>
-        <ContractDetails contract={contract} />
-      </Suspense>
-    </div>
-  );
-}
-
-function ContractDetailsSkeleton() {
-  return (
-    <div className="grid gap-6 md:grid-cols-2">
-      <Card>
-        <CardContent className="pt-6">
-          <Skeleton className="h-8 w-3/4 mb-4" />
-          <div className="space-y-3">
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-3/4" />
-          </div>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardContent className="pt-6">
-          <Skeleton className="h-8 w-3/4 mb-4" />
-          <div className="space-y-3">
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-3/4" />
-          </div>
-        </CardContent>
-      </Card>
+      <ContractDetails
+        contract={contract}
+        valueCalculationPromise={valueCalculationPromise}
+      />
     </div>
   );
 }

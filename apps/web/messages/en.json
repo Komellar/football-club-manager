@@ -281,7 +281,12 @@
     "criticalExpiryDescription": "{count} {count, plural, one {contract expires} other {contracts expire}} in less than 2 weeks",
     "viewAllExpiring": "View {count} more expiring {count, plural, one {contract} other {contracts}}",
     "showDetails": "Show contract details",
-    "hideDetails": "Hide contract details"
+    "hideDetails": "Hide contract details",
+    "totalContractValue": "Total Contract Value",
+    "remainingValue": "Remaining Value",
+    "remaining": "remaining",
+    "monthsRemaining": "months remaining",
+    "valueCalculationError": "Unable to load contract value calculation. Other financial details are shown below."
   },
   "Statistics": {
     "title": "Statistics",
