@@ -11,7 +11,15 @@ A comprehensive football club management system built with modern web technologi
 - **Full API Documentation**: Interactive Swagger/OpenAPI documentation
 - **Type Safety**: End-to-end TypeScript with shared validation schemas
 
-### Quick Start
+## Quick Start
+
+### Prerequisites
+
+- **Node.js** 18+
+- **pnpm** 8+
+- **Docker & Docker Compose** (for PostgreSQL database)
+
+### Setup Instructions
 
 1. **Install dependencies:**
 
@@ -21,42 +29,57 @@ A comprehensive football club management system built with modern web technologi
 
 2. **Set up environment variables:**
 
+   Create `.env` files from the provided examples. Use the command for your OS:
+
+   **Windows:**
+
+   ```powershell
+   copy apps\backend\.env.example apps\backend\.env
+   copy apps\web\.env.example apps\web\.env
+   ```
+
+   **Mac/Linux:**
+
    ```bash
-   # Copy environment templates
    cp apps/backend/.env.example apps/backend/.env
    cp apps/web/.env.example apps/web/.env
    ```
 
-3. **Start the database:**
+3. **Start the PostgreSQL database:**
 
    ```bash
    pnpm db:up
    ```
 
+   This will start PostgreSQL on port 5432.
+
 4. **Run database migrations:**
 
    ```bash
    cd apps/backend
-   pnpm typeorm:migration:run
+   pnpm migration:run
+   cd ../../
    ```
 
 5. **Start development servers:**
 
    ```bash
-   # Start all services
-   pnpm turbo run dev
-
-   # Or start individual services
-   pnpm turbo run dev --filter=backend  # API server on http://localhost:3001
-   pnpm turbo run dev --filter=web      # Frontend on http://localhost:3000
+   pnpm dev
    ```
 
-6. **Access the applications:**
-   - Frontend: http://localhost:3000
-   - API Documentation: http://localhost:4000/api/docs
-   - API Base URL: http://localhost:4000
+6. **Seed the database**
 
-## Technology Stack
+   ```bash
+   cd apps/backend
+   pnpm seed
+   ```
+
+7. **Access the applications:**
+   - **Frontend**: http://localhost:3000
+   - **Backend API**: http://localhost:4000
+   - **API Documentation (Swagger)**: http://localhost:4000/api/docs
+
+## Tech Stack
 
 ### Backend
 
