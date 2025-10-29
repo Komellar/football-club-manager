@@ -22,6 +22,7 @@ import {
   CONTRACT_STATUS_OPTIONS,
 } from "../../constants";
 import { useTranslations } from "next-intl";
+import { SearchableSelect } from "@/components/shared/form";
 
 interface ContractBasicInfoProps {
   disablePlayerSelect?: boolean;
@@ -52,27 +53,19 @@ export function ContractBasicInfo({
             <FormLabel>
               {t("player")} {t("labels.required")}
             </FormLabel>
-            <Select
-              onValueChange={(value) => field.onChange(Number(value))}
-              disabled={disablePlayerSelect}
-              value={field.value?.toString()}
-            >
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder={t("placeholders.selectPlayer")}>
-                    {disablePlayerSelect ? player?.name : undefined}
-                  </SelectValue>
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                {players?.map((p) => (
-                  <SelectItem key={p.id} value={p.id.toString()}>
-                    {p.name}
-                    {p.jerseyNumber && ` #${p.jerseyNumber}`}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <FormControl>
+              <SearchableSelect
+                options={players.map((p) => ({
+                  value: p.id,
+                  label: `${p.name} ${p.jerseyNumber ? `#${p.jerseyNumber}` : ""}`,
+                }))}
+                value={field.value}
+                onValueChange={field.onChange}
+                placeholder={player?.name || t("placeholders.selectPlayer")}
+                className="w-full"
+                disabled={disablePlayerSelect}
+              />
+            </FormControl>
             <FormMessage />
           </FormItem>
         )}

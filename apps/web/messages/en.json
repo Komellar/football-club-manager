@@ -255,7 +255,8 @@
     "descriptions": {
       "monthlySalary": "Monthly Salary",
       "bonuses": "Performance bonuses and incentives",
-      "notes": "Additional contract terms and notes"
+      "notes": "Additional contract terms and notes",
+      "signOnFee": "One-time payment to the player for signing the contract"
     },
     "contractFor": "Contract for {player}",
     "editingContractFor": "Editing contract for {player}",
@@ -307,6 +308,7 @@
     "sort": "Sort",
     "actions": "Actions",
     "noData": "No data available",
+    "noOptionsFound": "No options found",
     "selectOption": "Select an option",
     "required": "This field is required",
     "invalidFormat": "Invalid format",

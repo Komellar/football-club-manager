@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { NationalityCombobox } from "@/components/shared/form";
+import { SearchableSelect } from "@/components/shared/form";
 import { NATIONALITY_OPTIONS, POSITION_OPTIONS } from "../../constants";
 import {
   Popover,
@@ -140,7 +140,7 @@ export function BasicInfo() {
               {t("nationality")} {t("labels.required")}
             </FormLabel>
             <FormControl>
-              <NationalityCombobox
+              <SearchableSelect
                 options={NATIONALITY_OPTIONS}
                 value={field.value}
                 onValueChange={field.onChange}

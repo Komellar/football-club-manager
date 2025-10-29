@@ -81,6 +81,7 @@ export function ContractFinancialInfo() {
                   {...field}
                 />
               </FormControl>
+              <FormDescription>{t("descriptions.signOnFee")}</FormDescription>
               <FormMessage />
             </FormItem>
           )}

@@ -1,2 +1,2 @@
 export * from "./numeric-input";
-export * from "./nationality-combobox";
+export * from "./searchable-select";
