@@ -6,6 +6,7 @@ import {
   JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  Index,
 } from 'typeorm';
 import { Role } from './role.entity';
 
@@ -18,6 +19,7 @@ export class User {
   name: string;
 
   @Column({ type: 'varchar', length: 100, unique: true, nullable: false })
+  @Index()
   email: string;
 
   @Column({

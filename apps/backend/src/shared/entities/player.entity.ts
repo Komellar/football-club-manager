@@ -34,10 +34,20 @@ export class Player {
   @Column({ type: 'varchar', length: 50 })
   nationality: string;
 
-  @Column({ type: 'int', nullable: true })
+  @Column({ type: 'int', nullable: true, comment: 'Height in centimeters' })
   height?: number;
 
-  @Column({ type: 'decimal', precision: 5, scale: 2, nullable: true })
+  @Column({
+    type: 'decimal',
+    precision: 5,
+    scale: 2,
+    nullable: true,
+    comment: 'Weight in kilograms',
+    transformer: {
+      to: (value: number | null) => value,
+      from: (value: string | null) => (value ? parseFloat(value) : null),
+    },
+  })
   weight?: number;
 
   @Column({ type: 'int', name: 'jersey_number', nullable: true })
@@ -49,6 +59,11 @@ export class Player {
     scale: 2,
     name: 'market_value',
     nullable: true,
+    comment: 'Current market value of the player',
+    transformer: {
+      to: (value: number | null) => value,
+      from: (value: string | null) => (value ? parseFloat(value) : null),
+    },
   })
   marketValue?: number;
 

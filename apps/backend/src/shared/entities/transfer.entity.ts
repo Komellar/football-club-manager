@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  Index,
 } from 'typeorm';
 import { Player } from './player.entity';
 import { TransferType, TransferStatus } from '@repo/core';
@@ -16,6 +17,7 @@ export class Transfer {
   id: number;
 
   @Column({ type: 'int', name: 'player_id' })
+  @Index()
   playerId: number;
 
   @ManyToOne(() => Player, (player) => player.transfers, {
@@ -54,6 +56,11 @@ export class Transfer {
     scale: 2,
     nullable: true,
     name: 'transfer_fee',
+    comment: 'Transfer fee paid for the player',
+    transformer: {
+      to: (value: number | null) => value,
+      from: (value: string | null) => (value ? parseFloat(value) : null),
+    },
   })
   transferFee?: number;
 
@@ -63,6 +70,11 @@ export class Transfer {
     scale: 2,
     nullable: true,
     name: 'agent_fee',
+    comment: 'Agent commission fee for the transfer',
+    transformer: {
+      to: (value: number | null) => value,
+      from: (value: string | null) => (value ? parseFloat(value) : null),
+    },
   })
   agentFee?: number;
 
@@ -72,6 +84,11 @@ export class Transfer {
     scale: 2,
     nullable: true,
     name: 'annual_salary',
+    comment: 'Annual salary agreed in the transfer',
+    transformer: {
+      to: (value: number | null) => value,
+      from: (value: string | null) => (value ? parseFloat(value) : null),
+    },
   })
   annualSalary?: number;
 

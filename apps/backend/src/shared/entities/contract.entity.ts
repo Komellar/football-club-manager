@@ -46,6 +46,10 @@ export class Contract {
     precision: 12,
     scale: 2,
     comment: 'Monthly salary in the specified currency',
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string) => parseFloat(value),
+    },
   })
   salary: number;
 
@@ -55,6 +59,10 @@ export class Contract {
     scale: 2,
     nullable: true,
     comment: 'Performance and achievement bonuses',
+    transformer: {
+      to: (value: number | null) => value,
+      from: (value: string | null) => (value ? parseFloat(value) : null),
+    },
   })
   bonuses?: number;
 
@@ -64,7 +72,12 @@ export class Contract {
     scale: 2,
     nullable: true,
     name: 'sign_on_fee',
-    comment: 'One-time signing fee',
+    comment:
+      'One-time signing fee paid directly to the player upon contract signing',
+    transformer: {
+      to: (value: number | null) => value,
+      from: (value: string | null) => (value ? parseFloat(value) : null),
+    },
   })
   signOnFee?: number;
 
@@ -75,6 +88,10 @@ export class Contract {
     nullable: true,
     name: 'release_clause',
     comment: 'Contract release clause amount',
+    transformer: {
+      to: (value: number | null) => value,
+      from: (value: string | null) => (value ? parseFloat(value) : null),
+    },
   })
   releaseClause?: number;
 
@@ -85,6 +102,10 @@ export class Contract {
     nullable: true,
     name: 'agent_fee',
     comment: 'Agent commission fee',
+    transformer: {
+      to: (value: number | null) => value,
+      from: (value: string | null) => (value ? parseFloat(value) : null),
+    },
   })
   agentFee?: number;
 

@@ -48,7 +48,17 @@ export class PlayerStatistics {
   @Column({ type: 'int', default: 0, name: 'saves_made' })
   savesMade: number;
 
-  @Column({ type: 'decimal', precision: 3, scale: 1, nullable: true })
+  @Column({
+    type: 'decimal',
+    precision: 3,
+    scale: 1,
+    nullable: true,
+    comment: 'Match rating from 1.0 to 10.0',
+    transformer: {
+      to: (value: number | null) => value,
+      from: (value: string | null) => (value ? parseFloat(value) : null),
+    },
+  })
   rating?: number;
 
   @Column({
@@ -58,6 +68,10 @@ export class PlayerStatistics {
     nullable: true,
     name: 'average_rating',
     comment: 'Average rating from 1.0 to 10.0 (e.g., 6.8)',
+    transformer: {
+      to: (value: number | null) => value,
+      from: (value: string | null) => (value ? parseFloat(value) : null),
+    },
   })
   averageRating?: number;
 

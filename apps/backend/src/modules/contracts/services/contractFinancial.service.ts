@@ -18,28 +18,24 @@ export class ContractFinancialService {
 
   async calculateContractValue(id: number): Promise<ContractValueCalculation> {
     const contract = await this.findOne(id);
-    return this.calculateContractValueFromData(
-      contract.salary,
-      this.calculateDurationMonths(contract.startDate, contract.endDate),
-      contract.bonuses,
-      contract.signOnFee,
-      contract.agentFee,
+    const currentDate = new Date();
+    const { totalMonths, remainingMonths } = this.calculateRemainingMonths(
+      contract,
+      currentDate,
     );
-  }
 
-  calculateContractValueFromData(
-    annualSalary: number,
-    durationMonths: number,
-    bonuses?: number,
-    signOnFee?: number,
-    agentFee?: number,
-  ): ContractValueCalculation {
-    const salaryValue = (annualSalary * durationMonths) / 12;
-    const bonusesValue = bonuses || 0;
-    const signOnFeeValue = signOnFee || 0;
-    const agentFeeValue = agentFee || 0;
+    const salaryValue = contract.salary * totalMonths;
+    const bonusesValue = contract.bonuses || 0;
+    const signOnFeeValue = contract.signOnFee || 0;
+    const agentFeeValue = contract.agentFee || 0;
     const totalValue =
       salaryValue + bonusesValue + signOnFeeValue + agentFeeValue;
+
+    const remainingValue = this.calculateRemainingValue(
+      contract,
+      remainingMonths,
+      totalMonths,
+    );
 
     return {
       totalValue,
@@ -47,18 +43,9 @@ export class ContractFinancialService {
       bonusesValue,
       signOnFeeValue,
       agentFeeValue,
-      remainingValue: totalValue,
-      remainingMonths: durationMonths,
+      remainingValue,
+      remainingMonths,
     };
-  }
-
-  private calculateDurationMonths(startDate: Date, endDate: Date): number {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const monthsDiff =
-      (end.getFullYear() - start.getFullYear()) * 12 +
-      (end.getMonth() - start.getMonth());
-    return monthsDiff;
   }
 
   async getFinancialSummary(): Promise<ContractFinancialSummary> {
@@ -188,15 +175,18 @@ export class ContractFinancialService {
     contract: Contract,
     currentDate: Date = new Date(),
   ): { totalMonths: number; remainingMonths: number } {
-    const totalMonths = this.calculateMonthsDifference(
-      contract.startDate,
-      contract.endDate,
-    );
+    const start = new Date(contract.startDate);
+    const end = new Date(contract.endDate);
+    const totalMonths = this.calculateMonthsDifference(start, end);
+
+    if (currentDate >= end) {
+      return { totalMonths, remainingMonths: 0 };
+    }
 
     const remainingMonths = Math.max(
       0,
-      currentDate > contract.startDate
-        ? this.calculateMonthsDifference(currentDate, contract.endDate)
+      currentDate > start
+        ? this.calculateMonthsDifference(currentDate, end)
         : totalMonths,
     );
 
