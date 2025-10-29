@@ -18,15 +18,15 @@ export const CONTRACT_SORT_COLUMNS = [
 ] as const;
 export type ContractSortColumn = (typeof CONTRACT_SORT_COLUMNS)[number];
 
+export const ContractListFiltersSchema = z.object({
+  ...DateRangeQuerySchema.shape,
+  playerId: z.coerce.number().int().positive().optional(),
+  status: z.enum(ContractStatus).optional(),
+  contractType: z.enum(ContractType).optional(),
+});
+
 export const ContractListSchema = ListQueryParamsSchema.extend({
-  where: z
-    .object({
-      ...DateRangeQuerySchema.shape,
-      playerId: z.coerce.number().int().positive().optional(),
-      status: z.enum(ContractStatus).optional(),
-      contractType: z.enum(ContractType).optional(),
-    })
-    .optional(),
+  where: ContractListFiltersSchema.optional(),
   sort: z
     .object({
       by: z.enum(CONTRACT_SORT_COLUMNS).default("createdAt"),
@@ -47,6 +47,7 @@ export const ReportQuerySchema = z.object({
   days: z.coerce.number().int().min(1).optional(),
 });
 
+export type ContractListFilters = z.infer<typeof ContractListFiltersSchema>;
 export type ContractListDto = z.infer<typeof ContractListSchema>;
 export type PaginatedContractListResponseDto = z.infer<
   typeof PaginatedContractListResponseSchema

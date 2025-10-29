@@ -220,6 +220,11 @@
     "edit": "Editar",
     "view": "Ver",
     "actions": "Acciones",
+    "filters": "Filtros",
+    "filterContractsDescription": "Filtrar contratos por tipo y estado",
+    "allContractTypes": "Todos los Tipos",
+    "allStatuses": "Todos los Estados",
+    "allPlayers": "Todos los Jugadores",
     "types": {
       "permanent": "Permanente",
       "loan": "Préstamo",

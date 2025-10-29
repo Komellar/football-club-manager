@@ -1,29 +1,25 @@
-"use client";
-
-import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ContractsTable } from "./contracts-table";
 import { PaginatedContractListResponseDto } from "@repo/core";
+import { getTranslations } from "next-intl/server";
 
 interface ContractsClientProps {
   data: PaginatedContractListResponseDto;
 }
 
-export function Contracts({ data }: ContractsClientProps) {
-  const t = useTranslations("Contracts");
+export async function Contracts({ data }: ContractsClientProps) {
+  const t = await getTranslations("Contracts");
 
   return (
-    <div className="space-y-6">
-      <Card>
-        {data.data.length ? (
-          <CardHeader>
-            <CardTitle>{t("contractList")}</CardTitle>
-          </CardHeader>
-        ) : null}
-        <CardContent>
-          <ContractsTable contractsData={data} />
-        </CardContent>
-      </Card>
-    </div>
+    <Card>
+      {data.data.length ? (
+        <CardHeader>
+          <CardTitle>{t("contractList")}</CardTitle>
+        </CardHeader>
+      ) : null}
+      <CardContent>
+        <ContractsTable contractsData={data} />
+      </CardContent>
+    </Card>
   );
 }

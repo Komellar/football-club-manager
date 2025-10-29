@@ -13,6 +13,7 @@ import { Plus } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useTableSort } from "@/hooks";
+import { ContractsFilterDrawer } from "./contracts-filter-drawer";
 
 interface ContractsListProps {
   contractsData: PaginatedContractListResponseDto;
@@ -30,20 +31,30 @@ export function ContractsTable({ contractsData }: ContractsListProps) {
 
   if (contracts.length === 0) {
     return (
-      <div className="text-center p-10">
-        <p className="text-muted-foreground mb-4">{t("noContractsMessage")}</p>
-        <Button asChild>
-          <Link href="/contracts/new">
-            <Plus className="h-4 w-4 mr-2" />
-            {t("createContract")}
-          </Link>
-        </Button>
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <ContractsFilterDrawer />
+        </div>
+        <div className="text-center p-10">
+          <p className="text-muted-foreground mb-4">
+            {t("noContractsMessage")}
+          </p>
+          <Button asChild>
+            <Link href="/contracts/new">
+              <Plus className="h-4 w-4 mr-2" />
+              {t("createContract")}
+            </Link>
+          </Button>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <ContractsFilterDrawer />
+      </div>
       <DataTable
         columns={columns}
         data={contracts}

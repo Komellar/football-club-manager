@@ -220,6 +220,11 @@
     "edit": "Edit",
     "view": "View",
     "actions": "Actions",
+    "filters": "Filters",
+    "filterContractsDescription": "Filter contracts by type and status",
+    "allContractTypes": "All Types",
+    "allStatuses": "All Statuses",
+    "allPlayers": "All Players",
     "types": {
       "permanent": "Permanent",
       "loan": "Loan",
