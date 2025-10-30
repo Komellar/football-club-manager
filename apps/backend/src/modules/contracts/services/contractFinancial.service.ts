@@ -51,7 +51,7 @@ export class ContractFinancialService {
   async getFinancialSummary(): Promise<ContractFinancialSummary> {
     const [activeContracts, upcomingExpiries] = await Promise.all([
       this.getActiveContracts(),
-      this.findExpiringContracts(90),
+      this.findExpiringContracts(365),
     ]);
 
     const contractMetrics = this.calculateContractMetrics(activeContracts);

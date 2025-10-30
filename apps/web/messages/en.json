@@ -328,15 +328,33 @@
     "no": "No",
     "filters": "Filters",
     "applyFilters": "Apply Filters",
-    "clearFilters": "Clear Filters"
+    "clearFilters": "Clear Filters",
+    "tryAgain": "Try Again",
+    "errorOccurred": "An error occurred"
   },
   "Dashboard": {
-    "title": "Dashboard",
-    "welcome": "Welcome to Football Club Manager",
-    "recentPlayers": "Recent Players",
-    "upcomingTransfers": "Upcoming Transfers",
-    "contractExpirations": "Contract Expirations",
-    "quickStats": "Quick Statistics"
+    "contractOverview": "Contract Overview",
+    "contractsByType": "Contracts by Type",
+    "contractDistribution": "Distribution of active contracts",
+    "noActiveContracts": "No active contracts",
+    "totalActiveContracts": "Total Active Contracts",
+    "permanent": "Permanent",
+    "loan": "Loan",
+    "youth": "Youth",
+    "contractExpiries": "Contract Expiries",
+    "expiringVsActive": "Expiring within 12 months vs Active",
+    "activeContracts": "Active Contracts",
+    "expiringSoon": "Expiring Soon",
+    "contractMetrics": {
+      "totalActiveValue": "Total Active Value",
+      "monthlyCommitment": "Monthly Commitment",
+      "averageSalary": "Average Salary",
+      "totalContracts": "Total Contracts",
+      "totalActiveValueDescription": "Remaining contract commitments",
+      "monthlyCommitmentDescription": "Total monthly salaries",
+      "averageSalaryDescription": "Average salary per player",
+      "totalContractsDescription": "{ count } expiring within a year"
+    }
   },
   "Footer": {
     "companyName": "Football Club Manager",

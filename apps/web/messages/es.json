@@ -328,15 +328,33 @@
     "no": "No",
     "filters": "Filtros",
     "applyFilters": "Aplicar Filtros",
-    "clearFilters": "Limpiar Filtros"
+    "clearFilters": "Limpiar Filtros",
+    "tryAgain": "Intentar de Nuevo",
+    "errorOccurred": "Ocurrió un error"
   },
   "Dashboard": {
-    "title": "Tablero",
-    "welcome": "Bienvenido al Administrador de Club de Fútbol",
-    "recentPlayers": "Jugadores Recientes",
-    "upcomingTransfers": "Próximas Transferencias",
-    "contractExpirations": "Vencimientos de Contratos",
-    "quickStats": "Estadísticas Rápidas"
+    "contractOverview": "Resumen de Contratos",
+    "contractsByType": "Contratos por Tipo",
+    "contractDistribution": "Distribución de contratos activos",
+    "noActiveContracts": "Sin contratos activos",
+    "totalActiveContracts": "Total de Contratos Activos",
+    "permanent": "Permanente",
+    "loan": "Préstamo",
+    "youth": "Juvenil",
+    "contractExpiries": "Vencimientos de Contratos",
+    "expiringVsActive": "Venciendo en 12 meses vs Activos",
+    "activeContracts": "Contratos Activos",
+    "expiringSoon": "Vencen Pronto",
+    "contractMetrics": {
+      "totalActiveValue": "Valor Total Activo",
+      "monthlyCommitment": "Compromiso Mensual",
+      "averageSalary": "Salario Promedio",
+      "totalContracts": "Total de Contratos",
+      "totalActiveValueDescription": "Compromisos contractuales restantes",
+      "monthlyCommitmentDescription": "Salarios mensuales totales",
+      "averageSalaryDescription": "Salario promedio por jugador",
+      "totalContractsDescription": "{ count } venciendo en un año"
+    }
   },
   "Footer": {
     "companyName": "Administrador de Club de Fútbol",

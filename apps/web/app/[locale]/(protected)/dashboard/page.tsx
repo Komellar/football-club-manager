@@ -1,38 +1,23 @@
-"use client";
+import { ContractFinancialDashboard } from "@/features/contracts/components/dashboard";
+import { getFinancialSummaryServer } from "@/features/contracts/api";
+import { getTranslations } from "next-intl/server";
 
-import { LogoutButton } from "@/features/auth";
-import { useAppSelector } from "@/store/hooks";
-import { useTranslations } from "next-intl";
-
-export default function DashboardPage() {
-  const t = useTranslations("Dashboard");
-  const tCommon = useTranslations("Common");
-  const user = useAppSelector((state) => state.auth.user);
-  const isLoading = useAppSelector((state) => state.auth.isLoading);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="space-y-2">
-          <h2 className="text-2xl font-bold">{tCommon("loading")}</h2>
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return null; // AuthGuard will handle redirect
-  }
+export default async function DashboardPage() {
+  const t = await getTranslations("Dashboard");
+  const summary = await getFinancialSummaryServer();
 
   return (
-    <div className="min-h-screen">
-      <div className="flex items-center space-x-4">
-        <h1 className="text-3xl font-bold">{t("title")}</h1>
+    <div className="min-h-screen p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-2xl font-semibold mb-4">
+              {t("contractOverview")}
+            </h2>
+            <ContractFinancialDashboard summary={summary} />
+          </div>
+        </div>
       </div>
-      <div className="mt-4">
-        <p className="text-sm text-gray-600">{t("welcome")}</p>
-      </div>
-      <LogoutButton />
     </div>
   );
 }

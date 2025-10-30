@@ -1,3 +1,7 @@
+> ⚠️ **Note:** This project is actively being developed. Some features and documentation may change as work continues. If something is missing or incomplete, it's because I'm still working on it!
+
+---
+
 # Football Club Manager
 
 A comprehensive football club management system built with modern web technologies. This monorepo contains a NestJS backend API with full OpenAPI documentation and a Next.js frontend.
