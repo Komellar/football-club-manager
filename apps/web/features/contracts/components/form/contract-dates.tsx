@@ -65,6 +65,8 @@ export function ContractDates() {
                     disabled={(date) => date < new Date("1900-01-01")}
                     defaultMonth={field.value}
                     captionLayout="dropdown"
+                    startMonth={new Date("1950-01-01")}
+                    endMonth={new Date("2026-12-31")}
                   />
                 </PopoverContent>
               </Popover>
@@ -108,6 +110,8 @@ export function ContractDates() {
                     disabled={(date) => date < new Date("1900-01-01")}
                     defaultMonth={field.value}
                     captionLayout="dropdown"
+                    startMonth={new Date("1950-01-01")}
+                    endMonth={new Date("2035-12-31")}
                   />
                 </PopoverContent>
               </Popover>

@@ -118,10 +118,12 @@ export function BasicInfo() {
                     selected={field.value}
                     onSelect={field.onChange}
                     disabled={(date) =>
-                      date > new Date() || date < new Date("1900-01-01")
+                      date > new Date() || date < new Date("1950-01-01")
                     }
                     defaultMonth={field.value}
                     captionLayout="dropdown"
+                    startMonth={new Date("1950-01-01")}
+                    endMonth={new Date("2020-12-31")}
                   />
                 </PopoverContent>
               </Popover>
