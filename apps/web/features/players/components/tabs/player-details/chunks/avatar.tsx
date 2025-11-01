@@ -3,9 +3,9 @@ import { Badge } from "@/components/ui/badge";
 
 import {
   calculateAge,
-  getNationalityDisplayName,
+  getCountryDisplayName,
   PlayerResponseDto,
-  ValidNationality,
+  ValidCountry,
 } from "@repo/core";
 import { positionColors } from "@/features/players/constants";
 import { formatPlayerPosition } from "@/features/players/utils";
@@ -72,11 +72,9 @@ export async function Avatar({ player }: PlayerAvatarProps) {
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Flag className="w-4 h-4" />
                 <div>
-                  <div className="text-xs">{t("nationality")}</div>
+                  <div className="text-xs">{t("country")}</div>
                   <div className="text-sm font-medium text-foreground">
-                    {getNationalityDisplayName(
-                      player.nationality as ValidNationality
-                    )}
+                    {getCountryDisplayName(player.country as ValidCountry)}
                   </div>
                 </div>
               </div>

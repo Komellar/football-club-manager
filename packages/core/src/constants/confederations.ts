@@ -226,7 +226,7 @@ export const OFC_CODES = [
   "VUT", // Vanuatu
 ] as const;
 
-// Combine all confederation codes to create the complete list of valid nationalities
+// Combine all confederation codes to create the complete list of valid countries
 export const VALID_NATIONALITIES = [
   ...UEFA_CODES,
   ...CONMEBOL_CODES,

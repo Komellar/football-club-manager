@@ -66,7 +66,7 @@
 
 - [x] Add player position validation (goalkeeper, defender, midfielder, forward)
 - [x] Implement age calculation and validation
-- [x] Add nationality and registration validation
+- [x] Add country and registration validation
 - [x] Create player transfer history tracking
 
 ### 2.2 Contract Module (Backend) - Break into smaller tasks

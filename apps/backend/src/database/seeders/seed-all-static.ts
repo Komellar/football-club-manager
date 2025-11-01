@@ -84,7 +84,7 @@ async function seedDatabase() {
         name: staticPlayer.name,
         position: staticPlayer.position,
         dateOfBirth: staticPlayer.dateOfBirth,
-        nationality: staticPlayer.nationality,
+        country: staticPlayer.country,
         height: staticPlayer.height,
         weight: staticPlayer.weight,
         jerseyNumber: staticPlayer.jerseyNumber,

@@ -4,9 +4,9 @@
  * Also includes custom FIFA codes for UK home nations (ENG, SCO, WAL, NIR)
  */
 
-import { ValidNationality } from "../types";
+import { ValidCountry } from "../types";
 
-export const NATIONALITY_DISPLAY_NAMES: Record<ValidNationality, string> = {
+export const NATIONALITY_DISPLAY_NAMES: Record<ValidCountry, string> = {
   // Major football nations (commonly used)
   ARG: "Argentina",
   AUS: "Australia",

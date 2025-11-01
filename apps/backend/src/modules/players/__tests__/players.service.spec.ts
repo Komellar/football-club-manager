@@ -22,7 +22,7 @@ const mockPlayer = {
   name: 'John Doe',
   position: PlayerPosition.FORWARD,
   dateOfBirth: new Date('1995-01-01'),
-  nationality: 'ESP',
+  country: 'ESP',
   height: 180,
   weight: 75,
   jerseyNumber: 10,
@@ -53,7 +53,7 @@ const mockCreatePlayerDto: CreatePlayerDto = {
   name: 'John Doe',
   position: PlayerPosition.FORWARD,
   dateOfBirth: new Date('1995-01-01'),
-  nationality: 'ESP',
+  country: 'ESP',
   height: 180,
   weight: 75,
   jerseyNumber: 10,
@@ -65,7 +65,7 @@ const mockUpdatePlayerDto: CreatePlayerDto = {
   name: 'John Updated',
   position: PlayerPosition.FORWARD,
   dateOfBirth: new Date('1995-01-01'),
-  nationality: 'ESP',
+  country: 'ESP',
   height: 185,
   weight: 80,
   jerseyNumber: 11,
@@ -83,7 +83,7 @@ const mockQueryDto: PlayerListDto = {
   where: {
     position: PlayerPosition.FORWARD,
     isActive: true,
-    nationality: 'ESP',
+    country: 'ESP',
   },
   search: 'John',
 };
@@ -218,7 +218,7 @@ describe('PlayersService', () => {
                 _type: 'equal',
                 _value: true,
               }),
-              nationality: expect.objectContaining({
+              country: expect.objectContaining({
                 _type: 'equal',
                 _value: 'ESP',
               }),
@@ -250,7 +250,7 @@ describe('PlayersService', () => {
         where: {
           position: PlayerPosition.MIDFIELDER,
           isActive: false,
-          nationality: 'DEU' as const,
+          country: 'DEU' as const,
         },
         page: 2,
         limit: 5,
@@ -272,7 +272,7 @@ describe('PlayersService', () => {
               _type: 'equal',
               _value: false,
             }),
-            nationality: expect.objectContaining({
+            country: expect.objectContaining({
               _type: 'equal',
               _value: 'DEU',
             }),

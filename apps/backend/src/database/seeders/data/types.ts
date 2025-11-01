@@ -2,14 +2,14 @@ import {
   ContractType,
   ContractStatus,
   PlayerPosition,
-  ValidNationality,
+  ValidCountry,
 } from '@repo/core';
 
 export interface StaticPlayerData {
   name: string;
   position: PlayerPosition;
   dateOfBirth: Date;
-  nationality: ValidNationality;
+  country: ValidCountry;
   height: number;
   weight: number;
   jerseyNumber?: number;

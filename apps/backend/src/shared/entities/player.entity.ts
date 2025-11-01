@@ -32,7 +32,7 @@ export class Player {
   dateOfBirth: Date;
 
   @Column({ type: 'varchar', length: 50 })
-  nationality: string;
+  country: string;
 
   @Column({ type: 'int', nullable: true, comment: 'Height in centimeters' })
   height?: number;

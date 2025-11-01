@@ -8,7 +8,7 @@ export const PlayerSchema = z.object({
   name: z.string(),
   position: z.enum(PlayerPosition),
   dateOfBirth: z.coerce.date(),
-  nationality: z.enum(VALID_NATIONALITIES),
+  country: z.enum(VALID_NATIONALITIES),
   height: z.number().optional(),
   weight: z.number().optional(),
   jerseyNumber: z.number().optional(),
@@ -44,12 +44,11 @@ export const CreatePlayerSchema = z.object({
       "Player must be between 15 and 50 years old"
     ),
 
-  nationality: z
+  country: z
     .enum(VALID_NATIONALITIES, {
-      message:
-        "Invalid nationality code. Must be a valid FIFA-recognized country",
+      message: "Invalid country code. Must be a valid FIFA-recognized country",
     })
-    .describe("Player nationality - 3-letter ISO country code"),
+    .describe("Player country - 3-letter ISO country code"),
 
   height: z
     .number()

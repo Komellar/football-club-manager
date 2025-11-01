@@ -58,10 +58,10 @@ export const createPlayerColumns = (
       },
     },
     {
-      accessorKey: "nationality",
-      header: t("nationality"),
+      accessorKey: "country",
+      header: t("country"),
       cell: ({ row }) => {
-        return <div>{row.getValue("nationality")}</div>;
+        return <div>{row.getValue("country")}</div>;
       },
     },
     {

@@ -133,18 +133,18 @@ export function BasicInfo() {
 
       <FormField
         control={control}
-        name="nationality"
+        name="country"
         render={({ field }) => (
           <FormItem>
             <FormLabel>
-              {t("nationality")} {t("labels.required")}
+              {t("country")} {t("labels.required")}
             </FormLabel>
             <FormControl>
               <SearchableSelect
                 options={NATIONALITY_OPTIONS}
                 value={field.value}
                 onValueChange={field.onChange}
-                placeholder={t("placeholders.selectNationality")}
+                placeholder={t("placeholders.selectCountry")}
               />
             </FormControl>
             <FormMessage />

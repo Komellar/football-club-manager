@@ -18,7 +18,7 @@ const createMockPlayer = (overrides = {}): Player => ({
   name: 'John Doe',
   position: PlayerPosition.FORWARD,
   dateOfBirth: new Date('1995-01-01'),
-  nationality: 'ESP',
+  country: 'ESP',
   height: 180,
   weight: 75,
   jerseyNumber: 10,

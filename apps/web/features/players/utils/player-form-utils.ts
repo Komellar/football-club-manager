@@ -1,7 +1,7 @@
 import type {
   PlayerResponseDto,
   CreatePlayerDto,
-  ValidNationality,
+  ValidCountry,
 } from "@repo/core";
 
 export function transformToFormValues(
@@ -11,7 +11,7 @@ export function transformToFormValues(
     name: player.name,
     position: player.position,
     dateOfBirth: new Date(player.dateOfBirth),
-    nationality: player.nationality as ValidNationality,
+    country: player.country as ValidCountry,
     height: player.height ?? undefined,
     weight: Number(player.weight) ?? undefined,
     jerseyNumber: player.jerseyNumber ?? undefined,

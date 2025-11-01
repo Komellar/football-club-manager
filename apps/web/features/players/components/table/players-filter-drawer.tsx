@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import {
   PlayerPosition,
-  ValidNationality,
+  ValidCountry,
   PlayerListFiltersSchema,
 } from "@repo/core";
 import {
@@ -15,6 +15,7 @@ import { useTableFilters } from "@/hooks";
 import { FilterDrawer } from "@/components/shared/data-table/filter-drawer";
 import { FilterSelect } from "@/components/shared/data-table/filter-select";
 import { updateFilter } from "@/utils/table/drawer";
+import { FilterSearchableSelect } from "@/components/shared/data-table/filter-searchable-select";
 
 export function PlayersFilterDrawer() {
   const t = useTranslations("Players");
@@ -70,21 +71,17 @@ export function PlayersFilterDrawer() {
               onClear={() => updateFilter(setFilters, "isActive", undefined)}
             />
 
-            {/* Nationality Filter */}
-            <FilterSelect
-              id="nationality-filter"
-              label={t("nationality")}
-              value={filters.nationality}
-              placeholder={t("allNationalities") || "All Nationalities"}
+            {/* Country Filter */}
+            <FilterSearchableSelect
+              id="country-filter"
+              label={t("country")}
+              placeholder={t("allCountries")}
               options={NATIONALITY_OPTIONS}
+              value={filters.country}
               onValueChange={(value) =>
-                updateFilter(
-                  setFilters,
-                  "nationality",
-                  value as ValidNationality
-                )
+                updateFilter(setFilters, "country", value as ValidCountry)
               }
-              onClear={() => updateFilter(setFilters, "nationality", undefined)}
+              onClear={() => updateFilter(setFilters, "country", undefined)}
             />
           </>
         );

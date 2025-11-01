@@ -37,7 +37,7 @@ export const CreatePlayer = () =>
         name: 'Lionel Messi',
         position: 'forward',
         dateOfBirth: '1987-06-24T00:00:00.000Z',
-        nationality: 'ARG',
+        country: 'ARG',
         height: 170,
         weight: 72,
         jerseyNumber: 10,
@@ -65,7 +65,7 @@ export const GetAllPlayers = () =>
     ApiOperation({
       summary: 'Get all players with optional filtering and pagination',
       description:
-        'Retrieves a paginated list of players with optional filtering by position, nationality, age range, and search terms.',
+        'Retrieves a paginated list of players with optional filtering by position, country, age range, and search terms.',
     }),
     ApiQuery({
       name: 'page',
@@ -96,9 +96,9 @@ export const GetAllPlayers = () =>
       example: true,
     }),
     ApiQuery({
-      name: 'where[nationality]',
+      name: 'where[country]',
       required: false,
-      description: 'Filter by player nationality - 3-letter ISO country code',
+      description: 'Filter by player country - 3-letter ISO country code',
       enum: VALID_NATIONALITIES,
     }),
     ApiQuery({

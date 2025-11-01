@@ -1,2 +1,2 @@
 export * from "./confederations";
-export * from "./nationality-names";
+export * from "./country-names";

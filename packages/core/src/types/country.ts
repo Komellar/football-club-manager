@@ -15,7 +15,7 @@ export type ConcacafCode = (typeof CONCACAF_CODES)[number];
 export type CafCode = (typeof CAF_CODES)[number];
 export type AfcCode = (typeof AFC_CODES)[number];
 export type OfcCode = (typeof OFC_CODES)[number];
-export type ValidNationality = (typeof VALID_NATIONALITIES)[number];
+export type ValidCountry = (typeof VALID_NATIONALITIES)[number];
 
 // Confederation type union
 export type Confederation =

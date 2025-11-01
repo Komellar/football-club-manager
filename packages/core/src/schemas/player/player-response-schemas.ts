@@ -7,7 +7,7 @@ export const PlayerResponseSchema = z.object({
   name: z.string(),
   position: z.enum(PlayerPosition),
   dateOfBirth: z.coerce.date(),
-  nationality: z.string(),
+  country: z.string(),
   height: z.number().optional(),
   weight: z.number().optional(),
   jerseyNumber: z.number().optional(),

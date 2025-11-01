@@ -28,7 +28,7 @@ export const PlayerListFiltersSchema = z.object({
         .pipe(z.boolean()),
     ])
     .optional(),
-  nationality: z.enum(VALID_NATIONALITIES).optional(),
+  country: z.enum(VALID_NATIONALITIES).optional(),
 });
 
 export const PlayerListSchema = ListQueryParamsSchema.extend({

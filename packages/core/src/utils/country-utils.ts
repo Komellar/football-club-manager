@@ -7,27 +7,19 @@ import {
   OFC_CODES,
   VALID_NATIONALITIES,
 } from "../constants/confederations";
-import { NATIONALITY_DISPLAY_NAMES } from "../constants/nationality-names";
-import type { ValidNationality, Confederation } from "../types/nationality";
+import { NATIONALITY_DISPLAY_NAMES } from "../constants/country-names";
+import type { ValidCountry, Confederation } from "../types/country";
 
-export type { ValidNationality, Confederation };
+export type { ValidCountry, Confederation };
 
-export function isValidNationality(
-  nationality: string
-): nationality is ValidNationality {
-  return VALID_NATIONALITIES.includes(
-    nationality.toUpperCase() as ValidNationality
-  );
+export function isValidCountry(country: string): country is ValidCountry {
+  return VALID_NATIONALITIES.includes(country.toUpperCase() as ValidCountry);
 }
 
-export function getNationalityDisplayName(
-  nationality: ValidNationality
-): string {
-  const upperNationality =
-    nationality.toUpperCase() as keyof typeof NATIONALITY_DISPLAY_NAMES;
-  return (
-    NATIONALITY_DISPLAY_NAMES[upperNationality] || nationality.toUpperCase()
-  );
+export function getCountryDisplayName(country: ValidCountry): string {
+  const upperCountry =
+    country.toUpperCase() as keyof typeof NATIONALITY_DISPLAY_NAMES;
+  return NATIONALITY_DISPLAY_NAMES[upperCountry] || country.toUpperCase();
 }
 
 // Lazy-initialized confederation lookup map
@@ -49,10 +41,8 @@ function getConfederationMap(): Map<string, string> {
   return confederationMap;
 }
 
-export function getConfederation(
-  nationality: string
-): Confederation | "Unknown" {
-  const code = nationality.toUpperCase();
+export function getConfederation(country: string): Confederation | "Unknown" {
+  const code = country.toUpperCase();
   return (getConfederationMap().get(code) as Confederation) ?? "Unknown";
 }
 

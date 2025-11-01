@@ -2,7 +2,7 @@ import {
   CreatePlayerDto,
   PlayerPosition,
   VALID_NATIONALITIES,
-  ValidNationality,
+  ValidCountry,
   NATIONALITY_DISPLAY_NAMES,
 } from "@repo/core";
 
@@ -18,7 +18,7 @@ export const STATUS_OPTIONS = [
   { value: "false", labelKey: "statusValues.inactive" },
 ];
 
-export const POPULAR_NATIONALITIES: ValidNationality[] = [
+export const POPULAR_NATIONALITIES: ValidCountry[] = [
   "ENG",
   "ESP",
   "FRA",
@@ -31,21 +31,18 @@ export const POPULAR_NATIONALITIES: ValidNationality[] = [
   "MEX",
 ];
 
-export const NATIONALITY_OPTIONS: { value: ValidNationality; label: string }[] =
-  [
-    ...POPULAR_NATIONALITIES.map((code) => ({
+export const NATIONALITY_OPTIONS: { value: ValidCountry; label: string }[] = [
+  ...POPULAR_NATIONALITIES.map((code) => ({
+    value: code,
+    label: NATIONALITY_DISPLAY_NAMES[code],
+  })),
+  ...VALID_NATIONALITIES.filter((code) => !POPULAR_NATIONALITIES.includes(code))
+    .map((code) => ({
       value: code,
       label: NATIONALITY_DISPLAY_NAMES[code],
-    })),
-    ...VALID_NATIONALITIES.filter(
-      (code) => !POPULAR_NATIONALITIES.includes(code)
-    )
-      .map((code) => ({
-        value: code,
-        label: NATIONALITY_DISPLAY_NAMES[code],
-      }))
-      .sort((a, b) => a.label.localeCompare(b.label)),
-  ];
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label)),
+];
 
 export const DEFAULT_FORM_VALUES: Partial<CreatePlayerDto> = {
   name: "",
