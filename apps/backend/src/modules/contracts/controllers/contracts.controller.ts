@@ -3,7 +3,7 @@ import {
   Get,
   Post,
   Body,
-  Patch,
+  Put,
   Param,
   Delete,
   ParseIntPipe,
@@ -66,7 +66,7 @@ export class ContractsController {
     return await this.contractsService.findOne(id);
   }
 
-  @Patch(':id')
+  @Put(':id')
   @UpdateContract()
   async update(
     @Param('id', ParseIntPipe) id: number,

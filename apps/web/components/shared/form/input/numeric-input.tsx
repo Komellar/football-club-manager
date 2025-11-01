@@ -14,8 +14,8 @@ export interface NumericInputProps
     NumericFormatProps,
     "customInput" | "onValueChange" | "value" | "onChange"
   > {
-  value?: number;
-  onValueChange?: (value: number | undefined) => void;
+  value?: number | null;
+  onValueChange?: (value: number | null) => void;
   className?: string;
 }
 
@@ -38,7 +38,9 @@ const NumericInput = ({
       fixedDecimalScale={true}
       className={cn(className)}
       onValueChange={(values: NumberFormatValues) => {
-        onValueChange?.(Number(values.floatValue));
+        isNaN(Number(values.floatValue))
+          ? onValueChange?.(null)
+          : onValueChange?.(Number(values.floatValue));
       }}
       {...props}
       onChange={undefined}

@@ -66,7 +66,7 @@ export async function updatePlayer(
   playerData: CreatePlayerDto
 ): Promise<PlayerResponseDto> {
   try {
-    const { data }: AxiosResponse<PlayerResponseDto> = await apiClient.patch(
+    const { data }: AxiosResponse<PlayerResponseDto> = await apiClient.put(
       `/players/${id}`,
       playerData
     );

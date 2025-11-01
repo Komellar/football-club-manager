@@ -18,7 +18,6 @@ import {
   contractTypeColors,
 } from "@/features/contracts/constants";
 import { dateToString } from "@/utils/date";
-import { date } from "zod";
 
 interface ActiveContractProps {
   contract: ContractResponseDto;
@@ -124,33 +123,29 @@ export async function ActiveContract({ contract }: ActiveContractProps) {
             </div>
           </div>
 
-          {contract.bonuses !== undefined && contract.bonuses > 0 && (
-            <div className="flex items-start gap-2">
-              <TrendingUp className="w-4 h-4 mt-1 text-muted-foreground" />
-              <div>
-                <label className="text-sm text-muted-foreground">
-                  {tc("bonuses")}
-                </label>
-                <p className="text-sm font-medium">
-                  {formatCurrency(contract.bonuses)}
-                </p>
-              </div>
+          <div className="flex items-start gap-2">
+            <TrendingUp className="w-4 h-4 mt-1 text-muted-foreground" />
+            <div>
+              <label className="text-sm text-muted-foreground">
+                {tc("bonuses")}
+              </label>
+              <p className="text-sm font-medium">
+                {formatCurrency(contract.bonuses)}
+              </p>
             </div>
-          )}
+          </div>
 
-          {contract.releaseClause !== undefined && (
-            <div className="flex items-start gap-2 md:col-span-2">
-              <DollarSign className="w-4 h-4 mt-1 text-muted-foreground" />
-              <div>
-                <label className="text-sm text-muted-foreground">
-                  {tc("releaseClause")}
-                </label>
-                <p className="text-sm font-medium">
-                  {formatCurrency(contract.releaseClause)}
-                </p>
-              </div>
+          <div className="flex items-start gap-2 md:col-span-2">
+            <DollarSign className="w-4 h-4 mt-1 text-muted-foreground" />
+            <div>
+              <label className="text-sm text-muted-foreground">
+                {tc("releaseClause")}
+              </label>
+              <p className="text-sm font-medium">
+                {formatCurrency(contract.releaseClause)}
+              </p>
             </div>
-          )}
+          </div>
         </div>
       </CardContent>
     </Card>

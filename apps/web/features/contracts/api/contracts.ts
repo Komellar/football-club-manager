@@ -6,8 +6,6 @@ import type {
   ContractResponseDto,
   CreateContractDto,
   UpdateContractDto,
-  ContractRenewalDto,
-  ContractNewRenewalDto,
   ContractFinancialSummary,
   ContractValueCalculation,
   ExpiryQuery,
@@ -74,7 +72,7 @@ export async function updateContract(
   contractData: UpdateContractDto
 ): Promise<ContractResponseDto> {
   try {
-    const { data }: AxiosResponse<ContractResponseDto> = await apiClient.patch(
+    const { data }: AxiosResponse<ContractResponseDto> = await apiClient.put(
       `/contracts/${id}`,
       contractData
     );
@@ -99,46 +97,6 @@ export async function deleteContract(id: number): Promise<void> {
       throw new Error(errorMessage);
     }
     throw new Error("Failed to delete contract");
-  }
-}
-
-export async function renewContract(
-  id: number,
-  renewalData: ContractRenewalDto
-): Promise<ContractResponseDto> {
-  try {
-    const { data }: AxiosResponse<ContractResponseDto> = await apiClient.patch(
-      `/contracts/${id}/renew`,
-      renewalData
-    );
-    return data;
-  } catch (error) {
-    if (error instanceof AxiosError) {
-      const errorMessage =
-        error.response?.data?.message || "Failed to renew contract";
-      throw new Error(errorMessage);
-    }
-    throw new Error("Failed to renew contract");
-  }
-}
-
-export async function createRenewalContract(
-  id: number,
-  renewalData: ContractNewRenewalDto
-): Promise<ContractResponseDto> {
-  try {
-    const { data }: AxiosResponse<ContractResponseDto> = await apiClient.post(
-      `/contracts/${id}/renew`,
-      renewalData
-    );
-    return data;
-  } catch (error) {
-    if (error instanceof AxiosError) {
-      const errorMessage =
-        error.response?.data?.message || "Failed to create renewal contract";
-      throw new Error(errorMessage);
-    }
-    throw new Error("Failed to create renewal contract");
   }
 }
 

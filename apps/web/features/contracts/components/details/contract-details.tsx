@@ -135,49 +135,39 @@ export function ContractDetails({
             </p>
           </div>
 
-          {contract.bonuses !== undefined && (
-            <div>
-              <label className="text-sm font-medium text-muted-foreground">
-                {t("bonuses")}
-              </label>
-              <p className="text-base mt-1">
-                {formatCurrency(contract.bonuses)}
-              </p>
-            </div>
-          )}
+          <div>
+            <label className="text-sm font-medium text-muted-foreground">
+              {t("bonuses")}
+            </label>
+            <p className="text-base mt-1">{formatCurrency(contract.bonuses)}</p>
+          </div>
 
-          {contract.signOnFee !== undefined && (
-            <div>
-              <label className="text-sm font-medium text-muted-foreground">
-                {t("signOnFee")}
-              </label>
-              <p className="text-base mt-1">
-                {formatCurrency(contract.signOnFee)}
-              </p>
-            </div>
-          )}
+          <div>
+            <label className="text-sm font-medium text-muted-foreground">
+              {t("signOnFee")}
+            </label>
+            <p className="text-base mt-1">
+              {formatCurrency(contract.signOnFee)}
+            </p>
+          </div>
 
-          {contract.agentFee !== undefined && (
-            <div>
-              <label className="text-sm font-medium text-muted-foreground">
-                {t("agentFee")}
-              </label>
-              <p className="text-base mt-1">
-                {formatCurrency(contract.agentFee)}
-              </p>
-            </div>
-          )}
+          <div>
+            <label className="text-sm font-medium text-muted-foreground">
+              {t("agentFee")}
+            </label>
+            <p className="text-base mt-1">
+              {formatCurrency(contract.agentFee)}
+            </p>
+          </div>
 
-          {contract.releaseClause !== undefined && (
-            <div>
-              <label className="text-sm font-medium text-muted-foreground">
-                {t("releaseClause")}
-              </label>
-              <p className="text-base mt-1">
-                {formatCurrency(contract.releaseClause)}
-              </p>
-            </div>
-          )}
+          <div>
+            <label className="text-sm font-medium text-muted-foreground">
+              {t("releaseClause")}
+            </label>
+            <p className="text-base mt-1">
+              {formatCurrency(contract.releaseClause)}
+            </p>
+          </div>
         </CardContent>
       </Card>
 

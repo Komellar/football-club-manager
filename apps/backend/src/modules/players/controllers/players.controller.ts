@@ -3,7 +3,7 @@ import {
   Get,
   Post,
   Body,
-  Patch,
+  Put,
   Param,
   Delete,
   Query,
@@ -71,7 +71,7 @@ export class PlayersController {
     return this.playersService.findOne(id);
   }
 
-  @Patch(':id')
+  @Put(':id')
   @UpdatePlayer()
   async update(
     @Param('id', ParseIntPipe) id: number,

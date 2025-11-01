@@ -60,6 +60,7 @@ export function ContractFinancialInfo() {
                   onValueChange={field.onChange}
                   max={9999999999.99}
                   {...field}
+                  value={field.value}
                 />
               </FormControl>
               <FormDescription>{t("descriptions.bonuses")}</FormDescription>

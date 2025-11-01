@@ -362,10 +362,10 @@ describe('PlayersService', () => {
       expect(mockRepository.findOneOrFail).toHaveBeenCalledWith({
         where: { id: 1 },
       });
-      expect(mockRepository.update).toHaveBeenCalledWith(
-        1,
-        mockUpdatePlayerDto,
-      );
+      expect(mockRepository.save).toHaveBeenCalledWith({
+        id: 1,
+        ...mockUpdatePlayerDto,
+      });
       expect(result).toEqual(updatedPlayer);
     });
 

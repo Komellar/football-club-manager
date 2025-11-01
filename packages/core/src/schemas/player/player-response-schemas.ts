@@ -1,22 +1,13 @@
 import { z } from "zod";
-import { PlayerPosition } from "../../enums/player-position";
 import { createPaginationResponseSchema } from "../../utils/schema-utils";
+import { CreatePlayerSchema } from "./player-input-schemas";
 
-export const PlayerResponseSchema = z.object({
+export const PlayerResponseSchema = CreatePlayerSchema.extend({
   id: z.number().int().positive(),
-  name: z.string(),
-  position: z.enum(PlayerPosition),
-  dateOfBirth: z.coerce.date(),
-  country: z.string(),
-  height: z.number().optional(),
-  weight: z.number().optional(),
-  jerseyNumber: z.number().optional(),
-  marketValue: z.number().optional(),
-  isActive: z.boolean(),
-  imageUrl: z.url().optional(),
   age: z.number().int().min(0),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
+  country: z.string().length(3),
 });
 
 export const PaginatedPlayerResponseSchema =

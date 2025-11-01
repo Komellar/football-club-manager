@@ -64,7 +64,7 @@ export class Contract {
       from: (value: string | null) => (value ? parseFloat(value) : null),
     },
   })
-  bonuses?: number;
+  bonuses?: number | null;
 
   @Column({
     type: 'decimal',
@@ -79,7 +79,7 @@ export class Contract {
       from: (value: string | null) => (value ? parseFloat(value) : null),
     },
   })
-  signOnFee?: number;
+  signOnFee?: number | null;
 
   @Column({
     type: 'decimal',
@@ -93,7 +93,7 @@ export class Contract {
       from: (value: string | null) => (value ? parseFloat(value) : null),
     },
   })
-  releaseClause?: number;
+  releaseClause?: number | null;
 
   @Column({
     type: 'decimal',
@@ -107,10 +107,10 @@ export class Contract {
       from: (value: string | null) => (value ? parseFloat(value) : null),
     },
   })
-  agentFee?: number;
+  agentFee?: number | null;
 
   @Column({ type: 'text', nullable: true })
-  notes?: string;
+  notes?: string | null;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

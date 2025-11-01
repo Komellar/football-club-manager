@@ -72,7 +72,12 @@ export class ContractsService {
       );
     }
 
-    await this.contractRepository.update(id, updateContractDto);
+    const updatedContract = {
+      ...updateContractDto,
+      id,
+    };
+
+    await this.contractRepository.save(updatedContract);
     return await this.contractRepository.findOneOrFail({
       where: { id },
       relations: ['player'],

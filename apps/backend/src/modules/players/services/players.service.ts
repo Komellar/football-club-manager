@@ -21,7 +21,7 @@ export class PlayersService {
   ) {}
 
   async create(createPlayerDto: CreatePlayerDto): Promise<PlayerResponseDto> {
-    if (createPlayerDto.jerseyNumber) {
+    if (createPlayerDto.jerseyNumber && createPlayerDto.isActive) {
       const existingPlayer = await this.playerRepository.findOne({
         where: {
           jerseyNumber: createPlayerDto.jerseyNumber,
@@ -74,7 +74,8 @@ export class PlayersService {
     // Check jersey number conflicts if updating jersey number
     if (
       updatePlayerDto.jerseyNumber &&
-      updatePlayerDto.jerseyNumber !== existingPlayer.jerseyNumber
+      updatePlayerDto.jerseyNumber !== existingPlayer.jerseyNumber &&
+      updatePlayerDto.isActive
     ) {
       const conflictingPlayer = await this.playerRepository.findOne({
         where: {
@@ -91,7 +92,10 @@ export class PlayersService {
       }
     }
 
-    await this.playerRepository.update(id, updatePlayerDto);
+    await this.playerRepository.save({
+      ...updatePlayerDto,
+      id,
+    });
     return await this.playerRepository.findOneOrFail({
       where: { id },
     });

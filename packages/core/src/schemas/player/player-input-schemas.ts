@@ -3,23 +3,6 @@ import { PlayerPosition } from "../../enums/player-position";
 import { isValidPlayerAge } from "../../utils/age-utils";
 import { VALID_NATIONALITIES } from "../../constants/confederations";
 
-export const PlayerSchema = z.object({
-  id: z.number().int().positive(),
-  name: z.string(),
-  position: z.enum(PlayerPosition),
-  dateOfBirth: z.coerce.date(),
-  country: z.enum(VALID_NATIONALITIES),
-  height: z.number().optional(),
-  weight: z.number().optional(),
-  jerseyNumber: z.number().optional(),
-  marketValue: z.number().optional(),
-  isActive: z.boolean().default(true),
-  imageUrl: z.url().optional(),
-  age: z.number().int().min(0),
-  createdAt: z.coerce.date(),
-  updatedAt: z.coerce.date(),
-});
-
 export const CreatePlayerSchema = z.object({
   name: z
     .string()
@@ -55,28 +38,34 @@ export const CreatePlayerSchema = z.object({
     .int()
     .min(100, "Height must be at least 100 cm")
     .max(250, "Height must be at most 250 cm")
-    .optional(),
+    .optional()
+    .nullable(),
 
   weight: z
     .number()
     .positive("Weight must be positive")
     .min(40, "Weight must be at least 40 kg")
     .max(150, "Weight must be at most 150 kg")
-    .optional(),
+    .optional()
+    .nullable(),
 
   jerseyNumber: z
     .number()
     .int()
     .min(1, "Jersey number must be at least 1")
     .max(99, "Jersey number must be at most 99")
-    .optional(),
+    .optional()
+    .nullable(),
 
-  marketValue: z.number().positive("Market value must be positive").optional(),
+  marketValue: z
+    .number()
+    .positive("Market value must be positive")
+    .optional()
+    .nullable(),
 
   isActive: z.boolean(),
 
-  imageUrl: z.url("Image URL must be a valid URL").optional(),
+  imageUrl: z.url("Image URL must be a valid URL").optional().nullable(),
 });
 
-export type Player = z.infer<typeof PlayerSchema>;
 export type CreatePlayerDto = z.infer<typeof CreatePlayerSchema>;

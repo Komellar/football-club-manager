@@ -35,7 +35,7 @@ export class Player {
   country: string;
 
   @Column({ type: 'int', nullable: true, comment: 'Height in centimeters' })
-  height?: number;
+  height?: number | null;
 
   @Column({
     type: 'decimal',
@@ -48,10 +48,10 @@ export class Player {
       from: (value: string | null) => (value ? parseFloat(value) : null),
     },
   })
-  weight?: number;
+  weight?: number | null;
 
   @Column({ type: 'int', name: 'jersey_number', nullable: true })
-  jerseyNumber?: number;
+  jerseyNumber?: number | null;
 
   @Column({
     type: 'decimal',
@@ -65,13 +65,13 @@ export class Player {
       from: (value: string | null) => (value ? parseFloat(value) : null),
     },
   })
-  marketValue?: number;
+  marketValue?: number | null;
 
   @Column({ type: 'boolean', default: true, name: 'is_active' })
   isActive: boolean;
 
   @Column({ type: 'varchar', length: 255, nullable: true, name: 'image_url' })
-  imageUrl?: string;
+  imageUrl?: string | null;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

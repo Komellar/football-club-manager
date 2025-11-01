@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { ContractSchema } from "./contract-input-schemas";
 import { createPaginationResponseSchema } from "../../utils/schema-utils";
 import { PlayerResponseSchema } from "../player";
+import { ContractSchema } from "./contract";
 
 export const ContractResponseSchema = ContractSchema.extend({
   player: PlayerResponseSchema.optional(),
@@ -19,14 +19,6 @@ export const ContractValueCalculationSchema = z.object({
   agentFeeValue: z.number(),
   remainingValue: z.number(),
   remainingMonths: z.number(),
-});
-
-export const ContractExpiryReportSchema = z.object({
-  expired: z.array(ContractResponseSchema),
-  expiringSoon: z.array(ContractResponseSchema),
-  expiringLater: z.array(ContractResponseSchema),
-  active: z.number(),
-  total: z.number(),
 });
 
 export const ContractFinancialSummarySchema = z.object({
@@ -48,7 +40,6 @@ export type PaginatedContractResponseDto = z.infer<
 export type ContractValueCalculation = z.infer<
   typeof ContractValueCalculationSchema
 >;
-export type ContractExpiryReport = z.infer<typeof ContractExpiryReportSchema>;
 export type ContractFinancialSummary = z.infer<
   typeof ContractFinancialSummarySchema
 >;
