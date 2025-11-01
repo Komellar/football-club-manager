@@ -37,6 +37,7 @@ export function ContractFinancialInfo() {
                 <NumericInput
                   placeholder="0"
                   onValueChange={field.onChange}
+                  max={9999999999.99}
                   {...field}
                 />
               </FormControl>
@@ -57,6 +58,7 @@ export function ContractFinancialInfo() {
                 <NumericInput
                   placeholder="0"
                   onValueChange={field.onChange}
+                  max={9999999999.99}
                   {...field}
                 />
               </FormControl>
@@ -78,6 +80,7 @@ export function ContractFinancialInfo() {
                 <NumericInput
                   placeholder="0"
                   onValueChange={field.onChange}
+                  max={9999999999.99}
                   {...field}
                 />
               </FormControl>
@@ -96,6 +99,7 @@ export function ContractFinancialInfo() {
                 <NumericInput
                   placeholder="0"
                   onValueChange={field.onChange}
+                  max={9999999999.99}
                   {...field}
                 />
               </FormControl>
@@ -116,6 +120,7 @@ export function ContractFinancialInfo() {
                 <NumericInput
                   placeholder="0"
                   onValueChange={field.onChange}
+                  max={9999999999.99}
                   {...field}
                 />
               </FormControl>

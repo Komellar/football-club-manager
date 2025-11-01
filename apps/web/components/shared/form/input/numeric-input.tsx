@@ -25,6 +25,8 @@ const NumericInput = ({
   onValueChange,
   ...props
 }: NumericInputProps) => {
+  const { min, max } = props;
+
   return (
     <NumericFormat
       decimalScale={2}
@@ -40,6 +42,18 @@ const NumericInput = ({
       }}
       {...props}
       onChange={undefined}
+      isAllowed={(values) => {
+        const { floatValue } = values;
+
+        if (floatValue) {
+          return (
+            (!min || floatValue >= Number(min)) &&
+            (!max || floatValue <= Number(max))
+          );
+        }
+
+        return true;
+      }}
     />
   );
 };

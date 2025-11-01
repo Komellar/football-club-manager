@@ -49,7 +49,13 @@ A comprehensive football club management system built with modern web technologi
    cp apps/web/.env.example apps/web/.env
    ```
 
-3. **Start the PostgreSQL database:**
+3. **Build the project**
+
+   ```bash
+   pnpm build
+   ```
+
+4. **Start the PostgreSQL database:**
 
    ```bash
    pnpm db:up
@@ -57,28 +63,29 @@ A comprehensive football club management system built with modern web technologi
 
    This will start PostgreSQL on port 5432.
 
-4. **Run database migrations:**
+5. **Run database migrations:**
 
    ```bash
    cd apps/backend
    pnpm migration:run
-   cd ../../
    ```
 
-5. **Start development servers:**
+6. **Start development servers:**
+
+   On root folder run:
 
    ```bash
    pnpm dev
    ```
 
-6. **Seed the database**
+7. **Seed the database**
 
    ```bash
    cd apps/backend
    pnpm seed
    ```
 
-7. **Access the applications:**
+8. **Access the applications:**
    - **Frontend**: http://localhost:3000
    - **Backend API**: http://localhost:4000
    - **API Documentation (Swagger)**: http://localhost:4000/api/docs

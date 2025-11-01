@@ -31,6 +31,9 @@ export function TeamInfo() {
                 <NumericInput
                   placeholder={t("placeholders.enterJerseyNumber")}
                   onValueChange={field.onChange}
+                  decimalScale={0}
+                  min={1}
+                  max={99}
                   {...field}
                 />
               </FormControl>
@@ -52,6 +55,7 @@ export function TeamInfo() {
                 <NumericInput
                   placeholder={t("placeholders.enterMarketValue")}
                   onValueChange={field.onChange}
+                  max={9999999999.99}
                   {...field}
                 />
               </FormControl>
