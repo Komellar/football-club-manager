@@ -14,6 +14,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useTableSort } from "@/hooks";
 import { ContractsFilterDrawer } from "./contracts-filter-drawer";
+import { TableSearchInput } from "@/components/shared/data-table/table-search-input";
 
 interface ContractsListProps {
   contractsData: PaginatedContractListResponseDto;
@@ -32,8 +33,11 @@ export function ContractsTable({ contractsData }: ContractsListProps) {
   if (contracts.length === 0) {
     return (
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-4">
           <ContractsFilterDrawer />
+          <TableSearchInput
+            placeholder={t("placeholders.searchByPlayerName")}
+          />
         </div>
         <div className="text-center p-10">
           <p className="text-muted-foreground mb-4">
@@ -52,8 +56,9 @@ export function ContractsTable({ contractsData }: ContractsListProps) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4">
         <ContractsFilterDrawer />
+        <TableSearchInput placeholder={t("placeholders.searchByPlayerName")} />
       </div>
       <DataTable
         columns={columns}

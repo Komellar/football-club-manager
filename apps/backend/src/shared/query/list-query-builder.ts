@@ -258,20 +258,33 @@ export class ListQueryBuilder {
 
     // Filter out search fields that already have explicit filters
     // This prevents search from overriding user's specific filter choices
-    const availableSearchFields = searchOptions.searchFields.filter(
-      (field) => !(field in where),
-    );
+    const availableSearchFields = searchOptions.searchFields.filter((field) => {
+      const rootField = field.split('.')[0];
+      return !(rootField in where);
+    });
 
     if (availableSearchFields.length === 0) {
       return where;
     }
 
-    const searchConditions = availableSearchFields.map((field) => ({
-      [field]:
+    const searchConditions = availableSearchFields.map((field) => {
+      const searchValue =
         searchMode === FilterMode.PARTIAL
           ? ILike(`%${trimmedSearchTerm}%`)
-          : trimmedSearchTerm,
-    }));
+          : trimmedSearchTerm;
+
+      // Handle nested fields (e.g., "player.name")
+      if (field.includes('.')) {
+        const parts = field.split('.');
+        const nested = parts.reduceRight(
+          (acc, part) => ({ [part]: acc }),
+          searchValue as unknown as Record<string, unknown>,
+        );
+        return nested;
+      }
+
+      return { [field]: searchValue };
+    });
 
     return searchConditions.map((searchCondition) => ({
       ...where,

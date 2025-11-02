@@ -63,7 +63,6 @@
     "addPlayer": "Agregar Jugador",
     "addNewPlayer": "Agregar Nuevo Jugador",
     "editPlayer": "Editar Jugador",
-    "playerList": "Lista de jugadores",
     "managePlayers": "Gestiona la lista de jugadores de tu club",
     "createPlayerProfile": "Crear un nuevo perfil de jugador para tu plantilla",
     "updatePlayerProfile": "Actualizar el perfil de {name}",
@@ -125,7 +124,8 @@
       "enterJerseyNumber": "Ingresa el número de camiseta",
       "enterHeight": "Ingresa la altura en cm",
       "enterWeight": "Ingresa el peso en kg",
-      "enterMarketValue": "Ingresa el valor de mercado"
+      "enterMarketValue": "Ingresa el valor de mercado",
+      "searchByName": "Buscar por nombre de jugador..."
     },
     "labels": {
       "required": "*",
@@ -186,7 +186,6 @@
     "createContractDescription": "Crear un nuevo contrato para un jugador",
     "editContract": "Editar Contrato",
     "contractDetails": "Detalles del Contrato",
-    "contractList": "Lista de contratos",
     "manageContracts": "Gestiona los contratos de jugadores de tu club",
     "noContractsMessage": "No se encontraron contratos. Agrega tu primer contrato para comenzar.",
     "noContractsFound": "No se encontraron contratos",
@@ -255,7 +254,8 @@
       "selectPlayer": "Seleccionar un jugador",
       "loading": "Cargando...",
       "notes": "Agrega notas adicionales...",
-      "enterPlayerId": "Ingresa el ID del jugador"
+      "enterPlayerId": "Ingresa el ID del jugador",
+      "searchByPlayerName": "Buscar por nombre de jugador..."
     },
     "descriptions": {
       "monthlySalary": "Monto del salario mensual",

@@ -14,6 +14,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useTableSort } from "@/hooks";
 import { PlayersFilterDrawer } from "./players-filter-drawer";
+import { TableSearchInput } from "@/components/shared/data-table/table-search-input";
 
 interface PlayersListProps {
   playersData: PaginatedPlayerListResponseDto;
@@ -32,8 +33,9 @@ export function PlayersTable({ playersData }: PlayersListProps) {
   if (players.length === 0) {
     return (
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-4">
           <PlayersFilterDrawer />
+          <TableSearchInput placeholder={t("placeholders.searchByName")} />
         </div>
         <div className="text-center p-10">
           <p className="text-muted-foreground mb-4">{t("noPlayersMessage")}</p>
@@ -50,8 +52,9 @@ export function PlayersTable({ playersData }: PlayersListProps) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4">
         <PlayersFilterDrawer />
+        <TableSearchInput placeholder={t("placeholders.searchByName")} />
       </div>
       <DataTable
         columns={columns}

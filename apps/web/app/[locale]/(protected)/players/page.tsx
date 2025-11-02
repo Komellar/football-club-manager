@@ -1,11 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import Link from "next/link";
-import { Players } from "@/features/players/components/table/players";
 import { getPlayers } from "@/features/players/api";
 import { getTranslations } from "next-intl/server";
 import { PlayerListSchema } from "@repo/core";
 import { parseSearchParams } from "@/utils/searchParams";
+import { Card, CardContent } from "@/components/ui/card";
+import { PlayersTable } from "@/features/players/components";
 
 // Force this page to be dynamic since it fetches authenticated data
 export const dynamic = "force-dynamic";
@@ -43,7 +44,11 @@ export default async function PlayersPage({
         </Link>
       </div>
 
-      <Players data={players} />
+      <Card>
+        <CardContent>
+          <PlayersTable playersData={players} />
+        </CardContent>
+      </Card>
     </div>
   );
 }

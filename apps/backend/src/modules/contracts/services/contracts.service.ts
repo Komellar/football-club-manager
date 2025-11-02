@@ -35,7 +35,7 @@ export class ContractsService {
         maxSalary: FilterMode.LTE,
       },
       searchOptions: {
-        searchFields: ['notes'],
+        searchFields: ['player.name'],
         searchMode: FilterMode.PARTIAL,
       },
     };

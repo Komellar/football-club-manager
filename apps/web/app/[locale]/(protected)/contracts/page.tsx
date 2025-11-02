@@ -5,9 +5,10 @@ import { getContracts } from "@/features/contracts/api";
 import { getTranslations } from "next-intl/server";
 import { ContractListSchema } from "@repo/core";
 import { parseSearchParams } from "@/utils/searchParams";
-import { Contracts } from "@/features/contracts/components/table/contracts";
 import { ExpiringContractsServer } from "@/features/contracts/components/expiring-contracts";
 import { Suspense } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { ContractsTable } from "@/features/contracts/components";
 
 // Force this page to be dynamic since it fetches authenticated data
 export const dynamic = "force-dynamic";
@@ -48,7 +49,11 @@ export default async function ContractsPage({
         <ExpiringContractsServer days={360} />
       </Suspense>
 
-      <Contracts data={contracts} />
+      <Card>
+        <CardContent>
+          <ContractsTable contractsData={contracts} />
+        </CardContent>
+      </Card>
     </div>
   );
 }
