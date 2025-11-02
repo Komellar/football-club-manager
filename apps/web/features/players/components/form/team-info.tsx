@@ -77,8 +77,9 @@ export function TeamInfo() {
               <Input
                 type="url"
                 placeholder="https://example.com/player-photo.jpg"
+                {...field}
                 value={field.value ?? ""}
-                onChange={field.onChange}
+                onChange={(e) => field.onChange(e.target.value || null)}
               />
             </FormControl>
             <FormMessage />
