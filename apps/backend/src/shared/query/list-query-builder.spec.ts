@@ -625,7 +625,7 @@ describe('ListQueryBuilder', () => {
         where: {},
         order: undefined,
         skip: 0, // Uses default page (1) when 0: (1-1) * 10 = 0
-        take: 10, // Uses default limit when 0
+        take: undefined,
       });
     });
   });

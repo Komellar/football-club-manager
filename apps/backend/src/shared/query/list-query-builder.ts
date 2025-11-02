@@ -39,7 +39,8 @@ export class ListQueryBuilder {
     relations?: string[],
   ): Promise<PaginationResult<T>> {
     const page = queryDto?.page || this.DEFAULT_PAGE;
-    const limit = queryDto?.limit || this.DEFAULT_LIMIT;
+    const limit =
+      typeof queryDto?.limit === 'number' ? queryDto.limit : this.DEFAULT_LIMIT;
 
     const typeormQuery = this.buildTypeOrmQuery(
       page,
@@ -67,7 +68,7 @@ export class ListQueryBuilder {
     if (!queryDto) {
       return {
         skip: (page - 1) * limit,
-        take: limit,
+        take: limit === 0 ? undefined : limit,
         ...(relations && { relations }),
       };
     }
@@ -92,7 +93,7 @@ export class ListQueryBuilder {
       where: finalWhere,
       order,
       skip: (page - 1) * limit,
-      take: limit,
+      take: limit === 0 ? undefined : limit,
       ...(relations && { relations }),
     };
   }

@@ -13,7 +13,7 @@ export default async function NewContractPage({
   const { locale } = await params;
   const t = await getTranslations("Contracts");
 
-  const playersPromise = getPlayers({ limit: 100 });
+  const playersPromise = getPlayers({ limit: 0 });
 
   return (
     <div className="space-y-6">
