@@ -9,7 +9,7 @@ import {
   OnGatewayInit,
   WsException,
 } from '@nestjs/websockets';
-import { Logger, UseFilters, UsePipes } from '@nestjs/common';
+import { Logger, UseFilters } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { MatchEventsService } from '../services/match-events.service';
 import {
@@ -66,9 +66,9 @@ export class MatchEventsGateway
   }
 
   @SubscribeMessage(MatchEventsSocketMessage.SUBSCRIBE_TO_MATCH)
-  @UsePipes(new WsValidationPipe(SubscribeToMatchSchema))
   async handleSubscribeToMatch(
-    @MessageBody() data: SubscribeToMatch,
+    @MessageBody(new WsValidationPipe(SubscribeToMatchSchema))
+    data: SubscribeToMatch,
     @ConnectedSocket() client: Socket,
   ) {
     try {
@@ -85,9 +85,9 @@ export class MatchEventsGateway
   }
 
   @SubscribeMessage(MatchEventsSocketMessage.UNSUBSCRIBE_FROM_MATCH)
-  @UsePipes(new WsValidationPipe(UnsubscribeFromMatchSchema))
   async handleUnsubscribeFromMatch(
-    @MessageBody() data: UnsubscribeFromMatch,
+    @MessageBody(new WsValidationPipe(UnsubscribeFromMatchSchema))
+    data: UnsubscribeFromMatch,
     @ConnectedSocket() client: Socket,
   ) {
     try {
@@ -107,8 +107,9 @@ export class MatchEventsGateway
   }
 
   @SubscribeMessage(MatchEventsSocketMessage.START_MATCH)
-  @UsePipes(new WsValidationPipe(StartMatchSchema))
-  handleStartMatch(@MessageBody() data: StartMatch) {
+  handleStartMatch(
+    @MessageBody(new WsValidationPipe(StartMatchSchema)) data: StartMatch,
+  ) {
     try {
       if (this.matchEventsService.isMatchActive(data.matchId)) {
         throw new WsException(`Match ${data.matchId} is already in progress`);
