@@ -24,7 +24,8 @@
         "DB_PORT",
         "DB_USERNAME",
         "DB_PASSWORD",
-        "DB_NAME"
+        "DB_NAME",
+        "FRONTEND_URL"
       ]
     },
     "web#build": {
@@ -54,7 +55,8 @@
         "DB_PORT",
         "DB_USERNAME",
         "DB_PASSWORD",
-        "DB_NAME"
+        "DB_NAME",
+        "FRONTEND_URL"
       ]
     },
     "lint": {
@@ -74,7 +76,8 @@
         "DB_PORT",
         "DB_USERNAME",
         "DB_PASSWORD",
-        "DB_NAME"
+        "DB_NAME",
+        "FRONTEND_URL"
       ]
     }
   }

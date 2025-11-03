@@ -4,3 +4,4 @@ export * from "./player";
 export * from "./player-statistics-schemas";
 export * from "./transfer";
 export * from "./list";
+export * from "./match-event.schema";

@@ -1,0 +1,16 @@
+export enum MatchEventType {
+  GOAL = "goal",
+  CARD_YELLOW = "card_yellow",
+  CARD_RED = "card_red",
+  SUBSTITUTION = "substitution",
+  SHOT_ON_TARGET = "shot_on_target",
+  SHOT_OFF_TARGET = "shot_off_target",
+  CORNER = "corner",
+  FREE_KICK = "free_kick",
+  PENALTY = "penalty",
+  OFFSIDE = "offside",
+  FOUL = "foul",
+  MATCH_START = "match_start",
+  HALF_TIME = "half_time",
+  MATCH_END = "match_end",
+}

@@ -10,6 +10,7 @@ import { PlayersModule } from './modules/players/players.module';
 import { StatisticsModule } from './modules/statistics/statistics.module';
 import { TransfersModule } from './modules/transfers/transfers.module';
 import { ContractsModule } from './modules/contracts/contracts.module';
+import { MatchEventsModule } from './modules/match-events/match-events.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { ContractsModule } from './modules/contracts/contracts.module';
     StatisticsModule,
     TransfersModule,
     ContractsModule,
+    MatchEventsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
