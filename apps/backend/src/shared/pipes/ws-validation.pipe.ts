@@ -1,29 +1,21 @@
-import {
-  ArgumentMetadata,
-  BadRequestException,
-  Injectable,
-  PipeTransform,
-} from '@nestjs/common';
+import { Injectable, PipeTransform } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
-import { ZodSchema } from 'zod';
+import { z } from 'zod';
 
-/**
- * Validation pipe for WebSocket messages using Zod schemas
- * Throws WsException instead of HttpException for proper WebSocket error handling
- */
 @Injectable()
-export class WsValidationPipe implements PipeTransform {
-  constructor(private schema: ZodSchema) {}
+export class WsValidationPipe<T extends z.ZodTypeAny> implements PipeTransform {
+  constructor(private readonly schema: T) {}
 
-  transform(value: unknown, metadata: ArgumentMetadata) {
-    try {
-      const parsedValue = this.schema.parse(value);
-      return parsedValue;
-    } catch (error) {
+  transform(value: unknown): z.infer<T> {
+    const result = this.schema.safeParse(value);
+    if (!result.success) {
+      const { formErrors, fieldErrors } = z.flattenError(result.error);
       throw new WsException({
         message: 'Validation failed',
-        errors: error.errors || error.message,
+        formErrors,
+        fieldErrors,
       });
     }
+    return result.data;
   }
 }

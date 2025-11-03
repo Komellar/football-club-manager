@@ -11,15 +11,18 @@ import {
 } from '@nestjs/websockets';
 import { Logger, UseFilters, UsePipes } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
-import { MatchEventsService } from './match-events.service';
+import { MatchEventsService } from '../services/match-events.service';
 import {
   SubscribeToMatch,
   UnsubscribeFromMatch,
   SubscribeToMatchSchema,
   UnsubscribeFromMatchSchema,
+  StartMatch,
+  StartMatchSchema,
+  MatchEventsSocketMessage,
 } from '@repo/core';
-import { WsValidationPipe } from '../../shared/pipes/ws-validation.pipe';
-import { WsExceptionFilter } from '../../shared/filters/ws-exception.filter';
+import { WsValidationPipe } from '../../../shared/pipes/ws-validation.pipe';
+import { WsExceptionFilter } from '../../../shared/filters/ws-exception.filter';
 
 /**
  * WebSocket Gateway for real-time match events
@@ -62,7 +65,7 @@ export class MatchEventsGateway
     }
   }
 
-  @SubscribeMessage('subscribeToMatch')
+  @SubscribeMessage(MatchEventsSocketMessage.SUBSCRIBE_TO_MATCH)
   @UsePipes(new WsValidationPipe(SubscribeToMatchSchema))
   async handleSubscribeToMatch(
     @MessageBody() data: SubscribeToMatch,
@@ -81,7 +84,7 @@ export class MatchEventsGateway
     }
   }
 
-  @SubscribeMessage('unsubscribeFromMatch')
+  @SubscribeMessage(MatchEventsSocketMessage.UNSUBSCRIBE_FROM_MATCH)
   @UsePipes(new WsValidationPipe(UnsubscribeFromMatchSchema))
   async handleUnsubscribeFromMatch(
     @MessageBody() data: UnsubscribeFromMatch,
@@ -100,6 +103,33 @@ export class MatchEventsGateway
         error,
       );
       throw new WsException('Failed to unsubscribe from match');
+    }
+  }
+
+  @SubscribeMessage(MatchEventsSocketMessage.START_MATCH)
+  @UsePipes(new WsValidationPipe(StartMatchSchema))
+  handleStartMatch(@MessageBody() data: StartMatch) {
+    try {
+      if (this.matchEventsService.isMatchActive(data.matchId)) {
+        throw new WsException(`Match ${data.matchId} is already in progress`);
+      }
+
+      this.matchEventsService.startMatchSimulation(data);
+
+      return {
+        success: true,
+        message: `Match ${data.matchId} simulation started`,
+      };
+    } catch (error) {
+      this.logger.error(
+        `Error starting match ${data.matchId}:`,
+        error instanceof Error ? error.message : error,
+      );
+      throw new WsException(
+        error instanceof Error
+          ? error.message
+          : 'Failed to start match simulation',
+      );
     }
   }
 }

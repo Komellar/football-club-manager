@@ -1,0 +1,131 @@
+import { Injectable } from '@nestjs/common';
+import {
+  MatchEvent,
+  MatchEventPlayer,
+  MatchEventType,
+  MatchSimulationState,
+} from '@repo/core';
+import { v4 as uuidv4 } from 'uuid';
+import {
+  MATCH_SIMULATION_CONFIG,
+  OPPONENT_PLAYER_ID_OFFSET,
+} from '../constants/match-simulation.constants';
+
+interface ExtendedMatchSimulationState extends MatchSimulationState {
+  timer: NodeJS.Timeout | null;
+}
+
+/**
+ * Service responsible for match simulation logic (event generation, scoring, timing)
+ * Separated from WebSocket orchestration for better testability and single responsibility
+ */
+@Injectable()
+export class MatchSimulationEngineService {
+  createMatchEvent(
+    matchState: MatchSimulationState,
+    eventType: MatchEventType,
+    isHomeTeam?: boolean,
+    player?: MatchEventPlayer | null,
+  ): MatchEvent {
+    return {
+      id: uuidv4(),
+      matchId: matchState.matchId,
+      type: eventType,
+      minute: matchState.currentMinute,
+      timestamp: new Date(),
+      teamId: isHomeTeam ? matchState.homeTeam.id : matchState.awayTeam.id,
+      teamName: isHomeTeam
+        ? matchState.homeTeam.name
+        : matchState.awayTeam.name,
+      player: player || undefined,
+    };
+  }
+
+  generateRandomEvent(matchState: ExtendedMatchSimulationState): MatchEvent {
+    const selectedEventType = this.selectRandom();
+
+    // Determine which team (home advantage)
+    const isHomeTeam =
+      Math.random() < MATCH_SIMULATION_CONFIG.HOME_ADVANTAGE_PROBABILITY;
+
+    const player = this.getPlayerForEvent(matchState, isHomeTeam);
+
+    const event = this.createMatchEvent(
+      matchState,
+      selectedEventType,
+      isHomeTeam,
+      player,
+    );
+
+    // Update score and description if goal
+    if (selectedEventType === MatchEventType.GOAL) {
+      if (isHomeTeam) {
+        matchState.score.home++;
+      } else {
+        matchState.score.away++;
+      }
+    }
+
+    return event;
+  }
+
+  shouldGenerateEvent(): boolean {
+    return Math.random() < MATCH_SIMULATION_CONFIG.EVENT_GENERATION_PROBABILITY;
+  }
+
+  isHalfTime(currentMinute: number): boolean {
+    return currentMinute === MATCH_SIMULATION_CONFIG.HALF_TIME_MINUTE;
+  }
+
+  isMatchEnded(currentMinute: number): boolean {
+    return currentMinute >= MATCH_SIMULATION_CONFIG.FULL_TIME_MINUTE;
+  }
+
+  advanceTime(matchState: MatchSimulationState): void {
+    matchState.currentMinute += MATCH_SIMULATION_CONFIG.MINUTES_PER_TICK;
+  }
+
+  private getPlayerForEvent(
+    matchState: ExtendedMatchSimulationState,
+    isHomeTeam: boolean,
+  ): MatchEventPlayer | null {
+    if (isHomeTeam) {
+      return this.selectRandomPlayer(matchState.homeTeam.players);
+    }
+    // For away team, generate a random opponent player
+    return this.generateOpponentPlayer();
+  }
+
+  private selectRandom() {
+    const eventTypes = Object.values(MatchEventType).filter(
+      (type) =>
+        ![
+          MatchEventType.MATCH_START,
+          MatchEventType.MATCH_END,
+          MatchEventType.HALF_TIME,
+        ].includes(type),
+    );
+
+    const randomIndex = Math.floor(Math.random() * eventTypes.length);
+
+    return eventTypes[randomIndex];
+  }
+
+  private generateOpponentPlayer(): MatchEventPlayer {
+    return {
+      id: Math.floor(Math.random() * 1000) + OPPONENT_PLAYER_ID_OFFSET,
+      name: `Opponent Player ${Math.floor(Math.random() * 11) + 1}`,
+    };
+  }
+
+  private selectRandomPlayer(
+    players: MatchEventPlayer[],
+  ): MatchEventPlayer | null {
+    if (players.length === 0) {
+      return null;
+    }
+
+    const randomIndex = Math.floor(Math.random() * players.length);
+    return players[randomIndex];
+  }
+}

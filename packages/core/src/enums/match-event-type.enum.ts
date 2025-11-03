@@ -6,7 +6,6 @@ export enum MatchEventType {
   SHOT_ON_TARGET = "shot_on_target",
   SHOT_OFF_TARGET = "shot_off_target",
   CORNER = "corner",
-  FREE_KICK = "free_kick",
   PENALTY = "penalty",
   OFFSIDE = "offside",
   FOUL = "foul",
