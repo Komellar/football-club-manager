@@ -1,6 +1,6 @@
 "use client";
 
-import { Languages, LogOut, Settings, User } from "lucide-react";
+import { Languages, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -74,7 +74,7 @@ export function UserNav() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuGroup>
+        {/* <DropdownMenuGroup>
           <DropdownMenuItem onClick={() => router.push("/dashboard/profile")}>
             <User className="mr-2 h-4 w-4" />
             <span>{t("profile")}</span>
@@ -83,7 +83,7 @@ export function UserNav() {
             <Settings className="mr-2 h-4 w-4" />
             <span>{t("settings")}</span>
           </DropdownMenuItem>
-        </DropdownMenuGroup>
+        </DropdownMenuGroup> */}
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuLabel className="text-xs text-muted-foreground">

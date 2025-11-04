@@ -39,10 +39,10 @@ export async function Footer() {
               </li>
               <li>
                 <Link
-                  href="/reports"
+                  href="/contracts"
                   className="text-muted-foreground hover:text-foreground"
                 >
-                  {t("reports")}
+                  {t("contracts")}
                 </Link>
               </li>
             </ul>
@@ -53,28 +53,19 @@ export async function Footer() {
             <h4 className="text-sm font-semibold">{t("support")}</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link
-                  href="/help"
-                  className="text-muted-foreground hover:text-foreground"
-                >
+                <span className="text-muted-foreground cursor-not-allowed select-none">
                   {t("helpCenter")}
-                </Link>
+                </span>
               </li>
               <li>
-                <Link
-                  href="/contact"
-                  className="text-muted-foreground hover:text-foreground"
-                >
+                <span className="text-muted-foreground cursor-not-allowed select-none">
                   {t("contactUs")}
-                </Link>
+                </span>
               </li>
               <li>
-                <Link
-                  href="/documentation"
-                  className="text-muted-foreground hover:text-foreground"
-                >
+                <span className="text-muted-foreground cursor-not-allowed select-none">
                   {t("documentation")}
-                </Link>
+                </span>
               </li>
             </ul>
           </div>
@@ -84,28 +75,19 @@ export async function Footer() {
             <h4 className="text-sm font-semibold">{t("legal")}</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link
-                  href="/privacy"
-                  className="text-muted-foreground hover:text-foreground"
-                >
+                <span className="text-muted-foreground cursor-not-allowed select-none">
                   {t("privacyPolicy")}
-                </Link>
+                </span>
               </li>
               <li>
-                <Link
-                  href="/terms"
-                  className="text-muted-foreground hover:text-foreground"
-                >
+                <span className="text-muted-foreground cursor-not-allowed select-none">
                   {t("termsOfService")}
-                </Link>
+                </span>
               </li>
               <li>
-                <Link
-                  href="/cookies"
-                  className="text-muted-foreground hover:text-foreground"
-                >
+                <span className="text-muted-foreground cursor-not-allowed select-none">
                   {t("cookiePolicy")}
-                </Link>
+                </span>
               </li>
             </ul>
           </div>
@@ -118,13 +100,7 @@ export async function Footer() {
             </p>
             <div className="flex space-x-4 text-sm">
               <Link
-                href="/status"
-                className="text-muted-foreground hover:text-foreground"
-              >
-                {t("status")}
-              </Link>
-              <Link
-                href="/api"
+                href="http://localhost:4000/api/docs"
                 className="text-muted-foreground hover:text-foreground"
               >
                 {t("api")}

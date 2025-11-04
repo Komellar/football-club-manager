@@ -7,7 +7,7 @@ export default async function DashboardPage() {
   const summary = await getFinancialSummaryServer();
 
   return (
-    <div className="min-h-screen p-6">
+    <div className="p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="space-y-6">
           <div>

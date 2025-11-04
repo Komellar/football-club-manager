@@ -1,12 +1,13 @@
 import Link from "next/link";
-import { StaticNav } from "./static-nav";
-import { ClientNavigation } from "./client-navigation";
+import { DesktopNav } from "./desktop-nav";
 import { Breadcrumb } from "./breadcrumb";
+import { MobileNav } from "./mobile-nav";
+import { UserNav } from "./user-nav";
 
 export function Header() {
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-white">
-      <div className="container mx-auto flex h-16 items-center space-x-4 px-4 sm:justify-between sm:space-x-0">
+      <div className="container mx-auto flex h-20 items-center space-x-4 px-4 sm:justify-between sm:space-x-0">
         <div className="flex gap-6 md:gap-10">
           <Link
             href="/dashboard"
@@ -17,17 +18,18 @@ export function Header() {
             </span>
           </Link>
 
-          <StaticNav className="hidden md:flex gap-6" />
+          <DesktopNav className="hidden md:flex gap-6" />
         </div>
 
-        <ClientNavigation />
-      </div>
-
-      <div className="border-b">
-        <div className="container mx-auto px-4 py-3">
-          <Breadcrumb />
+        <div className="flex flex-1 items-center justify-end space-x-4">
+          <nav className="flex items-center space-x-1">
+            <MobileNav />
+            <UserNav />
+          </nav>
         </div>
       </div>
+
+      <Breadcrumb />
     </header>
   );
 }

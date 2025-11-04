@@ -181,7 +181,7 @@ export function ContractDetails({
             <label className="text-sm font-medium text-muted-foreground">
               {t("notes")}
             </label>
-            <p className="text-base mt-1 whitespace-pre-wrap">
+            <p className="text-base mt-1 whitespace-pre-wrap break-words">
               {contract.notes}
             </p>
           </div>

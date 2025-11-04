@@ -5,7 +5,7 @@ interface StaticNavProps {
   className?: string;
 }
 
-export async function StaticNav({ className }: StaticNavProps) {
+export async function DesktopNav({ className }: StaticNavProps) {
   const t = await getTranslations("Navigation");
   const locale = await getLocale();
 
@@ -29,24 +29,24 @@ export async function StaticNav({ className }: StaticNavProps) {
       >
         {t("contracts")}
       </Link>
-      <Link
+      {/* <Link
         href={`/${locale}/transfers`}
         className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground cursor-pointer"
       >
         {t("transfers")}
-      </Link>
+      </Link> */}
       <Link
         href={`/${locale}/match-simulation`}
         className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground cursor-pointer"
       >
         {t("matchSimulation")}
       </Link>
-      <Link
+      {/* <Link
         href={`/${locale}/statistics`}
         className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground cursor-pointer"
       >
         {t("statistics")}
-      </Link>
+      </Link> */}
     </nav>
   );
 }

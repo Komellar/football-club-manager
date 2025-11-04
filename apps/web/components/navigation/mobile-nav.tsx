@@ -3,7 +3,13 @@
 import { useState } from "react";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
 import Link from "next/link";
 
 import { usePathname } from "next/navigation";
@@ -14,11 +20,7 @@ const navigationItems = [
   { href: "/dashboard", key: "dashboard" },
   { href: "/players", key: "players" },
   { href: "/contracts", key: "contracts" },
-  { href: "/transfers", key: "transfers" },
   { href: "/match-simulation", key: "matchSimulation" },
-  { href: "/expenses", key: "expenses" },
-  { href: "/revenues", key: "revenues" },
-  { href: "/reports", key: "reports" },
 ];
 
 export function MobileNav() {
@@ -34,10 +36,14 @@ export function MobileNav() {
           className="mr-2 px-0 text-base hover:bg-transparent focus-visible:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 md:hidden"
         >
           <Menu className="h-5 w-5" />
-          <span className="sr-only">Toggle Menu</span>
+          <span className="sr-only">{t("toggleMenu")}</span>
         </Button>
       </SheetTrigger>
       <SheetContent side="left" className="pr-0">
+        <SheetTitle className="sr-only">{t("navigation")}</SheetTitle>
+        <SheetDescription className="sr-only">
+          {t("navigation")}
+        </SheetDescription>
         <div className="px-7">
           <Link
             href="/dashboard"

@@ -1,6 +1,7 @@
 {
   "Navigation": {
     "dashboard": "Panel",
+    "toggleMenu": "Abrir menú",
     "players": "Jugadores",
     "transfers": "Traspasos",
     "contracts": "Contratos",
@@ -12,9 +13,9 @@
     "language": "Idioma",
     "expenses": "Gastos",
     "revenues": "Ingresos",
-    "reports": "Informes",
     "new": "Nuevo",
-    "edit": "Editar"
+    "edit": "Editar",
+    "navigation": "Navegación"
   },
   "Auth": {
     "login": "Iniciar Sesión",
@@ -363,7 +364,7 @@
     "quickLinks": "Enlaces Rápidos",
     "dashboard": "Tablero",
     "players": "Jugadores",
-    "reports": "Informes",
+    "contracts": "Contratos",
     "support": "Soporte",
     "helpCenter": "Centro de Ayuda",
     "contactUs": "Contáctanos",
@@ -373,7 +374,6 @@
     "termsOfService": "Términos de Servicio",
     "cookiePolicy": "Política de Cookies",
     "copyright": "© {year} Administrador de Club de Fútbol. Todos los derechos reservados.",
-    "status": "Estado",
     "api": "API"
   },
   "TablePagination": {

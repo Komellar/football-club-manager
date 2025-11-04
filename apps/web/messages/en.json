@@ -1,6 +1,7 @@
 {
   "Navigation": {
     "dashboard": "Dashboard",
+    "toggleMenu": "Toggle Menu",
     "players": "Players",
     "transfers": "Transfers",
     "contracts": "Contracts",
@@ -12,9 +13,9 @@
     "language": "Language",
     "expenses": "Expenses",
     "revenues": "Revenues",
-    "reports": "Reports",
     "new": "New",
-    "edit": "Edit"
+    "edit": "Edit",
+    "navigation": "Navigation"
   },
   "Auth": {
     "login": "Login",
@@ -363,8 +364,8 @@
     "quickLinks": "Quick Links",
     "dashboard": "Dashboard",
     "players": "Players",
-    "reports": "Reports",
     "support": "Support",
+    "contracts": "Contracts",
     "helpCenter": "Help Center",
     "contactUs": "Contact Us",
     "documentation": "Documentation",
@@ -373,7 +374,6 @@
     "termsOfService": "Terms of Service",
     "cookiePolicy": "Cookie Policy",
     "copyright": "© {year} Football Club Manager. All rights reserved.",
-    "status": "Status",
     "api": "API"
   },
   "TablePagination": {
