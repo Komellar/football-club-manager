@@ -2,11 +2,13 @@
 
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "@/features/auth/store/auth-slice";
+import matchEventsReducer from "@/features/match-events/store/match-events-slice";
 
 export const makeStore = () => {
   return configureStore({
     reducer: {
       auth: authReducer,
+      matchEvents: matchEventsReducer,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({

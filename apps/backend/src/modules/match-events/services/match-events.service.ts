@@ -132,7 +132,6 @@ export class MatchEventsService {
       matchState.events.push(event);
       this.broadcastMatchEvent(matchState.matchId, {
         event,
-        score: matchState.score,
       });
     }
   }
@@ -172,7 +171,6 @@ export class MatchEventsService {
     matchState.events.push(event);
     this.broadcastMatchEvent(matchState.matchId, {
       event,
-      score: matchState.score,
     });
   }
 }

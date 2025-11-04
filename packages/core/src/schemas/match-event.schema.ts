@@ -21,13 +21,11 @@ export const MatchEventSchema = z.object({
   teamId: z.number().int().positive(),
   teamName: z.string().min(1),
   player: MatchEventPlayerSchema.optional(),
-  relatedPlayer: MatchEventPlayerSchema.optional(), // For substitutions or assists
   metadata: z.record(z.string(), z.unknown()).optional(), // Additional event-specific data
 });
 
 export const BroadcastMatchEventSchema = z.object({
   event: MatchEventSchema,
-  score: ScoreSchema,
 });
 
 export const SubscribeToMatchSchema = z.object({

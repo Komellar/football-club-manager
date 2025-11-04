@@ -71,17 +71,9 @@ export class MatchEventsGateway
     data: SubscribeToMatch,
     @ConnectedSocket() client: Socket,
   ) {
-    try {
-      this.matchEventsService.subscribeToMatch(client.id, data.matchId);
-      await client.join(`match:${data.matchId}`);
-      return { success: true, message: `Subscribed to match ${data.matchId}` };
-    } catch (error) {
-      this.logger.error(
-        `Error subscribing client ${client.id} to match ${data.matchId}:`,
-        error,
-      );
-      throw new WsException('Failed to subscribe to match');
-    }
+    this.matchEventsService.subscribeToMatch(client.id, data.matchId);
+    await client.join(`match:${data.matchId}`);
+    return { success: true, message: `Subscribed to match ${data.matchId}` };
   }
 
   @SubscribeMessage(MatchEventsSocketMessage.UNSUBSCRIBE_FROM_MATCH)
@@ -90,47 +82,27 @@ export class MatchEventsGateway
     data: UnsubscribeFromMatch,
     @ConnectedSocket() client: Socket,
   ) {
-    try {
-      this.matchEventsService.unsubscribeFromMatch(client.id, data.matchId);
-      await client.leave(`match:${data.matchId}`);
-      return {
-        success: true,
-        message: `Unsubscribed from match ${data.matchId}`,
-      };
-    } catch (error) {
-      this.logger.error(
-        `Error unsubscribing client ${client.id} from match ${data.matchId}:`,
-        error,
-      );
-      throw new WsException('Failed to unsubscribe from match');
-    }
+    this.matchEventsService.unsubscribeFromMatch(client.id, data.matchId);
+    await client.leave(`match:${data.matchId}`);
+    return {
+      success: true,
+      message: `Unsubscribed from match ${data.matchId}`,
+    };
   }
 
   @SubscribeMessage(MatchEventsSocketMessage.START_MATCH)
   handleStartMatch(
     @MessageBody(new WsValidationPipe(StartMatchSchema)) data: StartMatch,
   ) {
-    try {
-      if (this.matchEventsService.isMatchActive(data.matchId)) {
-        throw new WsException(`Match ${data.matchId} is already in progress`);
-      }
-
-      this.matchEventsService.startMatchSimulation(data);
-
-      return {
-        success: true,
-        message: `Match ${data.matchId} simulation started`,
-      };
-    } catch (error) {
-      this.logger.error(
-        `Error starting match ${data.matchId}:`,
-        error instanceof Error ? error.message : error,
-      );
-      throw new WsException(
-        error instanceof Error
-          ? error.message
-          : 'Failed to start match simulation',
-      );
+    if (this.matchEventsService.isMatchActive(data.matchId)) {
+      throw new WsException(`Match ${data.matchId} is already in progress`);
     }
+
+    this.matchEventsService.startMatchSimulation(data);
+
+    return {
+      success: true,
+      message: `Match ${data.matchId} simulation started`,
+    };
   }
 }

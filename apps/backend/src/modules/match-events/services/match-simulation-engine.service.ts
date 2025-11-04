@@ -44,7 +44,7 @@ export class MatchSimulationEngineService {
   generateRandomEvent(matchState: ExtendedMatchSimulationState): MatchEvent {
     const selectedEventType = this.selectRandom();
 
-    // Determine which team (home advantage)
+    // Determine which team
     const isHomeTeam =
       Math.random() < MATCH_SIMULATION_CONFIG.HOME_ADVANTAGE_PROBABILITY;
 
@@ -97,18 +97,32 @@ export class MatchSimulationEngineService {
   }
 
   private selectRandom() {
-    const eventTypes = Object.values(MatchEventType).filter(
-      (type) =>
-        ![
-          MatchEventType.MATCH_START,
-          MatchEventType.MATCH_END,
-          MatchEventType.HALF_TIME,
-        ].includes(type),
-    );
+    // Weighted probability for event types
+    const eventWeights = [
+      { type: MatchEventType.GOAL, weight: 15 },
+      { type: MatchEventType.SHOT_ON_TARGET, weight: 10 },
+      { type: MatchEventType.SHOT_OFF_TARGET, weight: 10 },
+      { type: MatchEventType.CORNER, weight: 8 },
+      { type: MatchEventType.FOUL, weight: 8 },
+      { type: MatchEventType.CARD_YELLOW, weight: 5 },
+      { type: MatchEventType.CARD_RED, weight: 2 },
+      { type: MatchEventType.SUBSTITUTION, weight: 4 },
+      { type: MatchEventType.OFFSIDE, weight: 6 },
+      { type: MatchEventType.PENALTY, weight: 3 },
+    ];
 
-    const randomIndex = Math.floor(Math.random() * eventTypes.length);
+    const totalWeight = eventWeights.reduce((sum, e) => sum + e.weight, 0);
+    const randomValue = Math.random() * totalWeight;
 
-    return eventTypes[randomIndex];
+    let cumulativeWeight = 0;
+    for (const eventWeight of eventWeights) {
+      cumulativeWeight += eventWeight.weight;
+      if (randomValue <= cumulativeWeight) {
+        return eventWeight.type;
+      }
+    }
+
+    return MatchEventType.GOAL;
   }
 
   private generateOpponentPlayer(): MatchEventPlayer {

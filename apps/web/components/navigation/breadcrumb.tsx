@@ -41,10 +41,23 @@ export function Breadcrumb() {
       // Build full path from segments
       const fullPath = `/${pathSegments.slice(0, i + 1).join("/")}`;
 
+      let camelCaseLabel = segment;
+
+      if (segment.includes("-")) {
+        // Convert kebab-case to Camel Case
+        const words = segment.split("-").map((word, index) => {
+          if (index === 0) {
+            return word;
+          }
+          return word.charAt(0).toUpperCase() + word.slice(1);
+        });
+        camelCaseLabel = words.join("");
+      }
+
       // Try to get translation, fallback to capitalized segment
       let label: string;
       try {
-        label = t(segment);
+        label = t(camelCaseLabel);
       } catch {
         label = segment.charAt(0).toUpperCase() + segment.slice(1);
       }

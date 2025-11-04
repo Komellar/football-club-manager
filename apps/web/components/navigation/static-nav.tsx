@@ -36,6 +36,12 @@ export async function StaticNav({ className }: StaticNavProps) {
         {t("transfers")}
       </Link>
       <Link
+        href={`/${locale}/match-simulation`}
+        className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground cursor-pointer"
+      >
+        {t("matchSimulation")}
+      </Link>
+      <Link
         href={`/${locale}/statistics`}
         className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground cursor-pointer"
       >
