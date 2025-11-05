@@ -9,11 +9,11 @@ export function transformToFormValues(
     status: contract.status,
     startDate: new Date(contract.startDate),
     endDate: new Date(contract.endDate),
-    salary: Number(contract.salary),
-    bonuses: Number(contract.bonuses),
-    signOnFee: Number(contract.signOnFee),
-    agentFee: Number(contract.agentFee),
-    releaseClause: Number(contract.releaseClause),
+    salary: contract.salary,
+    bonuses: contract.bonuses,
+    signOnFee: contract.signOnFee,
+    agentFee: contract.agentFee,
+    releaseClause: contract.releaseClause,
     notes: contract.notes || "",
   };
 }

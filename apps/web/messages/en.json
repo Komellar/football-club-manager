@@ -257,7 +257,12 @@
       "loading": "Loading...",
       "notes": "Add any additional notes...",
       "enterPlayerId": "Enter player ID",
-      "searchByPlayerName": "Search by player name..."
+      "searchByPlayerName": "Search by player name...",
+      "enterSalary": "Enter monthly salary",
+      "enterBonuses": "Enter bonuses",
+      "enterSignOnFee": "Enter sign-on fee",
+      "enterAgentFee": "Enter agent fee",
+      "enterReleaseClause": "Enter release clause"
     },
     "descriptions": {
       "monthlySalary": "Monthly Salary",

@@ -7,15 +7,16 @@ import type {
 export function transformToFormValues(
   player: PlayerResponseDto
 ): CreatePlayerDto {
+  console.log("before", player);
   return {
     name: player.name,
     position: player.position,
     dateOfBirth: new Date(player.dateOfBirth),
     country: player.country as ValidCountry,
     height: player.height ?? undefined,
-    weight: Number(player.weight) ?? undefined,
+    weight: player.weight ?? undefined,
     jerseyNumber: player.jerseyNumber ?? undefined,
-    marketValue: Number(player.marketValue) ?? undefined,
+    marketValue: player.marketValue ?? undefined,
     isActive: player.isActive,
     imageUrl: player.imageUrl ?? undefined,
   };

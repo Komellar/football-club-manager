@@ -257,7 +257,12 @@
       "loading": "Cargando...",
       "notes": "Agrega notas adicionales...",
       "enterPlayerId": "Ingresa el ID del jugador",
-      "searchByPlayerName": "Buscar por nombre de jugador..."
+      "searchByPlayerName": "Buscar por nombre de jugador...",
+      "enterSalary": "Ingresa el salario mensual",
+      "enterBonuses": "Ingresa los bonos",
+      "enterSignOnFee": "Ingresa la prima de fichaje",
+      "enterAgentFee": "Ingresa la comisión del agente",
+      "enterReleaseClause": "Ingresa la cláusula de rescisión"
     },
     "descriptions": {
       "monthlySalary": "Monto del salario mensual",

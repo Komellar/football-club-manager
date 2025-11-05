@@ -122,8 +122,8 @@ export function BasicInfo() {
                     }
                     defaultMonth={field.value}
                     captionLayout="dropdown"
-                    startMonth={new Date("1950-01-01")}
-                    endMonth={new Date("2020-12-31")}
+                    startMonth={new Date("1975-01-01")}
+                    endMonth={new Date("2009-12-31")}
                   />
                 </PopoverContent>
               </Popover>

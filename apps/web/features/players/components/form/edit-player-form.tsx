@@ -34,6 +34,8 @@ export function EditPlayerForm({ player }: EditPlayerFormProps) {
     defaultValues: transformToFormValues(player),
   });
 
+  console.log(transformToFormValues(player));
+
   const onSubmit = async (data: CreatePlayerDto) => {
     setServerError(null);
     startTransition(async () => {

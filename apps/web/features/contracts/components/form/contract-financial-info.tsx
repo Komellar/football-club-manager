@@ -35,7 +35,7 @@ export function ContractFinancialInfo() {
               </FormLabel>
               <FormControl>
                 <NumericInput
-                  placeholder="0"
+                  placeholder={t("placeholders.enterSalary")}
                   onValueChange={field.onChange}
                   max={9999999999.99}
                   {...field}
@@ -56,7 +56,7 @@ export function ContractFinancialInfo() {
               <FormLabel>{t("bonuses")}</FormLabel>
               <FormControl>
                 <NumericInput
-                  placeholder="0"
+                  placeholder={t("placeholders.enterBonuses")}
                   onValueChange={field.onChange}
                   max={9999999999.99}
                   {...field}
@@ -79,7 +79,7 @@ export function ContractFinancialInfo() {
               <FormLabel>{t("signOnFee")}</FormLabel>
               <FormControl>
                 <NumericInput
-                  placeholder="0"
+                  placeholder={t("placeholders.enterSignOnFee")}
                   onValueChange={field.onChange}
                   max={9999999999.99}
                   {...field}
@@ -98,7 +98,7 @@ export function ContractFinancialInfo() {
               <FormLabel>{t("agentFee")}</FormLabel>
               <FormControl>
                 <NumericInput
-                  placeholder="0"
+                  placeholder={t("placeholders.enterAgentFee")}
                   onValueChange={field.onChange}
                   max={9999999999.99}
                   {...field}
@@ -119,7 +119,7 @@ export function ContractFinancialInfo() {
               <FormLabel>{t("releaseClause")}</FormLabel>
               <FormControl>
                 <NumericInput
-                  placeholder="0"
+                  placeholder={t("placeholders.enterReleaseClause")}
                   onValueChange={field.onChange}
                   max={9999999999.99}
                   {...field}
