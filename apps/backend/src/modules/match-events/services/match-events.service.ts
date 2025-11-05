@@ -9,6 +9,8 @@ import {
 } from '@repo/core';
 import { MATCH_SIMULATION_CONFIG } from '../constants/match-simulation.constants';
 import { MatchSimulationEngineService } from './match-simulation-engine.service';
+import { MatchStatisticsProcessorService } from '../../statistics/services/match-statistics-processor.service';
+import { getCurrentSeason } from '@/shared/utils/season.helper';
 
 interface ExtendedMatchSimulationState extends MatchSimulationState {
   timer: NodeJS.Timeout | null;
@@ -24,6 +26,7 @@ export class MatchEventsService {
 
   constructor(
     private readonly simulationEngine: MatchSimulationEngineService,
+    private readonly matchStatisticsProcessor: MatchStatisticsProcessorService,
   ) {}
 
   setServer(server: Server) {
@@ -121,7 +124,7 @@ export class MatchEventsService {
     }
 
     if (this.simulationEngine.isMatchEnded(matchState.currentMinute)) {
-      this.endMatch(matchId);
+      void this.endMatch(matchId);
       return;
     }
 
@@ -136,7 +139,7 @@ export class MatchEventsService {
     }
   }
 
-  private endMatch(matchId: number): void {
+  private async endMatch(matchId: number): Promise<void> {
     const matchState = this.activeMatches.get(matchId);
     if (!matchState) return;
 
@@ -158,6 +161,27 @@ export class MatchEventsService {
     };
 
     this.server.to(`match:${matchId}`).emit('matchEnded', matchEnded);
+
+    // Process match events and update player statistics
+    // Only process events for "My Club" (home team) since opponent players don't exist in DB
+    try {
+      const currentSeason = getCurrentSeason();
+      const myClubTeamId = matchState.homeTeam.id;
+      const myClubEvents = matchState.events.filter(
+        (event) => event.teamId === myClubTeamId,
+      );
+
+      await this.matchStatisticsProcessor.processMatchEvents(
+        myClubEvents,
+        currentSeason,
+        matchState.homeTeam.players,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to update player statistics for match ${matchId}`,
+        error,
+      );
+    }
 
     this.activeMatches.delete(matchId);
     this.logger.log(`Match ${matchId} ended and cleaned up`);

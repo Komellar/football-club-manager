@@ -106,7 +106,7 @@ export class MatchSimulationEngineService {
       { type: MatchEventType.FOUL, weight: 8 },
       { type: MatchEventType.CARD_YELLOW, weight: 5 },
       { type: MatchEventType.CARD_RED, weight: 2 },
-      { type: MatchEventType.SUBSTITUTION, weight: 4 },
+      // { type: MatchEventType.SUBSTITUTION, weight: 4 },
       { type: MatchEventType.OFFSIDE, weight: 6 },
       { type: MatchEventType.PENALTY, weight: 3 },
     ];

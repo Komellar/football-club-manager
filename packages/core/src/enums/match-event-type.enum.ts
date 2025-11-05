@@ -2,7 +2,7 @@ export enum MatchEventType {
   GOAL = "goal",
   CARD_YELLOW = "card_yellow",
   CARD_RED = "card_red",
-  SUBSTITUTION = "substitution",
+  // SUBSTITUTION = "substitution",
   SHOT_ON_TARGET = "shot_on_target",
   SHOT_OFF_TARGET = "shot_off_target",
   CORNER = "corner",
