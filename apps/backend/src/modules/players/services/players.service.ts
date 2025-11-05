@@ -67,17 +67,17 @@ export class PlayersService {
     id: number,
     updatePlayerDto: CreatePlayerDto,
   ): Promise<PlayerResponseDto> {
-    const existingPlayer = await this.playerRepository.findOneOrFail({
+    const playerExists = await this.playerRepository.exists({
       where: { id },
     });
 
-    // Check jersey number conflicts if updating jersey number
-    if (
-      updatePlayerDto.jerseyNumber &&
-      updatePlayerDto.jerseyNumber !== existingPlayer.jerseyNumber &&
-      updatePlayerDto.isActive
-    ) {
-      const conflictingPlayer = await this.playerRepository.findOne({
+    if (!playerExists) {
+      throw new BadRequestException(`Player with ID ${id} does not exist`);
+    }
+
+    // Check jersey number conflicts
+    if (updatePlayerDto.jerseyNumber && updatePlayerDto.isActive) {
+      const conflictingPlayer = await this.playerRepository.exists({
         where: {
           jerseyNumber: updatePlayerDto.jerseyNumber,
           isActive: true,
@@ -90,6 +90,9 @@ export class PlayersService {
           `Jersey number ${updatePlayerDto.jerseyNumber} is already taken by another active player`,
         );
       }
+    } else if (!updatePlayerDto.isActive) {
+      // If deactivating player, clear jersey number
+      updatePlayerDto.jerseyNumber = null;
     }
 
     await this.playerRepository.save({

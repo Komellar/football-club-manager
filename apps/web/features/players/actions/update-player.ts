@@ -8,6 +8,10 @@ export async function updatePlayerAction(
   playerId: number,
   playerData: CreatePlayerDto
 ) {
+  if (!playerData.isActive) {
+    delete playerData.jerseyNumber;
+  }
+
   await updatePlayer(playerId, playerData);
 
   revalidatePath("/players");

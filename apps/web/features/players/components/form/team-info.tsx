@@ -1,4 +1,4 @@
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 import { CreatePlayerDto } from "@repo/core";
 import {
   FormControl,
@@ -16,34 +16,38 @@ export function TeamInfo() {
   const { control } = useFormContext<CreatePlayerDto>();
   const t = useTranslations("Players");
 
+  const player = useWatch({ control });
+
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-medium">{t("sections.teamInfo")}</h3>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-        <FormField
-          control={control}
-          name="jerseyNumber"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t("jerseyNumber")}</FormLabel>
-              <FormControl>
-                <NumericInput
-                  placeholder={t("placeholders.enterJerseyNumber")}
-                  onValueChange={field.onChange}
-                  decimalScale={0}
-                  min={1}
-                  max={99}
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription>
-                {t("descriptions.jerseyNumberRange")}
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {player.isActive && (
+          <FormField
+            control={control}
+            name="jerseyNumber"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t("jerseyNumber")}</FormLabel>
+                <FormControl>
+                  <NumericInput
+                    placeholder={t("placeholders.enterJerseyNumber")}
+                    onValueChange={field.onChange}
+                    decimalScale={0}
+                    min={1}
+                    max={99}
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription>
+                  {t("descriptions.jerseyNumberRange")}
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
 
         <FormField
           control={control}

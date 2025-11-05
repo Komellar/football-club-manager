@@ -46,5 +46,5 @@ export const NATIONALITY_OPTIONS: { value: ValidCountry; label: string }[] = [
 
 export const DEFAULT_FORM_VALUES: Partial<CreatePlayerDto> = {
   name: "",
-  isActive: false,
+  isActive: true,
 };

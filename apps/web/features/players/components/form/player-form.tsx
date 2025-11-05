@@ -27,7 +27,7 @@ export function PlayerForm() {
   });
 
   const onSubmit = async (data: CreatePlayerDto) => {
-    setServerError(null); // Clear previous errors
+    setServerError(null);
     startTransition(async () => {
       try {
         const result = await createPlayerAction(data);

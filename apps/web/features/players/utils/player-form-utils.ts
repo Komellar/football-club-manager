@@ -7,7 +7,6 @@ import type {
 export function transformToFormValues(
   player: PlayerResponseDto
 ): CreatePlayerDto {
-  console.log("before", player);
   return {
     name: player.name,
     position: player.position,
