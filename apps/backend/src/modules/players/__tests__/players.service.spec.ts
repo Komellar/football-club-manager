@@ -254,7 +254,6 @@ describe('PlayersService', () => {
         },
         page: 2,
         limit: 5,
-        order: { name: SortOrder.DESC },
       };
 
       // Act
@@ -277,7 +276,7 @@ describe('PlayersService', () => {
               _value: 'DEU',
             }),
           }),
-          order: undefined,
+          order: { updatedAt: SortOrder.DESC },
           skip: 5,
           take: 5,
         }),
@@ -348,36 +347,35 @@ describe('PlayersService', () => {
   describe('update', () => {
     it('should update a player successfully', async () => {
       // Arrange
-      const existingPlayer = { ...mockPlayer };
       const updatedPlayer = { ...mockPlayer, ...mockUpdatePlayerDto };
 
-      mockRepository.findOneOrFail.mockResolvedValue(existingPlayer); // Check existence
-      mockRepository.findOneOrFail.mockResolvedValue(updatedPlayer); // Get updated player after update
-      mockRepository.update.mockResolvedValue({ affected: 1 });
+      mockRepository.exists
+        .mockResolvedValueOnce(true) // Player exists check
+        .mockResolvedValueOnce(false); // No jersey conflict
+      mockRepository.save.mockResolvedValue(updatedPlayer);
+      mockRepository.findOneOrFail.mockResolvedValue(updatedPlayer); // Get updated player
 
       // Act
       const result = await service.update(1, mockUpdatePlayerDto);
 
       // Assert
-      expect(mockRepository.findOneOrFail).toHaveBeenCalledWith({
+      expect(mockRepository.exists).toHaveBeenCalledWith({
         where: { id: 1 },
       });
       expect(mockRepository.save).toHaveBeenCalledWith({
-        id: 1,
         ...mockUpdatePlayerDto,
+        id: 1,
       });
       expect(result).toEqual(updatedPlayer);
     });
 
-    it('should throw EntityNotFoundError if player not found', async () => {
+    it('should throw BadRequestException if player not found', async () => {
       // Arrange
-      mockRepository.findOneOrFail.mockRejectedValue(
-        new EntityNotFoundError(Player, { id: 1 }),
-      );
+      mockRepository.exists.mockResolvedValue(false);
 
       // Act & Assert
       await expect(service.update(1, mockUpdatePlayerDto)).rejects.toThrow(
-        EntityNotFoundError,
+        new BadRequestException('Player with ID 1 does not exist'),
       );
     });
 
@@ -385,18 +383,19 @@ describe('PlayersService', () => {
       // Arrange
       const updateWithJerseyDto = { ...mockUpdatePlayerDto, jerseyNumber: 11 };
       const existingPlayer = { ...mockPlayer, jerseyNumber: 10 };
+      const updatedPlayer = { ...existingPlayer, ...updateWithJerseyDto };
 
-      mockRepository.findOneOrFail.mockResolvedValue(existingPlayer); // Existing player check
-      mockRepository.findOne
-        .mockResolvedValueOnce(null) // No conflicting player
-        .mockResolvedValueOnce({ ...existingPlayer, ...updateWithJerseyDto }); // Updated player
-      mockRepository.update.mockResolvedValue({ affected: 1 });
+      mockRepository.exists
+        .mockResolvedValueOnce(true) // Player exists
+        .mockResolvedValueOnce(false); // No conflicting player
+      mockRepository.save.mockResolvedValue(updatedPlayer);
+      mockRepository.findOneOrFail.mockResolvedValue(updatedPlayer); // Updated player
 
       // Act
       const result = await service.update(1, updateWithJerseyDto);
 
       // Assert
-      expect(mockRepository.findOne).toHaveBeenCalledWith({
+      expect(mockRepository.exists).toHaveBeenCalledWith({
         where: {
           jerseyNumber: updateWithJerseyDto.jerseyNumber,
           isActive: true,
@@ -409,11 +408,10 @@ describe('PlayersService', () => {
     it('should throw BadRequestException if jersey number is taken by another player', async () => {
       // Arrange
       const updateWithJerseyDto = { ...mockUpdatePlayerDto, jerseyNumber: 11 };
-      const existingPlayer = { ...mockPlayer, jerseyNumber: 10 };
-      const conflictingPlayer = { ...mockPlayer, id: 2, jerseyNumber: 11 };
 
-      mockRepository.findOneOrFail.mockResolvedValue(existingPlayer); // Existing player check
-      mockRepository.findOne.mockResolvedValue(conflictingPlayer); // Conflicting player found
+      mockRepository.exists
+        .mockResolvedValueOnce(true) // Player exists
+        .mockResolvedValueOnce(true); // Conflicting player found
 
       // Act & Assert
       await expect(service.update(1, updateWithJerseyDto)).rejects.toThrow(

@@ -10,6 +10,7 @@ import {
   CreatePlayerStatisticsDto,
   UpdatePlayerStatisticsDto,
   PlayerStatisticsQueryDto,
+  SortOrder,
 } from '@repo/core';
 
 // Mock data
@@ -164,7 +165,7 @@ describe('PlayerStatisticsService', () => {
             _value: '2023-24',
           }),
         },
-        order: undefined,
+        order: { updatedAt: SortOrder.DESC },
         skip: 0,
         take: 10,
       });
@@ -188,7 +189,7 @@ describe('PlayerStatisticsService', () => {
             _value: '2023-24',
           }),
         },
-        order: undefined,
+        order: { updatedAt: SortOrder.DESC },
         skip: 0,
         take: 10,
       });

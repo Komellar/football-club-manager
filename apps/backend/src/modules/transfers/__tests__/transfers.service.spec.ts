@@ -6,7 +6,12 @@ import { BadRequestException } from '@nestjs/common';
 import { TransfersService } from '../services/transfers.service';
 import { Transfer } from '@/shared/entities/transfer.entity';
 import { Player } from '@/shared/entities/player.entity';
-import { TransferStatus, TransferType, PlayerPosition } from '@repo/core';
+import {
+  TransferStatus,
+  TransferType,
+  PlayerPosition,
+  SortOrder,
+} from '@repo/core';
 import type {
   CreateTransferDto,
   UpdateTransferDto,
@@ -281,6 +286,7 @@ describe('TransfersService', () => {
         where: {},
         skip: 5, // (page 2 - 1) * limit 5
         take: 5,
+        order: { updatedAt: SortOrder.DESC },
       });
 
       expect(result.pagination).toEqual({
@@ -341,7 +347,7 @@ describe('TransfersService', () => {
               _value: 100000000,
             }),
           }),
-          order: undefined,
+          order: { updatedAt: SortOrder.DESC },
           skip: 0,
           take: 10,
         }),
