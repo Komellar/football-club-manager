@@ -5,7 +5,7 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import { Player } from '@/shared/entities/player.entity';
 import { ListQueryBuilder } from '@/shared/query/list-query-builder';
-import { FilterOptions, FilterMode } from '@repo/core';
+import { FilterOptions, FilterMode, PlayerPosition } from '@repo/core';
 import type {
   CreatePlayerDto,
   PlayerResponseDto,
@@ -151,5 +151,31 @@ export class PlayersService {
     return await this.playerRepository.findOneOrFail({
       where: { id },
     });
+  }
+
+  async getRandomMatchSquad(): Promise<PlayerResponseDto[]> {
+    const [goalkeepers, defenders, midfielders, forwards] = await Promise.all([
+      this.getRandomPlayersByPosition(PlayerPosition.GOALKEEPER, 1),
+      this.getRandomPlayersByPosition(PlayerPosition.DEFENDER, 4),
+      this.getRandomPlayersByPosition(PlayerPosition.MIDFIELDER, 3),
+      this.getRandomPlayersByPosition(PlayerPosition.FORWARD, 3),
+    ]);
+
+    return [...goalkeepers, ...defenders, ...midfielders, ...forwards];
+  }
+
+  private async getRandomPlayersByPosition(
+    position: PlayerPosition,
+    count: number,
+  ): Promise<PlayerResponseDto[]> {
+    const players = await this.playerRepository
+      .createQueryBuilder('player')
+      .where('player.position = :position', { position })
+      .andWhere('player.isActive = :isActive', { isActive: true })
+      .orderBy('RANDOM()')
+      .limit(count)
+      .getMany();
+
+    return players;
   }
 }

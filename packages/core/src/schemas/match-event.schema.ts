@@ -39,7 +39,7 @@ export const StartMatchSchema = z.object({
   homeTeam: z.object({
     id: z.number().int().positive(),
     name: z.string().min(1),
-    players: z.array(MatchEventPlayerSchema).min(1),
+    players: z.array(MatchEventPlayerSchema).length(11),
   }),
   awayTeam: z.object({
     id: z.number().int().positive(),

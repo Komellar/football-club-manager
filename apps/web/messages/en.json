@@ -415,6 +415,7 @@
     "away": "Away",
     "events": "Events",
     "noEvents": "No events yet",
+    "failedToStartMatch": "Failed to start match. Please try again.",
     "timeline": "Timeline",
     "score": "Score",
     "connectionStatus": "Connection Status",

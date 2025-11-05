@@ -3,7 +3,11 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useAppSelector } from "@/store/hooks";
-import { matchEventsSocket, MatchStatsCard } from "@/features/match-events";
+import {
+  matchEventsSocket,
+  MatchStatsCard,
+  setError,
+} from "@/features/match-events";
 import {
   MatchEventList,
   MatchScoreBoard,
@@ -14,10 +18,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Play, AlertCircle } from "lucide-react";
 import { startMatch } from "@/features/match-events/utils";
+import { store } from "@/store";
 
 export default function MatchSimulationPage() {
   const t = useTranslations("MatchEvents");
   const [isInitialized, setIsInitialized] = useState(false);
+  const [isStartingMatch, setIsStartingMatch] = useState(false);
 
   const { activeMatch, isConnected, isMatchActive, error } = useAppSelector(
     (state) => state.matchEvents
@@ -28,6 +34,18 @@ export default function MatchSimulationPage() {
     matchEventsSocket.connect();
     setIsInitialized(true);
   }, []);
+
+  const handleStartMatch = async () => {
+    try {
+      setIsStartingMatch(true);
+      await startMatch();
+    } catch (error) {
+      console.error("Failed to start match:", error);
+      store.dispatch(setError(t("failedToStartMatch")));
+    } finally {
+      setIsStartingMatch(false);
+    }
+  };
 
   if (!isInitialized) {
     return (
@@ -48,8 +66,8 @@ export default function MatchSimulationPage() {
         </div>
         <div className="flex items-center gap-4">
           <Button
-            onClick={startMatch}
-            disabled={!isConnected || isMatchActive}
+            onClick={handleStartMatch}
+            disabled={!isConnected || isMatchActive || isStartingMatch}
             size="lg"
           >
             <Play className="mr-2 h-5 w-5" />

@@ -7,12 +7,14 @@ import type {
   CreatePlayerDto,
 } from "@repo/core";
 
+const BASE_URL = "/players";
+
 export async function getPlayers(
   params?: Partial<PlayerListDto>
 ): Promise<PaginatedPlayerListResponseDto> {
   try {
     const { data }: AxiosResponse<PaginatedPlayerListResponseDto> =
-      await apiClient.get("/players", {
+      await apiClient.get(BASE_URL, {
         params,
       });
     return data;
@@ -29,7 +31,7 @@ export async function getPlayers(
 export async function getPlayerById(id: number): Promise<PlayerResponseDto> {
   try {
     const { data }: AxiosResponse<PlayerResponseDto> = await apiClient.get(
-      `/players/${id}`
+      `${BASE_URL}/${id}`
     );
     return data;
   } catch (error) {
@@ -47,7 +49,7 @@ export async function createPlayer(
 ): Promise<PlayerResponseDto> {
   try {
     const { data }: AxiosResponse<PlayerResponseDto> = await apiClient.post(
-      "/players",
+      BASE_URL,
       playerData
     );
     return data;
@@ -67,7 +69,7 @@ export async function updatePlayer(
 ): Promise<PlayerResponseDto> {
   try {
     const { data }: AxiosResponse<PlayerResponseDto> = await apiClient.put(
-      `/players/${id}`,
+      `${BASE_URL}/${id}`,
       playerData
     );
     return data;
@@ -83,7 +85,7 @@ export async function updatePlayer(
 
 export async function deletePlayer(id: number): Promise<void> {
   try {
-    await apiClient.delete(`/players/${id}`);
+    await apiClient.delete(`${BASE_URL}/${id}`);
   } catch (error) {
     if (error instanceof AxiosError) {
       const errorMessage =
@@ -91,5 +93,21 @@ export async function deletePlayer(id: number): Promise<void> {
       throw new Error(errorMessage);
     }
     throw new Error("Failed to delete player");
+  }
+}
+
+export async function getRandomMatchSquad(): Promise<PlayerResponseDto[]> {
+  try {
+    const { data }: AxiosResponse<PlayerResponseDto[]> = await apiClient.get(
+      `${BASE_URL}/match-squad`
+    );
+    return data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      const errorMessage =
+        error.response?.data?.message || "Failed to fetch match squad";
+      throw new Error(errorMessage);
+    }
+    throw new Error("Failed to fetch match squad");
   }
 }

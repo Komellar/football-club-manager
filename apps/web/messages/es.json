@@ -415,6 +415,7 @@
     "away": "Visitante",
     "events": "Eventos",
     "noEvents": "Aún no hay eventos",
+    "failedToStartMatch": "Error al iniciar el partido. Por favor, inténtalo de nuevo.",
     "timeline": "Cronología",
     "score": "Marcador",
     "connectionStatus": "Estado de Conexión",

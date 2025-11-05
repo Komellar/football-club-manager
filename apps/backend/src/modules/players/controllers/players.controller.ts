@@ -63,6 +63,12 @@ export class PlayersController {
     return this.playersService.findAll(queryDto);
   }
 
+  @Get('match-squad')
+  @HttpCode(HttpStatus.OK)
+  async getRandomMatchSquad(): Promise<PlayerResponseDto[]> {
+    return this.playersService.getRandomMatchSquad();
+  }
+
   @Get(':id')
   @GetPlayerById()
   async findOne(
