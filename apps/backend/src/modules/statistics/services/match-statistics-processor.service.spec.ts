@@ -8,9 +8,7 @@ describe('MatchStatisticsProcessorService', () => {
   let playerStatisticsService: jest.Mocked<PlayerStatisticsService>;
 
   const mockPlayerStatisticsService = {
-    findByPlayerAndSeason: jest.fn(),
     create: jest.fn(),
-    update: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -38,13 +36,11 @@ describe('MatchStatisticsProcessorService', () => {
 
   describe('processMatchEvents', () => {
     it('should process empty events array without errors', async () => {
-      await service.processMatchEvents([], '2024-2025');
-      expect(
-        playerStatisticsService.findByPlayerAndSeason,
-      ).not.toHaveBeenCalled();
+      await service.processMatchEvents([], '2024-2025', []);
+      expect(playerStatisticsService.create).not.toHaveBeenCalled();
     });
 
-    it('should create new statistics for player without existing stats', async () => {
+    it('should create new statistics for player', async () => {
       const events: MatchEvent[] = [
         {
           id: '1',
@@ -68,45 +64,46 @@ describe('MatchStatisticsProcessorService', () => {
         },
       ];
 
-      playerStatisticsService.findByPlayerAndSeason.mockResolvedValue(null);
+      const allPlayers = [{ id: 1, name: 'Player 1' }];
 
       playerStatisticsService.create.mockResolvedValue({
         id: 1,
         playerId: 1,
         season: '2024-2025',
-        matchesPlayed: 1,
         goals: 1,
         assists: 0,
         yellowCards: 1,
         redCards: 0,
-        minutesPlayed: 0,
-        cleanSheets: 0,
+        minutesPlayed: 90,
         savesMade: 0,
+        goalsConceded: 0,
+        fouls: 0,
+        shotsOffTarget: 0,
+        shotsOnTarget: 0,
         createdAt: new Date(),
         updatedAt: new Date(),
       });
 
-      await service.processMatchEvents(events, '2024-2025');
-
-      expect(
-        playerStatisticsService.findByPlayerAndSeason,
-      ).toHaveBeenCalledWith(1, '2024-2025');
+      await service.processMatchEvents(events, '2024-2025', allPlayers);
 
       expect(playerStatisticsService.create).toHaveBeenCalledWith({
         playerId: 1,
         season: '2024-2025',
-        matchesPlayed: 1,
+        minutesPlayed: 90,
         goals: 1,
         assists: 0,
         yellowCards: 1,
         redCards: 0,
-        minutesPlayed: 0,
-        cleanSheets: 0,
         savesMade: 0,
+        goalsConceded: 0,
+        fouls: 0,
+        shotsOffTarget: 0,
+        shotsOnTarget: 0,
+        rating: undefined,
       });
     });
 
-    it('should update existing statistics for player', async () => {
+    it('should create statistics for all players in squad', async () => {
       const events: MatchEvent[] = [
         {
           id: '1',
@@ -130,41 +127,49 @@ describe('MatchStatisticsProcessorService', () => {
         },
       ];
 
-      const existingStats = {
+      const allPlayers = [
+        { id: 1, name: 'Player 1' },
+        { id: 2, name: 'Player 2' }, // Player without events
+      ];
+
+      playerStatisticsService.create.mockResolvedValue({
         id: 1,
         playerId: 1,
         season: '2024-2025',
-        matchesPlayed: 5,
-        goals: 3,
-        assists: 2,
-        yellowCards: 1,
+        goals: 2,
+        assists: 0,
+        yellowCards: 0,
         redCards: 0,
-        minutesPlayed: 450,
-        cleanSheets: 0,
+        minutesPlayed: 90,
         savesMade: 0,
+        goalsConceded: 0,
+        fouls: 0,
+        shotsOffTarget: 0,
+        shotsOnTarget: 0,
         createdAt: new Date(),
         updatedAt: new Date(),
-      };
+      });
 
-      playerStatisticsService.findByPlayerAndSeason.mockResolvedValue(
-        existingStats,
+      await service.processMatchEvents(events, '2024-2025', allPlayers);
+
+      // Should create statistics for both players
+      expect(playerStatisticsService.create).toHaveBeenCalledTimes(2);
+
+      // Player 1 with 2 goals
+      expect(playerStatisticsService.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          playerId: 1,
+          goals: 2,
+        }),
       );
 
-      playerStatisticsService.update.mockResolvedValue({
-        ...existingStats,
-        matchesPlayed: 6,
-        goals: 5,
-      });
-
-      await service.processMatchEvents(events, '2024-2025');
-
-      expect(playerStatisticsService.update).toHaveBeenCalledWith(1, {
-        matchesPlayed: 6,
-        goals: 5,
-        assists: 2,
-        yellowCards: 1,
-        redCards: 0,
-      });
+      // Player 2 with no events
+      expect(playerStatisticsService.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          playerId: 2,
+          goals: 0,
+        }),
+      );
     });
 
     it('should handle multiple players in same match', async () => {
@@ -191,9 +196,12 @@ describe('MatchStatisticsProcessorService', () => {
         },
       ];
 
-      playerStatisticsService.findByPlayerAndSeason.mockResolvedValue(null);
+      const allPlayers = [
+        { id: 1, name: 'Player 1' },
+        { id: 2, name: 'Player 2' },
+      ];
 
-      await service.processMatchEvents(events, '2024-2025');
+      await service.processMatchEvents(events, '2024-2025', allPlayers);
 
       expect(playerStatisticsService.create).toHaveBeenCalledTimes(2);
     });
@@ -220,12 +228,12 @@ describe('MatchStatisticsProcessorService', () => {
         },
       ];
 
-      await service.processMatchEvents(events, '2024-2025');
+      const allPlayers = [{ id: 1, name: 'Player 1' }];
 
-      expect(
-        playerStatisticsService.findByPlayerAndSeason,
-      ).not.toHaveBeenCalled();
-      expect(playerStatisticsService.create).not.toHaveBeenCalled();
+      await service.processMatchEvents(events, '2024-2025', allPlayers);
+
+      // Should still create stats for player in squad
+      expect(playerStatisticsService.create).toHaveBeenCalledTimes(1);
     });
 
     it('should handle red card events', async () => {
@@ -242,9 +250,9 @@ describe('MatchStatisticsProcessorService', () => {
         },
       ];
 
-      playerStatisticsService.findByPlayerAndSeason.mockResolvedValue(null);
+      const allPlayers = [{ id: 1, name: 'Player 1' }];
 
-      await service.processMatchEvents(events, '2024-2025');
+      await service.processMatchEvents(events, '2024-2025', allPlayers);
 
       expect(playerStatisticsService.create).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -279,7 +287,10 @@ describe('MatchStatisticsProcessorService', () => {
         },
       ];
 
-      playerStatisticsService.findByPlayerAndSeason.mockResolvedValue(null);
+      const allPlayers = [
+        { id: 1, name: 'Player 1' },
+        { id: 2, name: 'Player 2' },
+      ];
 
       playerStatisticsService.create
         .mockRejectedValueOnce(new Error('Database error'))
@@ -287,19 +298,21 @@ describe('MatchStatisticsProcessorService', () => {
           id: 2,
           playerId: 2,
           season: '2024-2025',
-          matchesPlayed: 1,
           goals: 1,
           assists: 0,
           yellowCards: 0,
           redCards: 0,
-          minutesPlayed: 0,
-          cleanSheets: 0,
+          minutesPlayed: 90,
           savesMade: 0,
+          fouls: 0,
+          goalsConceded: 0,
+          shotsOffTarget: 0,
+          shotsOnTarget: 0,
           createdAt: new Date(),
           updatedAt: new Date(),
         });
 
-      await service.processMatchEvents(events, '2024-2025');
+      await service.processMatchEvents(events, '2024-2025', allPlayers);
 
       expect(playerStatisticsService.create).toHaveBeenCalledTimes(2);
     });

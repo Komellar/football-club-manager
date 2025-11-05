@@ -1,17 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PlayerStatisticsService } from './player-statistics.service';
-import { MatchEvent, MatchEventType } from '@repo/core';
+import {
+  CreatePlayerStatisticsDto,
+  MatchEvent,
+  MatchEventType,
+} from '@repo/core';
 
 /**
  * Statistics calculated from match events for a single player
  */
-interface PlayerMatchStatistics {
-  goals: number;
-  assists: number;
-  yellowCards: number;
-  redCards: number;
-}
-
 @Injectable()
 export class MatchStatisticsProcessorService {
   private readonly logger = new Logger(MatchStatisticsProcessorService.name);
@@ -69,34 +66,11 @@ export class MatchStatisticsProcessorService {
     const stats = this.calculateStatisticsFromEvents(events);
 
     try {
-      const existingStats =
-        await this.playerStatisticsService.findByPlayerAndSeason(
-          playerId,
-          season,
-        );
-
-      if (existingStats) {
-        await this.playerStatisticsService.update(existingStats.id, {
-          matchesPlayed: existingStats.matchesPlayed + 1,
-          goals: existingStats.goals + stats.goals,
-          assists: existingStats.assists + stats.assists,
-          yellowCards: existingStats.yellowCards + stats.yellowCards,
-          redCards: existingStats.redCards + stats.redCards,
-        });
-      } else {
-        await this.playerStatisticsService.create({
-          playerId,
-          season,
-          matchesPlayed: 1,
-          goals: stats.goals,
-          assists: stats.assists,
-          yellowCards: stats.yellowCards,
-          redCards: stats.redCards,
-          minutesPlayed: 0, // TODO: Track minutes played during match
-          cleanSheets: 0, // TODO: Calculate for goalkeepers
-          savesMade: 0, // TODO: Calculate for goalkeepers
-        });
-      }
+      await this.playerStatisticsService.create({
+        playerId,
+        season,
+        ...stats,
+      });
     } catch (error) {
       this.logger.error(
         `Failed to update statistics for player ${playerId}`,
@@ -107,12 +81,25 @@ export class MatchStatisticsProcessorService {
 
   private calculateStatisticsFromEvents(
     events: MatchEvent[],
-  ): PlayerMatchStatistics {
+  ): Omit<CreatePlayerStatisticsDto, 'playerId' | 'season'> {
     return {
+      minutesPlayed: 90, // TODO: Track minutes played during match
       goals: this.countEventsByType(events, MatchEventType.GOAL),
       assists: 0, // TODO: Track assists in match events (needs metadata or assistPlayer field)
       yellowCards: this.countEventsByType(events, MatchEventType.CARD_YELLOW),
       redCards: this.countEventsByType(events, MatchEventType.CARD_RED),
+      savesMade: 0, // TODO: Calculate for goalkeepers
+      goalsConceded: 0, // TODO: Calculate for goalkeepers
+      fouls: this.countEventsByType(events, MatchEventType.FOUL),
+      shotsOffTarget: this.countEventsByType(
+        events,
+        MatchEventType.SHOT_OFF_TARGET,
+      ),
+      shotsOnTarget: this.countEventsByType(
+        events,
+        MatchEventType.SHOT_ON_TARGET,
+      ),
+      rating: undefined, // TODO: Generate rating based on performance
     };
   }
 

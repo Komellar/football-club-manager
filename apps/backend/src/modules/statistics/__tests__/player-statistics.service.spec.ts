@@ -35,14 +35,16 @@ const mockStatistics = {
 const mockCreateDto: CreatePlayerStatisticsDto = {
   playerId: 1,
   season: '2023-24',
-  matchesPlayed: 30,
   minutesPlayed: 2700,
   goals: 15,
   assists: 8,
   yellowCards: 3,
   redCards: 0,
-  cleanSheets: 0,
   savesMade: 0,
+  fouls: 0,
+  shotsOffTarget: 0,
+  shotsOnTarget: 0,
+  goalsConceded: 0,
   rating: 8.5,
 };
 

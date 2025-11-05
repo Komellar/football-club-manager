@@ -24,9 +24,6 @@ export class PlayerStatistics {
   @Column({ type: 'varchar', length: 9, comment: 'Format: 2023-2024' })
   season: string;
 
-  @Column({ type: 'int', default: 0, name: 'matches_played' })
-  matchesPlayed: number;
-
   @Column({ type: 'int', default: 0, name: 'minutes_played' })
   minutesPlayed: number;
 
@@ -42,11 +39,20 @@ export class PlayerStatistics {
   @Column({ type: 'int', default: 0, name: 'red_cards' })
   redCards: number;
 
-  @Column({ type: 'int', default: 0, name: 'clean_sheets' })
-  cleanSheets: number;
-
   @Column({ type: 'int', default: 0, name: 'saves_made' })
   savesMade: number;
+
+  @Column({ type: 'int', default: 0, name: 'goals_conceded' })
+  goalsConceded: number;
+
+  @Column({ type: 'int', default: 0, name: 'shots_on_target' })
+  shotsOnTarget: number;
+
+  @Column({ type: 'int', default: 0, name: 'shots_off_target' })
+  shotsOffTarget: number;
+
+  @Column({ type: 'int', default: 0, name: 'fouls' })
+  fouls: number;
 
   @Column({
     type: 'decimal',
@@ -60,20 +66,6 @@ export class PlayerStatistics {
     },
   })
   rating?: number;
-
-  @Column({
-    type: 'decimal',
-    precision: 3,
-    scale: 1,
-    nullable: true,
-    name: 'average_rating',
-    comment: 'Average rating from 1.0 to 10.0 (e.g., 6.8)',
-    transformer: {
-      to: (value: number | null) => value,
-      from: (value: string | null) => (value ? parseFloat(value) : null),
-    },
-  })
-  averageRating?: number;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

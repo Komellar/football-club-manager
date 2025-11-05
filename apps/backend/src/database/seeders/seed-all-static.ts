@@ -246,51 +246,49 @@ async function seedDatabase() {
     const statistics: PlayerStatistics[] = [];
     const activePlayers = players.filter((p) => p.isActive);
 
-    const seasons = [
-      '2020-2021',
-      '2021-2022',
-      '2022-2023',
-      '2023-2024',
-      '2024-2025',
-    ];
-
     // Generate stats only for active players
     for (const player of activePlayers) {
       // Each player gets stats for 2 recent seasons
       for (let i = 3; i < 5; i++) {
-        const season = seasons[i];
-        const matchesPlayed =
-          player.position === PlayerPosition.GOALKEEPER ? 30 : 35;
-        const minutesPlayed = matchesPlayed * 80;
+        const season = '2024-2025';
+        const minutesPlayed = Math.floor(Math.random() * 31) + 60; // 60-90 minutes
 
         const stats = new PlayerStatistics();
         stats.playerId = player.id;
         stats.season = season;
-        stats.matchesPlayed = matchesPlayed;
         stats.minutesPlayed = minutesPlayed;
 
         // Position-based stats
         if (player.position === PlayerPosition.FORWARD) {
-          stats.goals = 15;
-          stats.assists = 8;
+          stats.goals = Math.random() > 0.7 ? 1 : 0; // 30% chance of scoring
+          stats.assists = Math.random() > 0.8 ? 1 : 0; // 20% chance of assist
+          stats.shotsOnTarget = Math.floor(Math.random() * 4) + 1; // 1-4
+          stats.shotsOffTarget = Math.floor(Math.random() * 3); // 0-2
         } else if (player.position === PlayerPosition.MIDFIELDER) {
-          stats.goals = 6;
-          stats.assists = 10;
+          stats.goals = Math.random() > 0.85 ? 1 : 0; // 15% chance of scoring
+          stats.assists = Math.random() > 0.7 ? 1 : 0; // 30% chance of assist
+          stats.shotsOnTarget = Math.floor(Math.random() * 3); // 0-2
+          stats.shotsOffTarget = Math.floor(Math.random() * 2); // 0-1
         } else if (player.position === PlayerPosition.DEFENDER) {
-          stats.goals = 2;
-          stats.assists = 3;
+          stats.goals = Math.random() > 0.95 ? 1 : 0; // 5% chance of scoring
+          stats.assists = Math.random() > 0.9 ? 1 : 0; // 10% chance of assist
+          stats.shotsOnTarget = Math.floor(Math.random() * 2); // 0-1
+          stats.shotsOffTarget = Math.floor(Math.random() * 2); // 0-1
         } else {
           // Goalkeeper
           stats.goals = 0;
           stats.assists = 0;
-          stats.cleanSheets = 12;
-          stats.savesMade = 95;
+          stats.savesMade = Math.floor(Math.random() * 6) + 2; // 2-7 saves
+          stats.goalsConceded = Math.floor(Math.random() * 3); // 0-2 goals conceded
+          stats.shotsOnTarget = 0;
+          stats.shotsOffTarget = 0;
         }
 
-        stats.yellowCards = 3;
-        stats.redCards = 0;
-        stats.rating = 7.5;
-        stats.averageRating = 7.5;
+        // Cards (per match): 0-1 yellow, 0-1 red (rare)
+        stats.yellowCards = Math.random() > 0.8 ? 1 : 0; // 20% chance
+        stats.redCards = Math.random() > 0.98 ? 1 : 0; // 2% chance
+        stats.fouls = Math.floor(Math.random() * 4); // 0-3 fouls
+        stats.rating = Math.floor((Math.random() * 3 + 6) * 10) / 10; // 6.0-9.0
 
         statistics.push(stats);
       }

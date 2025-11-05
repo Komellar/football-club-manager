@@ -47,15 +47,6 @@ export class PlayerStatisticsService {
     });
   }
 
-  async findByPlayerAndSeason(
-    playerId: number,
-    season: string,
-  ): Promise<PlayerStatisticsResponseDto | null> {
-    return await this.statisticsRepository.findOne({
-      where: { playerId, season },
-    });
-  }
-
   async update(
     id: number,
     updateStatisticsDto: UpdatePlayerStatisticsDto,
