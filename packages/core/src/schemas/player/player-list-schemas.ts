@@ -12,6 +12,9 @@ export const PLAYER_SORT_COLUMNS = [
   "position",
   "marketValue",
   "createdAt",
+  "updatedAt",
+  "country",
+  "jerseyNumber",
 ] as const;
 export type PlayerSortColumn = (typeof PLAYER_SORT_COLUMNS)[number];
 

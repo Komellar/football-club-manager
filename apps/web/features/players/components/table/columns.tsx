@@ -59,14 +59,14 @@ export const createPlayerColumns = (
     },
     {
       accessorKey: "country",
-      header: t("country"),
+      header: createSortableHeader("country", "country"),
       cell: ({ row }) => {
         return <div>{row.getValue("country")}</div>;
       },
     },
     {
       accessorKey: "jerseyNumber",
-      header: t("jerseyNumber"),
+      header: createSortableHeader("jerseyNumber", "jerseyNumber"),
       cell: ({ row }) => {
         const jerseyNumber = row.getValue("jerseyNumber") as number | undefined;
         return <div>{jerseyNumber ? `#${jerseyNumber}` : "-"}</div>;

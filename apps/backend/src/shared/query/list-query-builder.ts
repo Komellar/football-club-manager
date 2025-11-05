@@ -31,6 +31,8 @@ export class ListQueryBuilder {
   private static readonly DEFAULT_PAGE = 1;
   private static readonly DEFAULT_LIMIT = 10;
   private static readonly DEFAULT_FILTER_MODE = FilterMode.PARTIAL;
+  private static readonly DEFAULT_SORT_BY = 'updatedAt';
+  private static readonly DEFAULT_SORT_ORDER = SortOrder.DESC;
 
   static async executeQuery<T extends ObjectLiteral, Q>(
     repository: Repository<T>,
@@ -296,7 +298,7 @@ export class ListQueryBuilder {
     sort?: SortParams,
   ): Record<string, SortOrder> | undefined {
     if (!sort?.by) {
-      return undefined;
+      return { [this.DEFAULT_SORT_BY]: this.DEFAULT_SORT_ORDER };
     }
 
     return { [sort.by]: sort.order || SortOrder.ASC };
