@@ -4,6 +4,7 @@ import {
   MatchEventPlayer,
   MatchEventType,
   MatchSimulationState,
+  PlayerPosition,
 } from '@repo/core';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -146,6 +147,7 @@ export class MatchSimulationEngineService {
     return {
       id: Math.floor(Math.random() * 1000) + OPPONENT_PLAYER_ID_OFFSET,
       name: `Opponent Player ${Math.floor(Math.random() * 11) + 1}`,
+      position: PlayerPosition.FORWARD,
     };
   }
 

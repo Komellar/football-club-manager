@@ -16,14 +16,27 @@ export function calculateMatchStats(
     activeMatch.events.filter((e) => e.type === type && e.teamId === teamId)
       .length;
 
+  const homeGoalCount = countEvents(
+    MatchEventType.GOAL,
+    activeMatch.homeTeam.id
+  );
+  const awayGoalCount = countEvents(
+    MatchEventType.GOAL,
+    activeMatch.awayTeam.id
+  );
+
   return {
     goals: {
-      home: countEvents(MatchEventType.GOAL, activeMatch.homeTeam.id),
-      away: countEvents(MatchEventType.GOAL, activeMatch.awayTeam.id),
+      home: homeGoalCount,
+      away: awayGoalCount,
     },
     shotsOnTarget: {
-      home: countEvents(MatchEventType.SHOT_ON_TARGET, activeMatch.homeTeam.id),
-      away: countEvents(MatchEventType.SHOT_ON_TARGET, activeMatch.awayTeam.id),
+      home:
+        countEvents(MatchEventType.SHOT_ON_TARGET, activeMatch.homeTeam.id) +
+        homeGoalCount,
+      away:
+        countEvents(MatchEventType.SHOT_ON_TARGET, activeMatch.awayTeam.id) +
+        awayGoalCount,
     },
     corners: {
       home: countEvents(MatchEventType.CORNER, activeMatch.homeTeam.id),

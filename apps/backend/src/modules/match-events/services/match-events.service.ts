@@ -162,15 +162,10 @@ export class MatchEventsService {
     // Only process events for "My Club" (home team) since opponent players don't exist in DB
     try {
       const currentSeason = getCurrentSeason();
-      const myClubTeamId = matchState.homeTeam.id;
-      const myClubEvents = matchState.events.filter(
-        (event) => event.teamId === myClubTeamId,
-      );
 
       await this.matchStatisticsProcessor.processMatchEvents(
-        myClubEvents,
+        matchState,
         currentSeason,
-        matchState.homeTeam.players,
       );
     } catch (error) {
       this.logger.error(

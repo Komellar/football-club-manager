@@ -11,6 +11,7 @@ export const startMatch = async () => {
     id: player.id,
     name: player.name,
     jerseyNumber: player.jerseyNumber ?? undefined,
+    position: player.position,
   }));
 
   const matchId = Date.now();

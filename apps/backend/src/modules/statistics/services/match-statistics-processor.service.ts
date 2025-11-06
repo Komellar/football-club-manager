@@ -4,6 +4,8 @@ import {
   CreatePlayerStatisticsDto,
   MatchEvent,
   MatchEventType,
+  MatchSimulationState,
+  PlayerPosition,
 } from '@repo/core';
 
 /**
@@ -18,27 +20,47 @@ export class MatchStatisticsProcessorService {
   ) {}
 
   async processMatchEvents(
-    events: MatchEvent[],
+    matchState: MatchSimulationState,
     season: string,
-    allPlayers: Array<{ id: number; name: string }> = [],
   ): Promise<void> {
     try {
-      const playerEventMap = this.groupEventsByPlayer(events);
-      const playerAssistMap = this.groupAssistsByPlayer(events);
+      const myClubEvents = matchState.events.filter(
+        (event) => event.teamId === matchState.homeTeam.id,
+      );
+      const opponentClubEvents = matchState.events.filter(
+        (event) => event.teamId === matchState.awayTeam.id,
+      );
 
-      const allPlayerIds = new Set<number>(
-        allPlayers.map((player) => player.id),
+      const playerEventMap = this.groupEventsByPlayer(myClubEvents);
+      const playerAssistMap = this.groupAssistsByPlayer(myClubEvents);
+
+      const allHomePlayerIds = new Set<number>(
+        matchState.homeTeam.players.map((player) => player.id),
+      );
+
+      // Create a map of player IDs to their positions from the match squad data
+      const playerPositionMap = new Map<number, PlayerPosition>(
+        matchState.homeTeam.players.map((p) => [p.id, p.position]),
+      );
+
+      const savesMade = this.countEventsByType(
+        opponentClubEvents,
+        MatchEventType.SHOT_ON_TARGET,
       );
 
       // Update statistics for each player
-      const updatePromises = Array.from(allPlayerIds).map((playerId) => {
+      const updatePromises = Array.from(allHomePlayerIds).map((playerId) => {
         const playerEvents = playerEventMap.get(playerId) || [];
         const assists = playerAssistMap.get(playerId) || 0;
+        const playerPosition = playerPositionMap.get(playerId);
+        const isGoalkeeper = playerPosition === PlayerPosition.GOALKEEPER;
 
         return this.updatePlayerStatistics(
           playerId,
           playerEvents,
           assists,
+          isGoalkeeper ? matchState.score.away : 0,
+          isGoalkeeper ? savesMade : 0,
           season,
         );
       });
@@ -83,9 +105,16 @@ export class MatchStatisticsProcessorService {
     playerId: number,
     events: MatchEvent[],
     assists: number,
+    goalsConceded: number,
+    savesMade: number,
     season: string,
   ): Promise<void> {
-    const stats = this.calculateStatisticsFromEvents(events, assists);
+    const stats = this.calculateStatisticsFromEvents(
+      events,
+      assists,
+      goalsConceded,
+      savesMade,
+    );
 
     try {
       await this.playerStatisticsService.create({
@@ -104,24 +133,28 @@ export class MatchStatisticsProcessorService {
   private calculateStatisticsFromEvents(
     events: MatchEvent[],
     assists: number,
+    goalsConceded: number,
+    savesMade: number,
   ): Omit<CreatePlayerStatisticsDto, 'playerId' | 'season'> {
     return {
       minutesPlayed: 90, // TODO: Track minutes played during match
       goals: this.countEventsByType(events, MatchEventType.GOAL),
       assists,
       yellowCards: this.countEventsByType(events, MatchEventType.CARD_YELLOW),
-      redCards: this.countEventsByType(events, MatchEventType.CARD_RED),
-      savesMade: 0, // TODO: Calculate for goalkeepers
-      goalsConceded: 0, // TODO: Calculate for goalkeepers
+      redCards:
+        this.countEventsByType(events, MatchEventType.CARD_YELLOW) === 2
+          ? 1
+          : this.countEventsByType(events, MatchEventType.CARD_RED),
+      savesMade,
+      goalsConceded,
       fouls: this.countEventsByType(events, MatchEventType.FOUL),
       shotsOffTarget: this.countEventsByType(
         events,
         MatchEventType.SHOT_OFF_TARGET,
       ),
-      shotsOnTarget: this.countEventsByType(
-        events,
-        MatchEventType.SHOT_ON_TARGET,
-      ),
+      shotsOnTarget:
+        this.countEventsByType(events, MatchEventType.SHOT_ON_TARGET) +
+        this.countEventsByType(events, MatchEventType.GOAL),
       rating: undefined, // TODO: Generate rating based on performance
     };
   }
