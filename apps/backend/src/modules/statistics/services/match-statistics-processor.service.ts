@@ -24,6 +24,7 @@ export class MatchStatisticsProcessorService {
   ): Promise<void> {
     try {
       const playerEventMap = this.groupEventsByPlayer(events);
+      const playerAssistMap = this.groupAssistsByPlayer(events);
 
       const allPlayerIds = new Set<number>(
         allPlayers.map((player) => player.id),
@@ -32,7 +33,14 @@ export class MatchStatisticsProcessorService {
       // Update statistics for each player
       const updatePromises = Array.from(allPlayerIds).map((playerId) => {
         const playerEvents = playerEventMap.get(playerId) || [];
-        return this.updatePlayerStatistics(playerId, playerEvents, season);
+        const assists = playerAssistMap.get(playerId) || 0;
+
+        return this.updatePlayerStatistics(
+          playerId,
+          playerEvents,
+          assists,
+          season,
+        );
       });
 
       await Promise.allSettled(updatePromises);
@@ -58,12 +66,26 @@ export class MatchStatisticsProcessorService {
     return playerEventMap;
   }
 
+  private groupAssistsByPlayer(events: MatchEvent[]): Map<number, number> {
+    const assistMap = new Map<number, number>();
+
+    for (const event of events) {
+      if (event.type === MatchEventType.GOAL && event.relatedPlayer) {
+        const { id: assistId } = event.relatedPlayer;
+        assistMap.set(assistId, (assistMap.get(assistId) || 0) + 1);
+      }
+    }
+
+    return assistMap;
+  }
+
   private async updatePlayerStatistics(
     playerId: number,
     events: MatchEvent[],
+    assists: number,
     season: string,
   ): Promise<void> {
-    const stats = this.calculateStatisticsFromEvents(events);
+    const stats = this.calculateStatisticsFromEvents(events, assists);
 
     try {
       await this.playerStatisticsService.create({
@@ -81,11 +103,12 @@ export class MatchStatisticsProcessorService {
 
   private calculateStatisticsFromEvents(
     events: MatchEvent[],
+    assists: number,
   ): Omit<CreatePlayerStatisticsDto, 'playerId' | 'season'> {
     return {
       minutesPlayed: 90, // TODO: Track minutes played during match
       goals: this.countEventsByType(events, MatchEventType.GOAL),
-      assists: 0, // TODO: Track assists in match events (needs metadata or assistPlayer field)
+      assists,
       yellowCards: this.countEventsByType(events, MatchEventType.CARD_YELLOW),
       redCards: this.countEventsByType(events, MatchEventType.CARD_RED),
       savesMade: 0, // TODO: Calculate for goalkeepers

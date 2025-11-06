@@ -2,7 +2,7 @@
 
 import { io, Socket } from "socket.io-client";
 import type {
-  BroadcastMatchEvent,
+  MatchEvent,
   StartMatch,
   SubscribeToMatch,
   UnsubscribeFromMatch,
@@ -65,7 +65,7 @@ class MatchEventsSocketService {
       }
     });
 
-    this.socket.on("matchEvent", (data: BroadcastMatchEvent) => {
+    this.socket.on("matchEvent", (data: MatchEvent) => {
       store.dispatch(addMatchEvent(data));
 
       const currentState = store.getState();

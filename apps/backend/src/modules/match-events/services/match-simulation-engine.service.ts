@@ -26,6 +26,7 @@ export class MatchSimulationEngineService {
     eventType: MatchEventType,
     isHomeTeam?: boolean,
     player?: MatchEventPlayer | null,
+    relatedPlayer?: MatchEventPlayer | null,
   ): MatchEvent {
     return {
       id: uuidv4(),
@@ -38,26 +39,38 @@ export class MatchSimulationEngineService {
         ? matchState.homeTeam.name
         : matchState.awayTeam.name,
       player: player || undefined,
+      relatedPlayer: relatedPlayer || undefined,
     };
   }
 
   generateRandomEvent(matchState: ExtendedMatchSimulationState): MatchEvent {
     const selectedEventType = this.selectRandom();
 
-    // Determine which team
     const isHomeTeam =
       Math.random() < MATCH_SIMULATION_CONFIG.HOME_ADVANTAGE_PROBABILITY;
 
     const player = this.getPlayerForEvent(matchState, isHomeTeam);
+
+    // For goals, randomly assign an assist (80% chance)
+    let relatedPlayer: MatchEventPlayer | undefined = undefined;
+    if (
+      selectedEventType === MatchEventType.GOAL &&
+      Math.random() < 0.8 &&
+      isHomeTeam
+    ) {
+      const assistPlayer = this.getPlayerForEvent(matchState, true, player.id);
+
+      relatedPlayer = assistPlayer;
+    }
 
     const event = this.createMatchEvent(
       matchState,
       selectedEventType,
       isHomeTeam,
       player,
+      relatedPlayer,
     );
 
-    // Update score and description if goal
     if (selectedEventType === MatchEventType.GOAL) {
       if (isHomeTeam) {
         matchState.score.home++;
@@ -88,9 +101,13 @@ export class MatchSimulationEngineService {
   private getPlayerForEvent(
     matchState: ExtendedMatchSimulationState,
     isHomeTeam: boolean,
-  ): MatchEventPlayer | null {
+    playerIdToExclude?: number,
+  ): MatchEventPlayer {
     if (isHomeTeam) {
-      return this.selectRandomPlayer(matchState.homeTeam.players);
+      return this.selectRandomPlayer(
+        matchState.homeTeam.players,
+        playerIdToExclude,
+      );
     }
     // For away team, generate a random opponent player
     return this.generateOpponentPlayer();
@@ -134,12 +151,17 @@ export class MatchSimulationEngineService {
 
   private selectRandomPlayer(
     players: MatchEventPlayer[],
-  ): MatchEventPlayer | null {
-    if (players.length === 0) {
-      return null;
+    playerIdToExclude?: number,
+  ): MatchEventPlayer {
+    const randomIndex = Math.floor(Math.random() * players.length);
+
+    if (
+      playerIdToExclude !== undefined &&
+      players[randomIndex].id === playerIdToExclude
+    ) {
+      return this.selectRandomPlayer(players, playerIdToExclude);
     }
 
-    const randomIndex = Math.floor(Math.random() * players.length);
     return players[randomIndex];
   }
 }

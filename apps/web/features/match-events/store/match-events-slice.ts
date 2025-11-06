@@ -2,8 +2,8 @@
 
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import {
+  MatchEvent,
   MatchEventType,
-  type BroadcastMatchEvent,
   type MatchSimulationState,
 } from "@repo/core";
 
@@ -38,8 +38,8 @@ const matchEventsSlice = createSlice({
       state.isMatchActive = true;
       state.error = null;
     },
-    addMatchEvent: (state, action: PayloadAction<BroadcastMatchEvent>) => {
-      const { event } = action.payload;
+    addMatchEvent: (state, action: PayloadAction<MatchEvent>) => {
+      const event = action.payload;
       const match = state.activeMatch!;
 
       match.currentMinute = event.minute;

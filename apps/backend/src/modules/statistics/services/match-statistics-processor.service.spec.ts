@@ -316,5 +316,75 @@ describe('MatchStatisticsProcessorService', () => {
 
       expect(playerStatisticsService.create).toHaveBeenCalledTimes(2);
     });
+
+    it('should track assists from goal metadata', async () => {
+      const events: MatchEvent[] = [
+        {
+          id: '1',
+          matchId: 1,
+          type: MatchEventType.GOAL,
+          minute: 10,
+          timestamp: new Date(),
+          teamId: 1,
+          teamName: 'Team A',
+          player: { id: 1, name: 'Player 1', jerseyNumber: 10 },
+          relatedPlayer: {
+            id: 2,
+            name: 'Player 2',
+            jerseyNumber: 9,
+          },
+        },
+        {
+          id: '2',
+          matchId: 1,
+          type: MatchEventType.GOAL,
+          minute: 30,
+          timestamp: new Date(),
+          teamId: 1,
+          teamName: 'Team A',
+          player: { id: 3, name: 'Player 3', jerseyNumber: 7 },
+          relatedPlayer: {
+            id: 2,
+            name: 'Player 2',
+            jerseyNumber: 9,
+          },
+        },
+      ];
+
+      const allPlayers = [
+        { id: 1, name: 'Player 1' },
+        { id: 2, name: 'Player 2' },
+        { id: 3, name: 'Player 3' },
+      ];
+
+      await service.processMatchEvents(events, '2024-2025', allPlayers);
+
+      // Player 1: 1 goal, 0 assists
+      expect(playerStatisticsService.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          playerId: 1,
+          goals: 1,
+          assists: 0,
+        }),
+      );
+
+      // Player 2: 0 goals, 2 assists
+      expect(playerStatisticsService.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          playerId: 2,
+          goals: 0,
+          assists: 2,
+        }),
+      );
+
+      // Player 3: 1 goal, 0 assists
+      expect(playerStatisticsService.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          playerId: 3,
+          goals: 1,
+          assists: 0,
+        }),
+      );
+    });
   });
 });

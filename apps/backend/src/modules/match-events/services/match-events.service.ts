@@ -1,11 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Server } from 'socket.io';
 import {
-  BroadcastMatchEvent,
   MatchEventType,
   StartMatch,
   MatchEnded,
   MatchSimulationState,
+  MatchEvent,
 } from '@repo/core';
 import { MATCH_SIMULATION_CONFIG } from '../constants/match-simulation.constants';
 import { MatchSimulationEngineService } from './match-simulation-engine.service';
@@ -97,7 +97,7 @@ export class MatchEventsService {
     this.logger.log(`Match simulation started for match ${data.matchId}`);
   }
 
-  private broadcastMatchEvent(matchId: number, event: BroadcastMatchEvent) {
+  private broadcastMatchEvent(matchId: number, event: MatchEvent) {
     if (!this.server) {
       this.logger.error('Server not initialized');
       return;
@@ -105,9 +105,7 @@ export class MatchEventsService {
 
     const room = `match:${matchId}`;
     this.server.to(room).emit('matchEvent', event);
-    this.logger.log(
-      `Broadcasted ${event.event.type} event for match ${matchId}`,
-    );
+    this.logger.log(`Broadcasted ${event.type} event for match ${matchId}`);
   }
 
   private simulateMatchTick(matchId: number): void {
@@ -133,9 +131,7 @@ export class MatchEventsService {
       const event = this.simulationEngine.generateRandomEvent(matchState);
 
       matchState.events.push(event);
-      this.broadcastMatchEvent(matchState.matchId, {
-        event,
-      });
+      this.broadcastMatchEvent(matchState.matchId, event);
     }
   }
 
@@ -193,8 +189,6 @@ export class MatchEventsService {
   ): void {
     const event = this.simulationEngine.createMatchEvent(matchState, eventType);
     matchState.events.push(event);
-    this.broadcastMatchEvent(matchState.matchId, {
-      event,
-    });
+    this.broadcastMatchEvent(matchState.matchId, event);
   }
 }
