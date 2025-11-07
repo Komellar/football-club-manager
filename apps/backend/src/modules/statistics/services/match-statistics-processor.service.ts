@@ -136,18 +136,18 @@ export class MatchStatisticsProcessorService {
     goalsConceded: number,
     savesMade: number,
   ): Omit<CreatePlayerStatisticsDto, 'playerId' | 'season'> {
-    return {
+    const stats = {
       minutesPlayed: 90, // TODO: Track minutes played during match
       goals: this.countEventsByType(events, MatchEventType.GOAL),
       assists,
+      savesMade,
+      goalsConceded,
+      fouls: this.countEventsByType(events, MatchEventType.FOUL),
       yellowCards: this.countEventsByType(events, MatchEventType.CARD_YELLOW),
       redCards:
         this.countEventsByType(events, MatchEventType.CARD_YELLOW) === 2
           ? 1
           : this.countEventsByType(events, MatchEventType.CARD_RED),
-      savesMade,
-      goalsConceded,
-      fouls: this.countEventsByType(events, MatchEventType.FOUL),
       shotsOffTarget: this.countEventsByType(
         events,
         MatchEventType.SHOT_OFF_TARGET,
@@ -155,7 +155,11 @@ export class MatchStatisticsProcessorService {
       shotsOnTarget:
         this.countEventsByType(events, MatchEventType.SHOT_ON_TARGET) +
         this.countEventsByType(events, MatchEventType.GOAL),
-      rating: undefined, // TODO: Generate rating based on performance
+    };
+
+    return {
+      ...stats,
+      rating: this.calculateRating(stats),
     };
   }
 
@@ -164,5 +168,23 @@ export class MatchStatisticsProcessorService {
     eventType: MatchEventType,
   ): number {
     return events.filter((event) => event.type === eventType).length;
+  }
+
+  private calculateRating(
+    stats: Omit<CreatePlayerStatisticsDto, 'playerId' | 'season'>,
+  ): number {
+    let rating = 6.0; // Base rating
+    rating +=
+      stats.goals * 1.0 +
+      stats.assists * 0.5 +
+      stats.shotsOnTarget * 0.2 +
+      stats.shotsOffTarget * 0.1 +
+      stats.savesMade * 0.2 -
+      stats.fouls * 0.1 -
+      stats.yellowCards * 0.5 -
+      stats.redCards * 2.0 -
+      stats.goalsConceded * 0.3;
+
+    return Math.min(Math.max(rating, 1.0), 10.0);
   }
 }

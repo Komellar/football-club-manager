@@ -152,7 +152,7 @@ describe('MatchStatisticsProcessorService', () => {
         fouls: 0,
         shotsOffTarget: 0,
         shotsOnTarget: 1, // 1 goal counts as 1 shot on target
-        rating: undefined,
+        rating: 6.7,
       });
     });
 
