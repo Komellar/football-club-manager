@@ -12,10 +12,6 @@ import {
   OPPONENT_PLAYER_ID_OFFSET,
 } from '../constants/match-simulation.constants';
 
-interface ExtendedMatchSimulationState extends MatchSimulationState {
-  timer: NodeJS.Timeout | null;
-}
-
 /**
  * Service responsible for match simulation logic (event generation, scoring, timing)
  * Separated from WebSocket orchestration for better testability and single responsibility
@@ -44,7 +40,7 @@ export class MatchSimulationEngineService {
     };
   }
 
-  generateRandomEvent(matchState: ExtendedMatchSimulationState): MatchEvent {
+  generateRandomEvent(matchState: MatchSimulationState): MatchEvent {
     const selectedEventType = this.selectRandom();
 
     const isHomeTeam =
@@ -100,7 +96,7 @@ export class MatchSimulationEngineService {
   }
 
   private getPlayerForEvent(
-    matchState: ExtendedMatchSimulationState,
+    matchState: MatchSimulationState,
     isHomeTeam: boolean,
     playerIdToExclude?: number,
   ): MatchEventPlayer {

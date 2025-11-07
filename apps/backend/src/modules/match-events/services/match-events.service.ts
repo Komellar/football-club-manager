@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import { Server } from 'socket.io';
 import {
   MatchEventType,
@@ -7,27 +7,43 @@ import {
   MatchSimulationState,
   MatchEvent,
 } from '@repo/core';
+import { interval, Subject, Subscription, takeUntil, tap } from 'rxjs';
 import { MATCH_SIMULATION_CONFIG } from '../constants/match-simulation.constants';
 import { MatchSimulationEngineService } from './match-simulation-engine.service';
 import { MatchStatisticsProcessorService } from '../../statistics/services/match-statistics-processor.service';
 import { getCurrentSeason } from '@/shared/utils/season.helper';
 
 interface ExtendedMatchSimulationState extends MatchSimulationState {
-  timer: NodeJS.Timeout | null;
+  destroy$: Subject<void>;
+  subscription: Subscription | null;
 }
 
 @Injectable()
-export class MatchEventsService {
+export class MatchEventsService implements OnModuleDestroy {
   private server: Server;
   private readonly logger = new Logger(MatchEventsService.name);
 
   private clientSubscriptions: Map<string, Set<number>> = new Map();
   private activeMatches: Map<number, ExtendedMatchSimulationState> = new Map();
+  private matchEvents$ = new Subject<MatchEvent>();
 
   constructor(
     private readonly simulationEngine: MatchSimulationEngineService,
     private readonly matchStatisticsProcessor: MatchStatisticsProcessorService,
   ) {}
+
+  onModuleDestroy() {
+    // Clean up all active matches when service is destroyed
+    this.activeMatches.forEach((matchState) => {
+      matchState.destroy$.next();
+      matchState.destroy$.complete();
+      if (matchState.subscription) {
+        matchState.subscription.unsubscribe();
+      }
+    });
+    this.activeMatches.clear();
+    this.matchEvents$.complete();
+  }
 
   setServer(server: Server) {
     this.server = server;
@@ -69,6 +85,8 @@ export class MatchEventsService {
       throw new Error(`Match ${data.matchId} is already running`);
     }
 
+    const destroy$ = new Subject<void>();
+
     const matchState: ExtendedMatchSimulationState = {
       ...data,
       score: {
@@ -76,7 +94,8 @@ export class MatchEventsService {
         away: 0,
       },
       currentMinute: 0,
-      timer: null,
+      destroy$,
+      subscription: null,
       events: [],
       startTime: new Date(),
     };
@@ -89,23 +108,16 @@ export class MatchEventsService {
       MatchEventType.MATCH_START,
     );
 
-    // Start the simulation timer
-    matchState.timer = setInterval(() => {
-      this.simulateMatchTick(data.matchId);
-    }, MATCH_SIMULATION_CONFIG.TICK_INTERVAL_MS);
+    const subscription = interval(MATCH_SIMULATION_CONFIG.TICK_INTERVAL_MS)
+      .pipe(
+        takeUntil(destroy$),
+        tap(() => {
+          this.simulateMatchTick(data.matchId);
+        }),
+      )
+      .subscribe();
 
-    this.logger.log(`Match simulation started for match ${data.matchId}`);
-  }
-
-  private broadcastMatchEvent(matchId: number, event: MatchEvent) {
-    if (!this.server) {
-      this.logger.error('Server not initialized');
-      return;
-    }
-
-    const room = `match:${matchId}`;
-    this.server.to(room).emit('matchEvent', event);
-    this.logger.log(`Broadcasted ${event.type} event for match ${matchId}`);
+    matchState.subscription = subscription;
   }
 
   private simulateMatchTick(matchId: number): void {
@@ -135,13 +147,27 @@ export class MatchEventsService {
     }
   }
 
+  private broadcastMatchEvent(matchId: number, event: MatchEvent) {
+    if (!this.server) {
+      this.logger.error('Server not initialized');
+      return;
+    }
+
+    const room = `match:${matchId}`;
+    this.server.to(room).emit('matchEvent', event);
+
+    this.matchEvents$.next(event);
+  }
+
   private async endMatch(matchId: number): Promise<void> {
     const matchState = this.activeMatches.get(matchId);
     if (!matchState) return;
 
-    if (matchState.timer) {
-      clearInterval(matchState.timer);
-      matchState.timer = null;
+    // Stop the RxJS interval stream
+    matchState.destroy$.next();
+    matchState.destroy$.complete();
+    if (matchState.subscription) {
+      matchState.subscription.unsubscribe();
     }
 
     this.createAndBroadcastMatchStateTimeEvent(
@@ -149,7 +175,6 @@ export class MatchEventsService {
       MatchEventType.MATCH_END,
     );
 
-    // Broadcast match ended summary
     const matchEnded: MatchEnded = {
       matchId: matchState.matchId,
       score: matchState.score,
@@ -159,7 +184,6 @@ export class MatchEventsService {
     this.server.to(`match:${matchId}`).emit('matchEnded', matchEnded);
 
     // Process match events and update player statistics
-    // Only process events for "My Club" (home team) since opponent players don't exist in DB
     try {
       const currentSeason = getCurrentSeason();
 

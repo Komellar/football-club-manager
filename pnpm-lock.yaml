@@ -81,7 +81,7 @@ importers:
         specifier: ^0.2.2
         version: 0.2.2
       rxjs:
-        specifier: ^7.8.1
+        specifier: ^7.8.2
         version: 7.8.2
       socket.io:
         specifier: ^4.8.1
@@ -300,6 +300,9 @@ importers:
       recharts:
         specifier: 2.15.4
         version: 2.15.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      rxjs:
+        specifier: ^7.8.2
+        version: 7.8.2
       socket.io-client:
         specifier: ^4.8.1
         version: 4.8.1
