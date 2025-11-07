@@ -31,7 +31,7 @@ import {
 class MatchEventsSocketService {
   private socket: Socket | null = null;
   private reconnectAttempts = 0;
-  private maxReconnectAttempts = 3;
+  private readonly MAX_RECONNECT_ATTEMPTS = 3;
   private destroy$ = new Subject<void>();
 
   // Observable streams
@@ -44,6 +44,11 @@ class MatchEventsSocketService {
       return;
     }
 
+    // Reset destroy$ for reconnection scenarios
+    if (this.destroy$.closed) {
+      this.destroy$ = new Subject<void>();
+    }
+
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
     this.socket = io(`${apiUrl}/match-events`, {
@@ -51,7 +56,7 @@ class MatchEventsSocketService {
       reconnection: true,
       reconnectionDelay: 1000,
       reconnectionDelayMax: 5000,
-      reconnectionAttempts: this.maxReconnectAttempts,
+      reconnectionAttempts: this.MAX_RECONNECT_ATTEMPTS,
       withCredentials: true,
     });
 
@@ -131,7 +136,7 @@ class MatchEventsSocketService {
         tap((error) => {
           console.error("Connection error:", error);
           this.reconnectAttempts++;
-          if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+          if (this.reconnectAttempts >= this.MAX_RECONNECT_ATTEMPTS) {
             store.dispatch(
               setError(
                 "Failed to connect to match events server. Please try again."
@@ -143,7 +148,7 @@ class MatchEventsSocketService {
       )
       .subscribe();
 
-    // Subscribers
+    // Auto-subscribe to connection status, events, and errors for state management
     this.connectionStatus$.subscribe();
     this.matchEvents$.subscribe();
     this.errors$.subscribe();
@@ -255,6 +260,7 @@ class MatchEventsSocketService {
     this.matchEvents$ = null;
     this.connectionStatus$ = null;
     this.errors$ = null;
+    this.reconnectAttempts = 0;
   }
 
   isConnected(): boolean {

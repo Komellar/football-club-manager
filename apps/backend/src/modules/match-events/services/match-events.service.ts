@@ -25,7 +25,6 @@ export class MatchEventsService implements OnModuleDestroy {
 
   private clientSubscriptions: Map<string, Set<number>> = new Map();
   private activeMatches: Map<number, ExtendedMatchSimulationState> = new Map();
-  private matchEvents$ = new Subject<MatchEvent>();
 
   constructor(
     private readonly simulationEngine: MatchSimulationEngineService,
@@ -37,12 +36,9 @@ export class MatchEventsService implements OnModuleDestroy {
     this.activeMatches.forEach((matchState) => {
       matchState.destroy$.next();
       matchState.destroy$.complete();
-      if (matchState.subscription) {
-        matchState.subscription.unsubscribe();
-      }
+      matchState.subscription?.unsubscribe();
     });
     this.activeMatches.clear();
-    this.matchEvents$.complete();
   }
 
   setServer(server: Server) {
@@ -111,9 +107,7 @@ export class MatchEventsService implements OnModuleDestroy {
     const subscription = interval(MATCH_SIMULATION_CONFIG.TICK_INTERVAL_MS)
       .pipe(
         takeUntil(destroy$),
-        tap(() => {
-          this.simulateMatchTick(data.matchId);
-        }),
+        tap(() => this.simulateMatchTick(data.matchId)),
       )
       .subscribe();
 
@@ -153,10 +147,7 @@ export class MatchEventsService implements OnModuleDestroy {
       return;
     }
 
-    const room = `match:${matchId}`;
-    this.server.to(room).emit('matchEvent', event);
-
-    this.matchEvents$.next(event);
+    this.server.to(`match:${matchId}`).emit('matchEvent', event);
   }
 
   private async endMatch(matchId: number): Promise<void> {
@@ -166,9 +157,7 @@ export class MatchEventsService implements OnModuleDestroy {
     // Stop the RxJS interval stream
     matchState.destroy$.next();
     matchState.destroy$.complete();
-    if (matchState.subscription) {
-      matchState.subscription.unsubscribe();
-    }
+    matchState.subscription?.unsubscribe();
 
     this.createAndBroadcastMatchStateTimeEvent(
       matchState,
