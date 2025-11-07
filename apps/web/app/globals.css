@@ -33,6 +33,11 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-chart-1: hsl(var(--chart-1));
+  --color-chart-2: hsl(var(--chart-2));
+  --color-chart-3: hsl(var(--chart-3));
+  --color-chart-4: hsl(var(--chart-4));
+  --color-chart-5: hsl(var(--chart-5));
 }
 
 :root {
@@ -43,9 +48,9 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.67 0.15 142);
+  --primary: oklch(0.67 0.15 142.022);
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
+  --secondary: oklch(0.62 0.21 264.6);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
   --muted-foreground: oklch(0.556 0 0);
@@ -56,11 +61,11 @@
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
   --ring: oklch(0.67 0.15 142);
-  --chart-1: 220 70% 50%;
-  --chart-2: 280 65% 60%;
-  --chart-3: 142 71% 45%;
-  --chart-4: 30 80% 55%;
-  --chart-5: 340 75% 55%;
+  --chart-1: oklch(0.62 0.21 264.6);
+  --chart-2: oklch(0.726 0.18 313.2);
+  --chart-3: oklch(0.67 0.15 142);
+  --chart-4: oklch(0.675 0.16 58);
+  --chart-5: oklch(0.675 0.18 340);
 }
 
 .dark {

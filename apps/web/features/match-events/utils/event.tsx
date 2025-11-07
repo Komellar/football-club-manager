@@ -9,7 +9,6 @@ import {
   Clock,
   Trophy,
 } from "lucide-react";
-import { MatchEventType } from "@repo/core";
 
 export const getEventColor = (eventType: string) => {
   switch (eventType) {
@@ -59,14 +58,4 @@ export const getEventIcon = (eventType: string) => {
     default:
       return <Circle className="h-5 w-5 text-gray-400" />;
   }
-};
-
-export const isAllowedToShowTeam = (eventType: MatchEventType) => {
-  const eventsWithoutTeam = [
-    MatchEventType.HALF_TIME,
-    MatchEventType.MATCH_END,
-    MatchEventType.MATCH_START,
-  ];
-
-  return !eventsWithoutTeam.includes(eventType);
 };

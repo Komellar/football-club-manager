@@ -86,16 +86,10 @@ export default function MatchSimulationPage() {
       <ConnectionStatus />
 
       {activeMatch ? (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <MatchScoreBoard />
-          </div>
-
+        <div className="grid grid-cols-1 gap-6">
+          <MatchScoreBoard />
           <MatchStatsCard />
-
-          <div className="lg:col-span-3">
-            <MatchEventList />
-          </div>
+          <MatchEventList />
         </div>
       ) : (
         <Card>

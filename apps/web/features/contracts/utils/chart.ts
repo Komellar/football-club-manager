@@ -5,26 +5,26 @@ import { ChartDataItem } from "@/types/chart";
 export const contractByTypeChartConfig = {
   [ContractType.PERMANENT]: {
     label: "Permanent",
-    color: "hsl(var(--chart-1))",
+    color: "var(--chart-1)",
   },
   [ContractType.LOAN]: {
     label: "Loan",
-    color: "hsl(var(--chart-2))",
+    color: "var(--chart-2)",
   },
   [ContractType.YOUTH]: {
     label: "Youth",
-    color: "hsl(var(--chart-3))",
+    color: "var(--chart-3)",
   },
 } satisfies ChartConfig;
 
 export const expiringContractChartConfig = {
   longTerm: {
     label: "Active",
-    color: "hsl(var(--chart-3))",
+    color: "var(--chart-3)",
   },
   expiring: {
     label: "Expiring Soon",
-    color: "hsl(var(--chart-4))",
+    color: "var(--chart-4)",
   },
 } satisfies ChartConfig;
 
@@ -37,6 +37,6 @@ export function transformContractDataForChart(
     .map(([type, value]) => ({
       type,
       value,
-      fill: chartConfig[type as ContractType]?.color || "hsl(var(--chart-4))",
+      fill: chartConfig[type as ContractType]?.color || "var(--chart-4)",
     }));
 }

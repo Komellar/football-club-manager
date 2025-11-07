@@ -5,7 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAppSelector } from "@/store/hooks";
-import { getEventColor, getEventIcon, isAllowedToShowTeam } from "../utils";
+import { getEventColor, getEventIcon } from "../utils";
+import { cn } from "@/lib/utils";
+import { MatchEventType } from "@repo/core";
 
 export function MatchEventList() {
   const t = useTranslations("MatchEvents");
@@ -47,12 +49,22 @@ export function MatchEventList() {
             {sortedEvents.map((event, index) => (
               <div
                 key={`${event.id}-${index}`}
-                className="flex items-center gap-3 p-3 rounded-lg border bg-card hover:bg-accent/5 transition-colors"
+                className={cn(
+                  "flex items-center gap-3 p-3 rounded-lg border bg-card w-full",
+
+                  event.teamId === activeMatch.homeTeam.id
+                    ? "justify-start bg-primary/5"
+                    : "justify-end bg-secondary/5",
+                  (event.type === MatchEventType.MATCH_START ||
+                    event.type === MatchEventType.HALF_TIME ||
+                    event.type === MatchEventType.MATCH_END) &&
+                    "justify-center bg-purple-100"
+                )}
               >
-                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-muted">
+                <div className="flex items-center justify-center w-12 h-12">
                   {getEventIcon(event.type)}
                 </div>
-                <div className="flex-1 min-w-0">
+                <div className="min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <Badge
                       variant="outline"
@@ -60,17 +72,12 @@ export function MatchEventList() {
                     >
                       {t(`eventTypes.${event.type}`)}
                     </Badge>
-                    <span className="text-sm font-semibold text-muted-foreground">
+                    <span className="text-sm font-semibold">
                       {event.minute}'
                     </span>
                   </div>
-                  {isAllowedToShowTeam(event.type) && (
-                    <div className="text-sm font-medium mb-1">
-                      {event.teamName}
-                    </div>
-                  )}
                   {event.player && (
-                    <div className="text-sm text-muted-foreground">
+                    <div className="text-sm">
                       {event.player.name}
                       {event.player.jerseyNumber && (
                         <span className="ml-1">
