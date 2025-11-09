@@ -159,6 +159,7 @@
     "inactive": "Inactivo",
     "activeContract": "Contrato Activo",
     "contracts": "Contratos",
+    "performance": "Rendimiento",
     "noActiveContract": "No hay contrato activo para este jugador",
     "contractHistory": "Historial de Contratos",
     "clubFinancialSummary": "Resumen Financiero del Club",
@@ -166,7 +167,48 @@
     "monthlyCommitment": "Compromiso Mensual",
     "averageSalary": "Salario Promedio",
     "totalContracts": "Total de Contratos",
-    "upcomingExpiries": "Vencimientos Próximos"
+    "upcomingExpiries": "Vencimientos Próximos",
+    "performanceTab": {
+      "seasonStats": "Estadísticas de la Temporada",
+      "season": "Temporada",
+      "appearances": "Apariciones",
+      "goals": "Goles",
+      "assists": "Asistencias",
+      "yellowCards": "Tarjetas Amarillas",
+      "redCards": "Tarjetas Rojas",
+      "cleanSheets": "Porterías a Cero",
+      "savesMade": "Paradas Realizadas",
+      "goalsConceded": "Goles Encajados",
+      "rating": "Valoración",
+      "noStatsMessage": "No hay estadísticas de rendimiento disponibles para este jugador.",
+      "goalsAssistsChart": "Goles y Asistencias por Temporada",
+      "performanceChart": "Valoración de Rendimiento por Temporada",
+      "statsSummaryCards": {
+        "totalAppearances": "Apariciones Totales",
+        "minutesPlayed": "Minutos Jugados",
+        "totalGoals": "Goles Totales",
+        "totalAssists": "Asistencias Totales",
+        "averageRating": "Valoración Media",
+        "acrossSeasons": "En {count} temporada{count, plural, one {} other {s}}",
+        "inMinutes": "En {minutes} minutos"
+      },
+      "seasonStatsTable": {
+        "seasonStats": "Estadísticas de la Temporada",
+        "season": "Temporada",
+        "minutesPlayed": "Minutos Jugados",
+        "goals": "Goles",
+        "assists": "Asistencias",
+        "yellowCards": "Tarjetas Amarillas",
+        "redCards": "Tarjetas Rojas",
+        "cleanSheets": "Porterías a Cero",
+        "savesMade": "Paradas Realizadas",
+        "goalsConceded": "Goles Encajados",
+        "rating": "Valoración",
+        "shotsOnTarget": "Tiros a Puerta",
+        "shotsOffTarget": "Tiros Fuera",
+        "fouls": "Faltas Cometidas"
+      }
+    }
   },
   "Transfers": {
     "title": "Transferencias",

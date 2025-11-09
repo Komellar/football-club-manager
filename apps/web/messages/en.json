@@ -159,6 +159,7 @@
     "inactive": "Inactive",
     "activeContract": "Active Contract",
     "contracts": "Contracts",
+    "performance": "Performance",
     "noActiveContract": "No active contract for this player",
     "contractHistory": "Contract History",
     "clubFinancialSummary": "Club Financial Summary",
@@ -166,7 +167,48 @@
     "monthlyCommitment": "Monthly Commitment",
     "averageSalary": "Average Salary",
     "totalContracts": "Total Contracts",
-    "upcomingExpiries": "Upcoming Expiries"
+    "upcomingExpiries": "Upcoming Expiries",
+    "performanceTab": {
+      "seasonStats": "Season Stats",
+      "season": "Season",
+      "appearances": "Appearances",
+      "goals": "Goals",
+      "assists": "Assists",
+      "yellowCards": "Yellow Cards",
+      "redCards": "Red Cards",
+      "cleanSheets": "Clean Sheets",
+      "savesMade": "Saves Made",
+      "goalsConceded": "Goals Conceded",
+      "rating": "Rating",
+      "noStatsMessage": "No performance statistics available for this player.",
+      "goalsAssistsChart": "Goals & Assists by Season",
+      "performanceChart": "Performance Rating by Season",
+      "statsSummaryCards": {
+        "totalAppearances": "Total Appearances",
+        "minutesPlayed": "Minutes Played",
+        "totalGoals": "Total Goals",
+        "totalAssists": "Total Assists",
+        "averageRating": "Average Rating",
+        "acrossSeasons": "Across {count} season{count, plural, one {} other {s}}",
+        "inMinutes": "In {minutes} minutes"
+      },
+      "seasonStatsTable": {
+        "seasonStats": "Season Statistics",
+        "season": "Season",
+        "minutesPlayed": "Minutes Played",
+        "goals": "Goals",
+        "assists": "Assists",
+        "yellowCards": "Yellow Cards",
+        "redCards": "Red Cards",
+        "cleanSheets": "Clean Sheets",
+        "savesMade": "Saves Made",
+        "goalsConceded": "Goals Conceded",
+        "rating": "Rating",
+        "shotsOnTarget": "Shots on Target",
+        "shotsOffTarget": "Shots off Target",
+        "fouls": "Fouls Committed"
+      }
+    }
   },
   "Transfers": {
     "title": "Transfers",

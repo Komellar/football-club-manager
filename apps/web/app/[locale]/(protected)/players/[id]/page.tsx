@@ -11,7 +11,10 @@ import {
   PlayerContractsTab,
   PlayerContractsTabSkeleton,
   PlayerDetailsTab,
+  PlayerPerformanceTab,
 } from "@/features/players/components/tabs";
+import { PlayerDashboardSkeleton } from "@/features/players/components/dashboard";
+import { PlayerResponseDto } from "@repo/core";
 
 export default async function PlayerDetailsPage({
   params,
@@ -26,7 +29,7 @@ export default async function PlayerDetailsPage({
     notFound();
   }
 
-  let player;
+  let player: PlayerResponseDto;
   try {
     player = await getPlayerById(playerId);
   } catch (error) {
@@ -68,6 +71,7 @@ export default async function PlayerDetailsPage({
         <TabsList>
           <TabsTrigger value="details">{t("playerDetails")}</TabsTrigger>
           <TabsTrigger value="contracts">{t("contracts")}</TabsTrigger>
+          <TabsTrigger value="performance">{t("performance")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="details" className="mt-6">
@@ -77,6 +81,12 @@ export default async function PlayerDetailsPage({
         <TabsContent value="contracts" className="mt-6">
           <Suspense fallback={<PlayerContractsTabSkeleton />}>
             <PlayerContractsTab playerId={playerId} />
+          </Suspense>
+        </TabsContent>
+
+        <TabsContent value="performance" className="mt-6">
+          <Suspense fallback={<PlayerDashboardSkeleton />}>
+            <PlayerPerformanceTab playerId={playerId} player={player} />
           </Suspense>
         </TabsContent>
       </Tabs>
