@@ -6,6 +6,7 @@ import type {
   PlayerResponseDto,
   CreatePlayerDto,
 } from "@repo/core";
+import { cache } from "react";
 
 const BASE_URL = "/players";
 
@@ -28,21 +29,23 @@ export async function getPlayers(
   }
 }
 
-export async function getPlayerById(id: number): Promise<PlayerResponseDto> {
-  try {
-    const { data }: AxiosResponse<PlayerResponseDto> = await apiClient.get(
-      `${BASE_URL}/${id}`
-    );
-    return data;
-  } catch (error) {
-    if (error instanceof AxiosError) {
-      const errorMessage =
-        error.response?.data?.message || "Failed to fetch player";
-      throw new Error(errorMessage);
+export const getPlayerById = cache(
+  async (id: number): Promise<PlayerResponseDto> => {
+    try {
+      const { data }: AxiosResponse<PlayerResponseDto> = await apiClient.get(
+        `${BASE_URL}/${id}`
+      );
+      return data;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        const errorMessage =
+          error.response?.data?.message || "Failed to fetch player";
+        throw new Error(errorMessage);
+      }
+      throw new Error("Failed to fetch player");
     }
-    throw new Error("Failed to fetch player");
   }
-}
+);
 
 export async function createPlayer(
   playerData: CreatePlayerDto

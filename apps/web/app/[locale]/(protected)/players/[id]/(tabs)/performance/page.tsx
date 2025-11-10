@@ -1,27 +1,29 @@
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { getPlayerStatistics } from "@/features/players/api";
+import { getPlayerById } from "@/features/players/api/players";
 import {
-  StatsSummaryCards,
   GoalsAssistsChart,
   PerformanceChart,
   SeasonStatsTable,
-} from "@/features/players/components/dashboard";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Info } from "lucide-react";
+  StatsSummaryCards,
+} from "@/features/players/components/tabs";
 import { groupStatisticsBySeason } from "@/features/players/utils";
-import { PlayerResponseDto } from "@repo/core";
+import { Info } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
-interface PlayerPerformanceProps {
-  playerId: number;
-  player: PlayerResponseDto;
-}
-
-export async function PlayerPerformanceTab({
-  playerId,
-  player,
-}: PlayerPerformanceProps) {
+export default async function PlayerPerformancePage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const t = await getTranslations("Players.performanceTab");
-  const { data } = await getPlayerStatistics(playerId);
+  const { id } = await params;
+
+  const playerId = Number(id);
+  const [player, { data }] = await Promise.all([
+    getPlayerById(playerId),
+    getPlayerStatistics(playerId),
+  ]);
 
   const statisticsBySeason = groupStatisticsBySeason(data);
 

@@ -19,9 +19,6 @@ export function Breadcrumb() {
     const pathSegments = pathname.split("/").filter(Boolean);
     const breadcrumbs: BreadcrumbItem[] = [];
 
-    // Build breadcrumbs for nested paths (skip locale segment if present)
-    let currentPath = "";
-
     // If first segment is a locale (2 letters), skip it
     let startIdx = 0;
     if (pathSegments[0] && pathSegments[0].length === 2) {
@@ -37,33 +34,30 @@ export function Breadcrumb() {
         continue;
       }
 
-      currentPath += `/${segment}`;
       // Build full path from segments
       const fullPath = `/${pathSegments.slice(0, i + 1).join("/")}`;
 
-      let camelCaseLabel = segment;
+      let label = segment;
 
+      // Convert kebab-case to camelCase
       if (segment.includes("-")) {
-        // Convert kebab-case to Camel Case
-        const words = segment.split("-").map((word, index) => {
-          if (index === 0) {
-            return word;
-          }
-          return word.charAt(0).toUpperCase() + word.slice(1);
-        });
-        camelCaseLabel = words.join("");
+        label = segment
+          .split("-")
+          .map((word, idx) =>
+            idx === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1)
+          )
+          .join("");
       }
 
-      // Try to get translation, fallback to capitalized segment
-      let label: string;
-      try {
-        label = t(camelCaseLabel);
-      } catch {
-        label = segment.charAt(0).toUpperCase() + segment.slice(1);
+      // If previous segment is an ID, combine with the segment before for a more descriptive label
+      if (i > 1 && /^\d+$/.test(pathSegments[i - 1]!)) {
+        const prev = pathSegments[i - 2] || "";
+        const labelPart = label.charAt(0).toUpperCase() + label.slice(1);
+        label = `${prev.replace(/s$/, "")}${labelPart}`;
       }
 
       breadcrumbs.push({
-        label,
+        label: t(label),
         href: fullPath,
       });
     }

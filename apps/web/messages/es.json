@@ -3,6 +3,10 @@
     "dashboard": "Panel",
     "toggleMenu": "Abrir menú",
     "players": "Jugadores",
+    "playerDetails": "Detalles del Jugador",
+    "playerPerformance": "Rendimiento del Jugador",
+    "playerContracts": "Contratos del Jugador",
+    "playerEdit": "Editar Jugador",
     "transfers": "Traspasos",
     "contracts": "Contratos",
     "matchSimulation": "Simulación de Partido",
@@ -379,7 +383,10 @@
     "applyFilters": "Aplicar Filtros",
     "clearFilters": "Limpiar Filtros",
     "tryAgain": "Intentar de Nuevo",
-    "errorOccurred": "Ocurrió un error"
+    "errorOccurred": "Ocurrió un error",
+    "notFound": "No Encontrado",
+    "couldNotFindResource": "No se pudo encontrar el recurso solicitado",
+    "backToHome": "Volver al Inicio"
   },
   "Dashboard": {
     "contractOverview": "Resumen de Contratos",

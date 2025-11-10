@@ -3,6 +3,10 @@
     "dashboard": "Dashboard",
     "toggleMenu": "Toggle Menu",
     "players": "Players",
+    "playerDetails": "Player Details",
+    "playerContracts": "Player Contracts",
+    "playerPerformance": "Player Performance",
+    "playerEdit": "Edit Player",
     "transfers": "Transfers",
     "contracts": "Contracts",
     "matchSimulation": "Match Simulation",
@@ -15,7 +19,8 @@
     "revenues": "Revenues",
     "new": "New",
     "edit": "Edit",
-    "navigation": "Navigation"
+    "navigation": "Navigation",
+    "details": "Details"
   },
   "Auth": {
     "login": "Login",
@@ -379,7 +384,10 @@
     "applyFilters": "Apply Filters",
     "clearFilters": "Clear Filters",
     "tryAgain": "Try Again",
-    "errorOccurred": "An error occurred"
+    "errorOccurred": "An error occurred",
+    "notFound": "Not Found",
+    "couldNotFindResource": "Could not find the requested resource",
+    "backToHome": "Back to Home"
   },
   "Dashboard": {
     "contractOverview": "Contract Overview",

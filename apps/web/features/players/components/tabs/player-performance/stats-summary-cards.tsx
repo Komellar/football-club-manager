@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PlayerStatisticsResponseDto } from "@repo/core";
 import { getTranslations } from "next-intl/server";
-import { getSummaryCards } from "../../utils";
+import { getSummaryCards } from "../../../utils";
 
 interface StatsSummaryCardsProps {
   statistics: PlayerStatisticsResponseDto[];

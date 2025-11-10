@@ -8,8 +8,8 @@ import {
 } from "@/components/ui/chart";
 import { PlayerStatisticsResponseDto } from "@repo/core";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
-import { getGoalsAndAssistsBySeason } from "../../utils";
-import { goalAssistChartConfig } from "../../constants";
+import { getGoalsAndAssistsBySeason } from "../../../utils";
+import { goalAssistChartConfig } from "../../../constants";
 import { useTranslations } from "next-intl";
 
 interface GoalsAssistsChartProps {

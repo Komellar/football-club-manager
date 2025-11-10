@@ -42,7 +42,10 @@ export const createContractColumns = (
         return (
           <div className="font-medium min-w-25">
             {player ? (
-              <Link href={`/players/${player.id}`} className="hover:underline">
+              <Link
+                href={`/players/${player.id}/details`}
+                className="hover:underline"
+              >
                 {player.name}{" "}
               </Link>
             ) : (

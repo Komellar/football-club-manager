@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export function PlayerDashboardSkeleton() {
+export default function PlayerPerformanceLoading() {
   return (
     <div className="space-y-6">
       {/* Summary Cards Skeleton */}

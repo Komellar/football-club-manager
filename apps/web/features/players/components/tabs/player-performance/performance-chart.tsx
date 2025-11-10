@@ -8,8 +8,8 @@ import {
 } from "@/components/ui/chart";
 import { PlayerStatisticsResponseDto } from "@repo/core";
 import { Line, LineChart, CartesianGrid, XAxis, YAxis } from "recharts";
-import { getPerformanceRatingsBySeason } from "../../utils";
-import { ratingChartConfig } from "../../constants";
+import { getPerformanceRatingsBySeason } from "../../../utils";
+import { ratingChartConfig } from "../../../constants";
 import { useTranslations } from "next-intl";
 
 interface PerformanceChartProps {

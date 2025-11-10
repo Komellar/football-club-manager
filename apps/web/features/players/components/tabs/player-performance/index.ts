@@ -1,1 +1,4 @@
-export * from "./player-performance-tab";
+export * from "./season-stats-table";
+export * from "./goals-assists-chart";
+export * from "./performance-chart";
+export * from "./stats-summary-cards";

@@ -33,7 +33,7 @@ export function PlayerForm() {
         const result = await createPlayerAction(data);
         toast.success(t("playerAdded"));
         form.reset();
-        router.push(`/players/${result.id}`);
+        router.push(`/players/${result.id}/details`);
       } catch (error) {
         let errorMessage = t("failedToCreate");
         if (error instanceof Error) {

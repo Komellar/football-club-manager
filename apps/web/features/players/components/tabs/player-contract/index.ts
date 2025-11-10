@@ -1,1 +1,2 @@
-export * from "./player-contracts-tab";
+export * from "./active-contract";
+export * from "./contracts-history";
