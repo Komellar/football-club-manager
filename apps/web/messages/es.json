@@ -389,6 +389,8 @@
     "backToHome": "Volver al Inicio"
   },
   "Dashboard": {
+    "title": "Panel de Control",
+    "description": "Resumen del rendimiento y actividades del club",
     "contractOverview": "Resumen de Contratos",
     "contractsByType": "Contratos por Tipo",
     "contractDistribution": "Distribución de contratos activos",

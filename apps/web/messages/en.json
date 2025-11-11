@@ -390,6 +390,8 @@
     "backToHome": "Back to Home"
   },
   "Dashboard": {
+    "title": "Dashboard",
+    "description": "Overview of club performance and activities",
     "contractOverview": "Contract Overview",
     "contractsByType": "Contracts by Type",
     "contractDistribution": "Distribution of active contracts",

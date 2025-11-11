@@ -1,9 +1,30 @@
 import { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
+import { Metadata } from "next";
 
 interface DashboardLayoutProps {
   children: ReactNode;
   contracts: ReactNode;
+  params: Promise<{ locale: string }>;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Dashboard" });
+
+  return {
+    title: t("title"),
+    description: t("description"),
+    openGraph: {
+      title: t("title"),
+      description: t("description"),
+      type: "website",
+    },
+  };
 }
 
 export default async function DashboardLayout({
