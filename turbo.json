@@ -79,6 +79,22 @@
         "DB_NAME",
         "FRONTEND_URL"
       ]
+    },
+    "start": {
+      "dependsOn": ["^build"],
+      "cache": false,
+      "persistent": true,
+      "env": [
+        "NODE_ENV",
+        "BACKEND_URL",
+        "PORT",
+        "DB_HOST",
+        "DB_PORT",
+        "DB_USERNAME",
+        "DB_PASSWORD",
+        "DB_NAME",
+        "FRONTEND_URL"
+      ]
     }
   }
 }
