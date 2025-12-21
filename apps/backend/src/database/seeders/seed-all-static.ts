@@ -4,7 +4,6 @@ import { config } from 'dotenv';
 import { join } from 'path';
 import * as bcrypt from 'bcrypt';
 import {
-  Role,
   User,
   Player,
   Contract,
@@ -34,7 +33,7 @@ const AppDataSource = new DataSource({
   username: configService.get('DB_USERNAME'),
   password: configService.get('DB_PASSWORD'),
   database: configService.get('DB_NAME'),
-  entities: [Role, User, Player, Contract, Transfer, PlayerStatistics],
+  entities: [User, Player, Contract, Transfer, PlayerStatistics],
   synchronize: false,
 });
 
@@ -50,18 +49,9 @@ async function seedDatabase() {
     await AppDataSource.query('TRUNCATE TABLE contracts CASCADE');
     await AppDataSource.query('TRUNCATE TABLE players CASCADE');
     await AppDataSource.query('TRUNCATE TABLE users CASCADE');
-    await AppDataSource.query('TRUNCATE TABLE roles CASCADE');
     console.log('Existing data cleared');
 
-    // 1. Seed Roles
-    console.log('Seeding roles...');
-    const roleRepo = AppDataSource.getRepository(Role);
-    const adminRole = roleRepo.create({ name: RoleType.ADMIN });
-    const userRole = roleRepo.create({ name: RoleType.USER });
-    await roleRepo.save([adminRole, userRole]);
-    console.log('Roles seeded');
-
-    // 2. Seed Test User
+    // Seed Test User
     console.log('Seeding test user...');
     const userRepo = AppDataSource.getRepository(User);
     const hashedPassword = await bcrypt.hash('test123', 10);
@@ -69,7 +59,7 @@ async function seedDatabase() {
       name: 'John Doe',
       email: 'test@test.com',
       passwordHash: hashedPassword,
-      role: adminRole,
+      role: RoleType.ADMIN,
     });
     await userRepo.save(testUser);
     console.log('Test user created (test@test.com / test123)');

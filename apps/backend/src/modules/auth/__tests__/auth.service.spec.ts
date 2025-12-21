@@ -4,7 +4,6 @@ import { RoleType } from '@repo/core';
 import type { UserService } from '@/modules/users/services/user.service';
 import type { JwtService } from '@nestjs/jwt';
 import type { User } from '@/shared/entities/user.entity';
-import type { Role } from '@/shared/entities/role.entity';
 import * as bcrypt from 'bcrypt';
 
 jest.mock('bcrypt');
@@ -22,18 +21,12 @@ describe('AuthService', () => {
     roleName: RoleType.USER,
   };
 
-  const mockRole: Role = {
-    id: 1,
-    name: RoleType.USER,
-    users: [], // Empty array to satisfy the relation
-  };
-
   const mockUser: User = {
     id: 1,
     name: 'John Doe',
     email: 'john@example.com',
     passwordHash: 'hashedpassword123',
-    role: mockRole,
+    role: RoleType.USER,
     createdAt: new Date('2024-01-01'),
     updatedAt: new Date('2024-01-01'),
   };
@@ -42,10 +35,7 @@ describe('AuthService', () => {
     id: 1,
     name: 'John Doe',
     email: 'john@example.com',
-    role: {
-      id: 1,
-      name: RoleType.USER,
-    },
+    role: RoleType.USER,
     createdAt: new Date('2024-01-01'),
     updatedAt: new Date('2024-01-01'),
   };

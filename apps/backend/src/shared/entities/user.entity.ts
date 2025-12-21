@@ -2,13 +2,11 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
-  JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
   Index,
 } from 'typeorm';
-import { Role } from './role.entity';
+import { RoleType } from '@repo/core';
 
 @Entity('users')
 export class User {
@@ -30,9 +28,13 @@ export class User {
   })
   passwordHash: string;
 
-  @ManyToOne(() => Role, (role) => role.users)
-  @JoinColumn({ name: 'role_id' })
-  role: Role;
+  @Column({
+    type: 'enum',
+    enum: RoleType,
+    default: RoleType.USER,
+    nullable: false,
+  })
+  role: RoleType;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

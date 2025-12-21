@@ -21,7 +21,7 @@ export class AuthService {
       id: user.id,
       name: user.name,
       email: user.email,
-      role: user.role.name,
+      role: user.role,
     };
 
     return {
@@ -41,10 +41,7 @@ export class AuthService {
         id: user.id,
         name: user.name,
         email: user.email,
-        role: {
-          id: user.role.id,
-          name: user.role.name,
-        },
+        role: user.role,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
       };

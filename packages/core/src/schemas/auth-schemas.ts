@@ -49,10 +49,7 @@ export const UserResponseSchema = z.object({
   id: z.number().int().positive("User ID must be a positive integer"),
   name: z.string().trim().min(1, "Name cannot be empty"),
   email: z.email("Invalid email format"),
-  role: z.object({
-    id: z.number().int().positive("Role ID must be a positive integer"),
-    name: z.enum(RoleType),
-  }),
+  role: z.enum(RoleType),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
 });

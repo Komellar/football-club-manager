@@ -3,7 +3,6 @@ import { NotFoundException } from '@nestjs/common';
 import { UserController } from '../controllers/user.controller';
 import { UserService } from '../services/user.service';
 import { User } from '@/shared/entities/user.entity';
-import { Role } from '@/shared/entities/role.entity';
 import { RoleType } from '@repo/core';
 import type { CreateUserDto } from '@repo/core';
 
@@ -17,18 +16,12 @@ describe('UserController', () => {
     findByEmail: jest.fn(),
   };
 
-  const mockRole: Role = {
-    id: 1,
-    name: RoleType.USER,
-    users: [] as User[],
-  };
-
   const mockUser: User = {
     id: 1,
     name: 'John Doe',
     email: 'john@example.com',
     passwordHash: 'hashedpassword123',
-    role: mockRole,
+    role: RoleType.USER,
     createdAt: new Date('2024-01-01'),
     updatedAt: new Date('2024-01-01'),
   };
@@ -37,11 +30,7 @@ describe('UserController', () => {
     id: 1,
     name: 'John Doe',
     email: 'john@example.com',
-    role: {
-      id: 1,
-      name: RoleType.USER,
-      users: [],
-    },
+    role: RoleType.USER,
     createdAt: new Date('2024-01-01'),
     updatedAt: new Date('2024-01-01'),
   };
