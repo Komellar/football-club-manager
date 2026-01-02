@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
 import {
   ContractStatus,
   ContractType,
@@ -213,5 +213,53 @@ export class ContractFinancialService {
 
     // If same day or end day is earlier, but we have some duration, count at least 1 month
     return Math.max(1, baseMonths);
+  }
+
+  async calculateTotalWages(
+    startDate: Date,
+    endDate: Date,
+  ): Promise<{
+    totalWages: number;
+    totalSignOnFees: number;
+    totalAgentFees: number;
+  }> {
+    const contracts = await this.contractRepository.find({
+      where: {
+        startDate: LessThanOrEqual(endDate),
+        endDate: MoreThanOrEqual(startDate),
+      },
+    });
+
+    let totalWages = 0;
+    let totalSignOnFees = 0;
+    let totalContractAgentFees = 0;
+
+    for (const contract of contracts) {
+      const overlapStart =
+        contract.startDate > startDate ? contract.startDate : startDate;
+      const overlapEnd =
+        contract.endDate < endDate ? contract.endDate : endDate;
+
+      if (overlapStart <= overlapEnd) {
+        const months =
+          (overlapEnd.getFullYear() - overlapStart.getFullYear()) * 12 +
+          (overlapEnd.getMonth() - overlapStart.getMonth()) +
+          (overlapEnd.getDate() - overlapStart.getDate() >= 0 ? 1 : 0);
+
+        const duration = Math.max(0, months);
+        totalWages += contract.salary * duration;
+      }
+
+      if (contract.startDate >= startDate && contract.startDate <= endDate) {
+        totalSignOnFees += Number(contract.signOnFee || 0);
+        totalContractAgentFees += Number(contract.agentFee || 0);
+      }
+    }
+
+    return {
+      totalWages,
+      totalSignOnFees,
+      totalAgentFees: totalContractAgentFees,
+    };
   }
 }

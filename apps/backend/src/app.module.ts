@@ -11,6 +11,7 @@ import { StatisticsModule } from './modules/statistics/statistics.module';
 import { TransfersModule } from './modules/transfers/transfers.module';
 import { ContractsModule } from './modules/contracts/contracts.module';
 import { MatchEventsModule } from './modules/match-events/match-events.module';
+import { FinanceModule } from './modules/finance/finance.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { MatchEventsModule } from './modules/match-events/match-events.module';
     TransfersModule,
     ContractsModule,
     MatchEventsModule,
+    FinanceModule,
   ],
   controllers: [AppController],
   providers: [AppService],

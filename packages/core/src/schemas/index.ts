@@ -5,3 +5,4 @@ export * from "./player-statistics";
 export * from "./transfer";
 export * from "./list";
 export * from "./match-event";
+export * from "./finance";

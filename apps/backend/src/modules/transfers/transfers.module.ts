@@ -6,6 +6,7 @@ import { Transfer } from '@/shared/entities/transfer.entity';
 import { Player } from '@/shared/entities/player.entity';
 import { TransfersController } from './controllers/transfers.controller';
 import { TransfersService } from './services/transfers.service';
+import { TransferFinancialService } from './services/transferFinancial.service';
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { TransfersService } from './services/transfers.service';
     ConfigModule,
   ],
   controllers: [TransfersController],
-  providers: [TransfersService],
-  exports: [TransfersService],
+  providers: [TransfersService, TransferFinancialService],
+  exports: [TransfersService, TransferFinancialService],
 })
 export class TransfersModule {}
