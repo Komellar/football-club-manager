@@ -40,9 +40,10 @@ export function PieChartClient({
           innerRadius="40%"
           outerRadius="70%"
           paddingAngle={2}
-          label={({ value, percent }) =>
-            `${value} (${(percent * 100).toFixed(0)}%)`
-          }
+          label={({ value, percent }) => {
+            if (percent < 0.0001) return `${value} (<0.01%)`;
+            return `${value} (${(percent * 100).toFixed(1)}%)`;
+          }}
         >
           {chartData.map((entry, index) => (
             <Cell key={`cell-${index}`} fill={entry.fill} />

@@ -393,6 +393,7 @@
     "title": "Panel de Control",
     "description": "Resumen del rendimiento y actividades del club",
     "contractOverview": "Resumen de Contratos",
+    "financialOverview": "Resumen Financiero",
     "contractsByType": "Contratos por Tipo",
     "contractDistribution": "Distribución de contratos activos",
     "noActiveContracts": "Sin contratos activos",
@@ -501,5 +502,35 @@
       "half_time": "Medio Tiempo",
       "match_end": "Tiempo Completo"
     }
+  },
+  "Finance": {
+    "title": "Resumen Financiero",
+    "selectDateRange": "Selecciona el rango de fechas para ver los datos financieros",
+    "startDate": "Fecha de Inicio",
+    "endDate": "Fecha de Fin",
+    "pickDate": "Selecciona una fecha",
+    "financialOverview": "Panorama Financiero",
+    "overviewDescription": "Ingresos totales, gastos y beneficio neto para el período seleccionado",
+    "incomeBreakdown": "Desglose de Ingresos",
+    "expenseBreakdown": "Desglose de Gastos",
+    "summary": "Resumen",
+    "periodFinancialSummary": "Resumen financiero del período",
+    "totalIncome": "Ingresos Totales",
+    "totalExpenses": "Gastos Totales",
+    "netProfit": "Beneficio Neto",
+    "from": "Desde",
+    "to": "Hasta",
+    "income": "Ingresos",
+    "expenses": "Gastos",
+    "transfers": "Traspasos",
+    "sponsorships": "Patrocinios",
+    "ticketSales": "Venta de Entradas",
+    "wages": "Salarios",
+    "transferFees": "Tarifas de Traspaso",
+    "agentFees": "Comisiones de Agentes",
+    "stadiumMaintenance": "Mantenimiento del Estadio",
+    "totalIncomeAmount": "ingresos totales",
+    "totalExpensesAmount": "gastos totales",
+    "noDataAvailable": "No hay datos disponibles"
   }
 }

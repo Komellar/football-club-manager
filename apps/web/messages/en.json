@@ -394,6 +394,7 @@
     "title": "Dashboard",
     "description": "Overview of club performance and activities",
     "contractOverview": "Contract Overview",
+    "financialOverview": "Financial Overview",
     "contractsByType": "Contracts by Type",
     "contractDistribution": "Distribution of active contracts",
     "noActiveContracts": "No active contracts",
@@ -502,5 +503,35 @@
       "half_time": "Half Time",
       "match_end": "Full Time"
     }
+  },
+  "Finance": {
+    "title": "Financial Summary",
+    "selectDateRange": "Select date range to view financial data",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "pickDate": "Pick a date",
+    "financialOverview": "Financial Overview",
+    "overviewDescription": "Total income, expenses, and net profit for the selected period",
+    "incomeBreakdown": "Income Breakdown",
+    "expenseBreakdown": "Expense Breakdown",
+    "summary": "Summary",
+    "periodFinancialSummary": "Period financial summary",
+    "totalIncome": "Total Income",
+    "totalExpenses": "Total Expenses",
+    "netProfit": "Net Profit",
+    "from": "From",
+    "to": "To",
+    "income": "Income",
+    "expenses": "Expenses",
+    "transfers": "Transfers",
+    "sponsorships": "Sponsorships",
+    "ticketSales": "Ticket Sales",
+    "wages": "Wages",
+    "transferFees": "Transfer Fees",
+    "agentFees": "Agent Fees",
+    "stadiumMaintenance": "Stadium Maintenance",
+    "totalIncomeAmount": "total income",
+    "totalExpensesAmount": "total expenses",
+    "noDataAvailable": "No data available"
   }
 }

@@ -5,6 +5,7 @@ import { Metadata } from "next";
 interface DashboardLayoutProps {
   children: ReactNode;
   contracts: ReactNode;
+  finance: ReactNode;
   params: Promise<{ locale: string }>;
 }
 
@@ -27,14 +28,14 @@ export async function generateMetadata({
 
 export default async function DashboardLayout({
   children,
+  finance,
   contracts,
 }: DashboardLayoutProps) {
-  const t = await getTranslations("Dashboard");
-
   return (
     <div className="p-6">
       <div className="max-w-7xl mx-auto space-y-6">
-        <div className="space-y-6">
+        <div className="space-y-12">
+          {finance}
           {contracts}
           {children}
         </div>
