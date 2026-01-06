@@ -1,7 +1,8 @@
 import { FinancialSummary } from "@repo/core";
 
 export const prepareIncomeData = (data: FinancialSummary) => {
-  const { transfers, sponsorships, ticketSales } = data.breakdown.income;
+  const { transfers, sponsorships, ticketSales } =
+    data.summary.breakdown.income;
 
   return Object.fromEntries(
     Object.entries({
@@ -16,7 +17,7 @@ export const prepareExpenseData = (
   data: FinancialSummary
 ): Record<string, number> => {
   const { wages, transferFees, agentFees, stadiumMaintenance } =
-    data.breakdown.expenses;
+    data.summary.breakdown.expenses;
 
   return Object.fromEntries(
     Object.entries({

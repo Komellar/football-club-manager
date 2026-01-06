@@ -23,6 +23,7 @@ export async function FinanceCharts({ data }: FinanceChartsProps) {
   const incomeData = prepareIncomeData(data);
   const expenseData = prepareExpenseData(data);
   const overviewData = prepareOverviewData(data);
+  console.log(data);
 
   return (
     <div className="grid gap-4 grid-cols-1">
@@ -32,14 +33,14 @@ export async function FinanceCharts({ data }: FinanceChartsProps) {
 
         <PieChartCard
           title={t("incomeBreakdown")}
-          description={`${formatCurrency(data.totalIncome)} ${t("totalIncomeAmount")}`}
+          description={`${formatCurrency(data.summary.totalIncome)} ${t("totalIncomeAmount")}`}
           data={incomeData}
           chartConfig={incomeBreakdownChartConfig}
         />
 
         <PieChartCard
           title={t("expenseBreakdown")}
-          description={`${formatCurrency(data.totalExpenses)} ${t("totalExpensesAmount")}`}
+          description={`${formatCurrency(data.summary.totalExpenses)} ${t("totalExpensesAmount")}`}
           data={expenseData}
           chartConfig={expenseBreakdownChartConfig}
         />

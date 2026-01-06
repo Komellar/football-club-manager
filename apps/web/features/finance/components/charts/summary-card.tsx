@@ -42,7 +42,7 @@ export async function SummaryCard({ data }: SummaryCardProps) {
                   {t("totalIncome")}
                 </p>
                 <p className="text-3xl font-bold text-green-600">
-                  {formatCurrency(data.totalIncome)}
+                  {formatCurrency(data.summary.totalIncome)}
                 </p>
               </div>
               <div className="rounded-full bg-green-500/10 p-2">
@@ -60,7 +60,7 @@ export async function SummaryCard({ data }: SummaryCardProps) {
                   {t("totalExpenses")}
                 </p>
                 <p className="text-3xl font-bold text-red-600">
-                  {formatCurrency(data.totalExpenses)}
+                  {formatCurrency(data.summary.totalExpenses)}
                 </p>
               </div>
               <div className="rounded-full bg-red-500/10 p-2">
@@ -73,7 +73,7 @@ export async function SummaryCard({ data }: SummaryCardProps) {
           {/* Net Profit */}
           <div
             className={`group relative overflow-hidden rounded-lg border bg-card p-6 shadow-sm transition-all hover:shadow-md ${
-              data.netProfit >= 0
+              data.summary.netProfit >= 0
                 ? "hover:border-emerald-500/50"
                 : "hover:border-orange-500/50"
             }`}
@@ -86,21 +86,23 @@ export async function SummaryCard({ data }: SummaryCardProps) {
                 <div className="flex items-baseline gap-2">
                   <p
                     className={`text-3xl font-bold ${
-                      data.netProfit >= 0
+                      data.summary.netProfit >= 0
                         ? "text-emerald-600"
                         : "text-orange-600"
                     }`}
                   >
-                    {formatCurrency(data.netProfit)}
+                    {formatCurrency(data.summary.netProfit)}
                   </p>
                 </div>
               </div>
               <div
                 className={`rounded-full p-2 ${
-                  data.netProfit >= 0 ? "bg-emerald-500/10" : "bg-orange-500/10"
+                  data.summary.netProfit >= 0
+                    ? "bg-emerald-500/10"
+                    : "bg-orange-500/10"
                 }`}
               >
-                {data.netProfit >= 0 ? (
+                {data.summary.netProfit >= 0 ? (
                   <TrendingUp className="h-5 w-5 text-emerald-600" />
                 ) : (
                   <TrendingDown className="h-5 w-5 text-orange-600" />
@@ -109,7 +111,7 @@ export async function SummaryCard({ data }: SummaryCardProps) {
             </div>
             <div
               className={`absolute bottom-0 left-0 h-1 w-full transform scale-x-0 group-hover:scale-x-100 transition-transform ${
-                data.netProfit >= 0
+                data.summary.netProfit >= 0
                   ? "bg-gradient-to-r from-emerald-500 to-green-500"
                   : "bg-gradient-to-r from-orange-500 to-amber-500"
               }`}

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const FinancialSummarySchema = z.object({
+export const FinancesSchema = z.object({
   totalIncome: z.number(),
   totalExpenses: z.number(),
   netProfit: z.number(),
@@ -23,7 +23,15 @@ export const FinancialSummarySchema = z.object({
   }),
 });
 
-export type FinancialSummary = z.infer<typeof FinancialSummarySchema>;
+export type Finances = z.infer<typeof FinancesSchema>;
+
+export const MonthlyFinanceDataSchema = z.object({
+  month: z.string(), // Format: "YYYY-MM"
+  income: z.number(),
+  expenses: z.number(),
+});
+
+export type MonthlyFinanceData = z.infer<typeof MonthlyFinanceDataSchema>;
 
 export const FinancePeriodQuerySchema = z.object({
   startDate: z.string().transform((str) => new Date(str)),

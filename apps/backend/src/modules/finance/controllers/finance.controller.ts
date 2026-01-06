@@ -1,6 +1,6 @@
 import { Controller, Get, Query, UsePipes } from '@nestjs/common';
 import { FinanceService } from '../services/finance.service';
-import { FinancialSummary, FinancePeriodQuerySchema } from '@repo/core';
+import { FinancePeriodQuerySchema, FinancialSummary } from '@repo/core';
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe';
 
 @Controller('finance')
