@@ -227,8 +227,37 @@
     "fee": "Precio",
     "status": "Estado",
     "actions": "Acciones",
+    "permanentStatus": "Tipo de Transferencia",
+    "dateRange": "Rango de Fechas",
     "noTransfersMessage": "No se encontraron transferencias. Agrega tu primera transferencia para comenzar.",
     "noTransfersFound": "No se encontraron transferencias que coincidan con tus criterios.",
+    "filters": "Filtros",
+    "filterTransfersDescription": "Filtrar transferencias por dirección, tipo, estado y fecha",
+    "allDirections": "Todas las Direcciones",
+    "allTypes": "Todos los Tipos",
+    "allStatuses": "Todos los Estados",
+    "allPermanentStatuses": "Todos los Tipos de Transferencia",
+    "directionValues": {
+      "incoming": "Entrada",
+      "outgoing": "Salida"
+    },
+    "typeValues": {
+      "signing": "Fichaje",
+      "loan": "Préstamo",
+      "loanReturn": "Retorno de Préstamo",
+      "sale": "Venta",
+      "release": "Liberación",
+      "retirement": "Retiro"
+    },
+    "statusValues": {
+      "pending": "Pendiente",
+      "completed": "Completado",
+      "cancelled": "Cancelado"
+    },
+    "permanentValues": {
+      "permanent": "Permanente",
+      "temporary": "Temporal"
+    },
     "placeholders": {
       "searchByClub": "Buscar por nombre del club..."
     }

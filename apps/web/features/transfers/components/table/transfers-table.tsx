@@ -14,6 +14,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useTableSort } from "@/hooks";
 import { TableSearchInput } from "@/components/shared/data-table/table-search-input";
+import { TransfersFilterDrawer } from "./transfers-filter-drawer";
 
 interface TransfersTableProps {
   transfersData: PaginatedTransferResponseDto;
@@ -33,6 +34,7 @@ export function TransfersTable({ transfersData }: TransfersTableProps) {
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between gap-4">
+          <TransfersFilterDrawer />
           <TableSearchInput placeholder={t("placeholders.searchByClub")} />
         </div>
         <div className="text-center p-10">
@@ -53,6 +55,7 @@ export function TransfersTable({ transfersData }: TransfersTableProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-4">
+        <TransfersFilterDrawer />
         <TableSearchInput placeholder={t("placeholders.searchByClub")} />
       </div>
       <DataTable

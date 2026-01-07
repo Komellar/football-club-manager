@@ -228,8 +228,37 @@
     "fee": "Fee",
     "status": "Status",
     "actions": "Actions",
+    "permanentStatus": "Transfer Type",
+    "dateRange": "Date Range",
     "noTransfersMessage": "No transfers found. Add your first transfer to get started.",
     "noTransfersFound": "No transfers found matching your criteria.",
+    "filters": "Filters",
+    "filterTransfersDescription": "Filter transfers by direction, type, status, and date",
+    "allDirections": "All Directions",
+    "allTypes": "All Types",
+    "allStatuses": "All Statuses",
+    "allPermanentStatuses": "All Transfer Types",
+    "directionValues": {
+      "incoming": "Incoming",
+      "outgoing": "Outgoing"
+    },
+    "typeValues": {
+      "signing": "Signing",
+      "loan": "Loan",
+      "loanReturn": "Loan Return",
+      "sale": "Sale",
+      "release": "Release",
+      "retirement": "Retirement"
+    },
+    "statusValues": {
+      "pending": "Pending",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "permanentValues": {
+      "permanent": "Permanent",
+      "temporary": "Temporary"
+    },
     "placeholders": {
       "searchByClub": "Search by club name..."
     }

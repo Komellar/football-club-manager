@@ -22,18 +22,18 @@ export const TRANSFER_SORT_COLUMNS = [
 ] as const;
 export type TransferSortColumn = (typeof TRANSFER_SORT_COLUMNS)[number];
 
+export const TransferListFiltersSchema = z.object({
+  ...DateRangeQuerySchema.shape,
+  playerId: z.coerce.number().int().positive().optional(),
+  transferType: z.enum(TransferType).optional(),
+  transferStatus: z.enum(TransferStatus).optional(),
+  transferDirection: z.enum(TransferDirection).optional(),
+  otherClubName: z.string().optional(),
+  isPermanent: z.coerce.boolean().optional(),
+});
+
 export const TransferListSchema = ListQueryParamsSchema.extend({
-  where: z
-    .object({
-      ...DateRangeQuerySchema.shape,
-      playerId: z.coerce.number().int().positive().optional(),
-      transferType: z.enum(TransferType).optional(),
-      transferStatus: z.enum(TransferStatus).optional(),
-      transferDirection: z.enum(TransferDirection).optional(),
-      otherClubName: z.string().optional(),
-      isPermanent: z.coerce.boolean().optional(),
-    })
-    .optional(),
+  where: TransferListFiltersSchema.optional(),
   sort: z
     .object({
       by: z.enum(TRANSFER_SORT_COLUMNS).default("createdAt"),
