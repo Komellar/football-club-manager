@@ -82,6 +82,7 @@ export class TransfersService {
       this.transferRepository,
       queryDto,
       filterOptions,
+      ['player'],
     );
 
     return {
@@ -93,6 +94,7 @@ export class TransfersService {
   async findOne(id: number): Promise<TransferResponseDto> {
     const transfer = await this.transferRepository.findOneOrFail({
       where: { id },
+      relations: ['player'],
     });
 
     return this.mapToResponseDto(transfer);
@@ -172,10 +174,11 @@ export class TransfersService {
   }
 
   private mapToResponseDto(transfer: Transfer): TransferResponseDto {
-    // Create response DTO excluding the 'player' relation and including computed properties
+    // Create response DTO including the player relation and computed properties
     const {
       id,
       playerId,
+      player,
       otherClubName,
       transferDirection,
       transferType,
@@ -196,6 +199,24 @@ export class TransfersService {
     return {
       id,
       playerId,
+      player: player
+        ? {
+            id: player.id,
+            name: player.name,
+            position: player.position,
+            dateOfBirth: player.dateOfBirth,
+            country: player.country,
+            height: player.height,
+            weight: player.weight,
+            jerseyNumber: player.jerseyNumber,
+            marketValue: player.marketValue,
+            isActive: player.isActive,
+            imageUrl: player.imageUrl,
+            createdAt: player.createdAt,
+            updatedAt: player.updatedAt,
+            age: player.age,
+          }
+        : undefined,
       otherClubName,
       transferDirection,
       transferType,

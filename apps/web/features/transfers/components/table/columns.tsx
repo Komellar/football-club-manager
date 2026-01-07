@@ -41,9 +41,13 @@ export const createTransferColumns = (
       accessorKey: "playerId",
       header: t("player"),
       cell: ({ row }) => {
+        const playerName = row.original.player?.name;
         const playerId = row.getValue("playerId") as number;
-        // TODO: Fetch and display player name
-        return <div className="font-medium">Player #{playerId}</div>;
+        return (
+          <div className="font-medium">
+            {playerName || `Player #${playerId}`}
+          </div>
+        );
       },
     },
     {
@@ -119,12 +123,12 @@ export const createTransferColumns = (
     },
     {
       id: "actions",
-      header: () => <div className="text-right">{t("actions")}</div>,
+      header: () => <div>{t("actions")}</div>,
       cell: ({ row }) => {
         const transfer = row.original;
 
         return (
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-start gap-2">
             <Button variant="ghost" size="icon" asChild>
               <Link href={`/transfers/${transfer.id}`}>
                 <Eye className="h-4 w-4" />

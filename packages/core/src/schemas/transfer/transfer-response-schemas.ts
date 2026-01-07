@@ -1,5 +1,10 @@
 import { z } from "zod";
-import { TransferType, TransferStatus, TransferDirection } from "../../enums/transfer";
+import {
+  TransferType,
+  TransferStatus,
+  TransferDirection,
+} from "../../enums/transfer";
+import { PlayerResponseSchema } from "../player";
 
 export const TransferResponseSchema = z.object({
   id: z.number().int().positive(),
@@ -22,6 +27,7 @@ export const TransferResponseSchema = z.object({
   isCompleted: z.boolean(),
   isActiveLoan: z.boolean(),
   transferDurationDays: z.number().optional(),
+  player: PlayerResponseSchema.optional(),
 });
 
 export const TransferHistorySchema = z.object({

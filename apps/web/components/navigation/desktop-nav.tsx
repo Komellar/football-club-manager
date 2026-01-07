@@ -29,24 +29,18 @@ export async function DesktopNav({ className }: StaticNavProps) {
       >
         {t("contracts")}
       </Link>
-      {/* <Link
+      <Link
         href={`/${locale}/transfers`}
         className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground cursor-pointer"
       >
         {t("transfers")}
-      </Link> */}
+      </Link>
       <Link
         href={`/${locale}/match-simulation`}
         className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground cursor-pointer"
       >
         {t("matchSimulation")}
       </Link>
-      {/* <Link
-        href={`/${locale}/statistics`}
-        className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground cursor-pointer"
-      >
-        {t("statistics")}
-      </Link> */}
     </nav>
   );
 }

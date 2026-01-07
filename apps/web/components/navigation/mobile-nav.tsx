@@ -20,6 +20,7 @@ const navigationItems = [
   { href: "/dashboard", key: "dashboard" },
   { href: "/players", key: "players" },
   { href: "/contracts", key: "contracts" },
+  { href: "/transfers", key: "transfers" },
   { href: "/match-simulation", key: "matchSimulation" },
 ];
 
