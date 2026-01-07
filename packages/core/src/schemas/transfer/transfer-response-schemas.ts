@@ -1,11 +1,11 @@
 import { z } from "zod";
-import { TransferType, TransferStatus } from "../../enums/transfer";
+import { TransferType, TransferStatus, TransferDirection } from "../../enums/transfer";
 
 export const TransferResponseSchema = z.object({
   id: z.number().int().positive(),
   playerId: z.number().int().positive(),
-  fromClub: z.string().optional(),
-  toClub: z.string(),
+  otherClubName: z.string().optional(),
+  transferDirection: z.enum(TransferDirection),
   transferType: z.enum(TransferType),
   transferStatus: z.enum(TransferStatus),
   transferDate: z.coerce.date(),

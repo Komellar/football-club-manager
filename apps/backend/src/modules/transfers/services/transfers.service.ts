@@ -6,6 +6,7 @@ import { Player } from '@/shared/entities/player.entity';
 import {
   TransferStatus,
   TransferType,
+  TransferDirection,
   FilterMode,
   SortOrder,
 } from '@repo/core';
@@ -69,11 +70,10 @@ export class TransfersService {
     const filterOptions: FilterOptions = {
       defaultFilterMode: FilterMode.EXACT,
       filterModes: {
-        fromClub: FilterMode.PARTIAL,
-        toClub: FilterMode.PARTIAL,
+        otherClubName: FilterMode.PARTIAL,
       },
       searchOptions: {
-        searchFields: ['fromClub', 'toClub'],
+        searchFields: ['otherClubName'],
         searchMode: FilterMode.PARTIAL,
       },
     };
@@ -118,12 +118,19 @@ export class TransfersService {
       .filter((t) => t.transferFee)
       .reduce((sum, t) => sum + (t.transferFee || 0), 0);
 
+    // Get current club based on the most recent transfer direction
+    const currentClub = currentTransfer
+      ? currentTransfer.transferDirection === TransferDirection.INCOMING
+        ? 'My Club'
+        : currentTransfer.otherClubName || 'Free Agent'
+      : undefined;
+
     return {
       playerId,
       playerName: player.name,
       transfers: transfers.map((transfer) => this.mapToResponseDto(transfer)),
       totalTransfers: transfers.length,
-      currentClub: currentTransfer?.toClub,
+      currentClub,
       careerTransfersValue,
     };
   }
@@ -169,8 +176,8 @@ export class TransfersService {
     const {
       id,
       playerId,
-      fromClub,
-      toClub,
+      otherClubName,
+      transferDirection,
       transferType,
       transferStatus,
       transferDate,
@@ -189,8 +196,8 @@ export class TransfersService {
     return {
       id,
       playerId,
-      fromClub,
-      toClub,
+      otherClubName,
+      transferDirection,
       transferType,
       transferStatus,
       transferDate,

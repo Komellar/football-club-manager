@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, And, MoreThanOrEqual, LessThanOrEqual } from 'typeorm';
+import { Repository, Between } from 'typeorm';
 import { Transfer } from '@/shared/entities/transfer.entity';
-import { TransferStatus, TransferType } from '@repo/core';
+import { TransferStatus, TransferDirection } from '@repo/core';
 
 @Injectable()
 export class TransferFinancialService {
@@ -19,9 +19,12 @@ export class TransferFinancialService {
     transferExpenses: number;
     transferAgentFees: number;
   }> {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
     const transfers = await this.transferRepository.find({
       where: {
-        transferDate: And(MoreThanOrEqual(startDate), LessThanOrEqual(endDate)),
+        transferDate: Between(start, end),
         transferStatus: TransferStatus.COMPLETED,
       },
     });
@@ -34,20 +37,12 @@ export class TransferFinancialService {
       const fee = Number(transfer.transferFee || 0);
       const agentFee = Number(transfer.agentFee || 0);
 
-      // Determine if it's income or expense based on transfer type
-      switch (transfer.transferType) {
-        case TransferType.SALE:
-        case TransferType.LOAN:
-          transferIncome += fee;
-          break;
-        case TransferType.SIGNING:
-        case TransferType.RELEASE:
-        case TransferType.LOAN_RETURN:
-          transferExpenses += fee;
-          transferAgentFees += agentFee;
-          break;
-        default:
-          break;
+      if (transfer.transferDirection === TransferDirection.OUTGOING) {
+        console.log('outgoing transfer fee:', fee);
+        transferIncome += fee;
+      } else if (transfer.transferDirection === TransferDirection.INCOMING) {
+        transferExpenses += fee;
+        transferAgentFees += agentFee;
       }
     }
 

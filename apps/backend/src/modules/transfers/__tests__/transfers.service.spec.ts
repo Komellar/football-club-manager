@@ -9,6 +9,7 @@ import { Player } from '@/shared/entities/player.entity';
 import {
   TransferStatus,
   TransferType,
+  TransferDirection,
   PlayerPosition,
   SortOrder,
 } from '@repo/core';
@@ -45,8 +46,8 @@ const createMockTransfer = (overrides = {}): Transfer => ({
   id: 1,
   playerId: 1,
   player: null as any, // Will be set by repository
-  fromClub: 'FC Barcelona',
-  toClub: 'Real Madrid',
+  otherClubName: 'FC Barcelona',
+  transferDirection: TransferDirection.INCOMING,
   transferType: TransferType.SIGNING,
   transferStatus: TransferStatus.COMPLETED,
   transferDate: new Date('2024-01-15'),
@@ -90,8 +91,8 @@ describe('TransfersService', () => {
 
   const mockCreateTransferDto: CreateTransferDto = {
     playerId: 1,
-    fromClub: 'FC Barcelona',
-    toClub: 'Real Madrid',
+    otherClubName: 'FC Barcelona',
+    transferDirection: TransferDirection.INCOMING,
     transferType: TransferType.SIGNING,
     transferStatus: TransferStatus.PENDING,
     transferDate: new Date('2024-01-15'),
@@ -169,8 +170,8 @@ describe('TransfersService', () => {
         expect.objectContaining({
           id: mockTransfer.id,
           playerId: mockTransfer.playerId,
-          fromClub: mockTransfer.fromClub,
-          toClub: mockTransfer.toClub,
+          otherClubName: mockTransfer.otherClubName,
+          transferDirection: mockTransfer.transferDirection,
         }),
       );
     });
@@ -305,8 +306,8 @@ describe('TransfersService', () => {
           playerId: 1,
           transferType: TransferType.SIGNING,
           transferStatus: TransferStatus.COMPLETED,
-          fromClub: 'Barcelona',
-          toClub: 'Madrid',
+          transferDirection: TransferDirection.INCOMING,
+          otherClubName: 'Barcelona',
           isPermanent: true,
           minFee: 1000000,
           maxFee: 100000000,
@@ -330,9 +331,12 @@ describe('TransfersService', () => {
               _type: 'equal',
               _value: TransferStatus.COMPLETED,
             }),
-            // fromClub and toClub should be processed with ILike for partial matching
-            fromClub: expect.objectContaining({ _type: 'ilike' }),
-            toClub: expect.objectContaining({ _type: 'ilike' }),
+            transferDirection: expect.objectContaining({
+              _type: 'equal',
+              _value: TransferDirection.INCOMING,
+            }),
+            // otherClubName should be processed with ILike for partial matching
+            otherClubName: expect.objectContaining({ _type: 'ilike' }),
             isPermanent: expect.objectContaining({
               _type: 'equal',
               _value: true,
@@ -440,7 +444,7 @@ describe('TransfersService', () => {
 
   describe('update', () => {
     const updateTransferDto: UpdateTransferDto = {
-      toClub: 'Manchester United',
+      otherClubName: 'Manchester United',
       transferFee: 75000000,
     };
 
@@ -583,8 +587,8 @@ describe('TransfersService', () => {
         expect(result).toEqual({
           id: mockTransfer.id,
           playerId: mockTransfer.playerId,
-          fromClub: mockTransfer.fromClub,
-          toClub: mockTransfer.toClub,
+          otherClubName: mockTransfer.otherClubName,
+          transferDirection: mockTransfer.transferDirection,
           transferType: mockTransfer.transferType,
           transferStatus: mockTransfer.transferStatus,
           transferDate: mockTransfer.transferDate,

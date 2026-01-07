@@ -12,3 +12,8 @@ export enum TransferType {
   RELEASE = "release",
   RETIREMENT = "retirement",
 }
+
+export enum TransferDirection {
+  INCOMING = "incoming",
+  OUTGOING = "outgoing",
+}

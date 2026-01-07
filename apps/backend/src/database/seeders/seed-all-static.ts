@@ -16,6 +16,7 @@ import {
   PlayerPosition,
   TransferType,
   TransferStatus,
+  TransferDirection,
   RoleType,
 } from '@repo/core';
 import { staticPlayers } from './data';
@@ -207,12 +208,12 @@ async function seedDatabase() {
 
       const transfer = transferRepo.create({
         playerId: player.id,
-        fromClub: 'Previous Club',
-        toClub: 'Our Club',
+        otherClubName: 'Previous Club',
+        transferDirection: TransferDirection.INCOMING,
         transferType: TransferType.SIGNING,
         transferStatus: TransferStatus.COMPLETED,
         transferDate: staticPlayer.contractStart,
-        transferFee: Math.floor(staticPlayer.marketValue * 0.8),
+        transferFee: Math.floor(staticPlayer.marketValue * 0.4),
         agentFee: staticPlayer.agentFee,
         annualSalary: staticPlayer.salary * 12,
         contractLengthMonths: Math.floor(
@@ -228,7 +229,61 @@ async function seedDatabase() {
     }
 
     await transferRepo.save(transfers);
-    console.log(`${transfers.length} transfers seeded`);
+    console.log(`${transfers.length} incoming transfers seeded`);
+
+    // Create some outgoing transfers (sales/loans) for income demonstration
+    console.log('Seeding outgoing transfers...');
+    const outgoingTransfers: Transfer[] = [];
+
+    // Select some players for outgoing transfers (mix of active and inactive)
+    const playersToSell = players.slice(0, 5); // First 5 players
+
+    for (let i = 0; i < playersToSell.length; i++) {
+      const player = playersToSell[i];
+      const staticPlayer = staticPlayers.find((sp) => sp.name === player.name);
+      if (!staticPlayer) continue;
+
+      // Create a sale that happened a few months ago
+      const saleDate = new Date(staticPlayer.contractStart);
+      saleDate.setMonth(saleDate.getMonth() + 6 + i); // Stagger the dates
+
+      const isSale = i % 3 !== 2; // 2 out of 3 are sales, 1 is a loan
+
+      const outgoingTransfer = transferRepo.create({
+        playerId: player.id,
+        otherClubName: [
+          'Manchester United',
+          'FC Bayern Munich',
+          'Real Madrid',
+          'Paris SG',
+          'Juventus',
+        ][i],
+        transferDirection: TransferDirection.OUTGOING,
+        transferType: isSale ? TransferType.SALE : TransferType.LOAN,
+        transferStatus: TransferStatus.COMPLETED,
+        transferDate: saleDate,
+        transferFee: isSale
+          ? Math.floor(staticPlayer.marketValue * (1.1 + i * 0.1)) // Sell for 110%-150% of market value
+          : Math.floor(staticPlayer.marketValue * 0.05), // Loan fee is 5% of market value
+        agentFee: isSale
+          ? Math.floor(staticPlayer.marketValue * 0.03)
+          : undefined,
+        annualSalary: undefined,
+        contractLengthMonths: undefined,
+        loanEndDate: isSale
+          ? undefined
+          : new Date(saleDate.getTime() + 180 * 24 * 60 * 60 * 1000), // 6 months loan
+        isPermanent: isSale,
+        createdBy: testUser.email,
+        notes: isSale
+          ? `Sold to ${['Manchester United', 'FC Bayern Munich', 'Real Madrid', 'Paris SG', 'Juventus'][i]}`
+          : `Loaned to ${['Manchester United', 'FC Bayern Munich', 'Real Madrid', 'Paris SG', 'Juventus'][i]}`,
+      });
+      outgoingTransfers.push(outgoingTransfer);
+    }
+
+    await transferRepo.save(outgoingTransfers);
+    console.log(`${outgoingTransfers.length} outgoing transfers seeded`);
 
     // 6. Seed Player Statistics
     console.log('Seeding player statistics...');
@@ -295,7 +350,9 @@ async function seedDatabase() {
       `   - Players: ${players.length} (${activePlayers.length} active)`,
     );
     console.log(`   - Contracts: ${contracts.length}`);
-    console.log(`   - Transfers: ${transfers.length}`);
+    console.log(
+      `   - Transfers: ${transfers.length + outgoingTransfers.length} (${transfers.length} incoming, ${outgoingTransfers.length} outgoing)`,
+    );
     console.log(`   - Statistics: ${statistics.length}`);
   } catch (error) {
     console.error('Error during seeding:', error);

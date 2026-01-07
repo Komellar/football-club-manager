@@ -9,7 +9,7 @@ import {
   Index,
 } from 'typeorm';
 import { Player } from './player.entity';
-import { TransferType, TransferStatus } from '@repo/core';
+import { TransferType, TransferStatus, TransferDirection } from '@repo/core';
 
 @Entity('transfers')
 export class Transfer {
@@ -26,11 +26,23 @@ export class Transfer {
   @JoinColumn({ name: 'player_id' })
   player: Player;
 
-  @Column({ type: 'varchar', length: 100, name: 'from_club', nullable: true })
-  fromClub?: string;
+  @Column({
+    type: 'varchar',
+    length: 100,
+    name: 'other_club_name',
+    nullable: true,
+    comment: 'The other club involved in the transfer (not the users club)',
+  })
+  otherClubName?: string;
 
-  @Column({ type: 'varchar', length: 100, name: 'to_club' })
-  toClub: string;
+  @Column({
+    type: 'enum',
+    enum: TransferDirection,
+    name: 'transfer_direction',
+    comment: 'Direction: incoming (to my club) or outgoing (from my club)',
+  })
+  @Index()
+  transferDirection: TransferDirection;
 
   @Column({
     type: 'enum',

@@ -13,3 +13,4 @@ export const staticPlayers: StaticPlayerData[] = [
 
 export * from './types';
 export { goalkeepers, defenders, midfielders, forwards };
+

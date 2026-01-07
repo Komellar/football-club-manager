@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { TransferType, TransferStatus } from "../../enums/transfer";
+import { TransferType, TransferStatus, TransferDirection } from "../../enums/transfer";
 import { SortOrder } from "../../enums/list";
 import { ListQueryParamsSchema } from "../list/pagination-schemas";
 import { createPaginationResponseSchema } from "../../utils/schema-utils";
@@ -13,8 +13,8 @@ export const TransferListSchema = ListQueryParamsSchema.extend({
       playerId: z.coerce.number().int().positive().optional(),
       transferType: z.enum(TransferType).optional(),
       transferStatus: z.enum(TransferStatus).optional(),
-      fromClub: z.string().optional(),
-      toClub: z.string().optional(),
+      transferDirection: z.enum(TransferDirection).optional(),
+      otherClubName: z.string().optional(),
       isPermanent: z.coerce.boolean().optional(),
     })
     .optional(),

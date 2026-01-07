@@ -1,21 +1,18 @@
 import { z } from "zod";
-import { TransferType, TransferStatus } from "../../enums/transfer";
+import { TransferType, TransferStatus, TransferDirection } from "../../enums/transfer";
 
 export const CreateTransferSchema = z
   .object({
     playerId: z.number().int().positive("Player ID must be a positive integer"),
 
-    fromClub: z
+    otherClubName: z
       .string()
       .trim()
-      .max(100, "From club name must be less than 100 characters")
+      .min(3, "Other club name is required")
+      .max(100, "Other club name must be less than 100 characters")
       .optional(),
 
-    toClub: z
-      .string()
-      .trim()
-      .min(3, "To club is required")
-      .max(100, "To club name must be less than 100 characters"),
+    transferDirection: z.enum(TransferDirection),
 
     transferType: z.enum(TransferType),
 
@@ -86,15 +83,31 @@ export const CreateTransferSchema = z
       });
     }
 
+    // Validate club name requirements based on transfer type and direction
+    const requiresOtherClub = [
+      TransferType.SIGNING,
+      TransferType.LOAN,
+      TransferType.LOAN_RETURN,
+      TransferType.SALE,
+    ].includes(data.transferType);
+
+    if (requiresOtherClub && !data.otherClubName) {
+      ctx.addIssue({
+        code: "custom",
+        message: "This transfer type requires specifying the other club",
+        path: ["otherClubName"],
+      });
+    }
+
     if (
-      data.transferType === TransferType.LOAN_RETURN &&
-      !data.fromClub &&
-      !data.toClub
+      (data.transferType === TransferType.RETIREMENT ||
+        data.transferType === TransferType.RELEASE) &&
+      data.otherClubName
     ) {
       ctx.addIssue({
         code: "custom",
-        message: "Loan return transfers must specify clubs",
-        path: ["fromClub"],
+        message: "Retirement and release transfers should not specify another club",
+        path: ["otherClubName"],
       });
     }
 
@@ -110,14 +123,21 @@ export const CreateTransferSchema = z
       data.isPermanent = true;
     }
 
-    if (data.transferType === TransferType.RETIREMENT) {
-      if (data.toClub && data.toClub !== "RETIRED") {
-        ctx.addIssue({
-          code: "custom",
-          message: "Retirement transfers should have 'RETIRED' as destination",
-          path: ["toClub"],
-        });
-      }
+    // Validate transfer direction logic
+    if (data.transferType === TransferType.SIGNING && data.transferDirection !== TransferDirection.INCOMING) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Signings must be incoming transfers",
+        path: ["transferDirection"],
+      });
+    }
+
+    if (data.transferType === TransferType.SALE && data.transferDirection !== TransferDirection.OUTGOING) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Sales must be outgoing transfers",
+        path: ["transferDirection"],
+      });
     }
   });
 
