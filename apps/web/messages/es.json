@@ -218,15 +218,20 @@
   "Transfers": {
     "title": "Transferencias",
     "addTransfer": "Agregar Transferencia",
+    "manageTransfers": "Gestiona las actividades de transferencia de tu club",
     "player": "Jugador",
-    "fromClub": "Club de Origen",
-    "toClub": "Club de Destino",
-    "transferFee": "Precio de Transferencia",
-    "transferDate": "Fecha de Transferencia",
-    "transferType": "Tipo de Transferencia",
-    "loan": "Préstamo",
-    "permanent": "Permanente",
-    "free": "Transferencia Libre"
+    "club": "Otro Club",
+    "direction": "Dirección",
+    "type": "Tipo",
+    "date": "Fecha",
+    "fee": "Precio",
+    "status": "Estado",
+    "actions": "Acciones",
+    "noTransfersMessage": "No se encontraron transferencias. Agrega tu primera transferencia para comenzar.",
+    "noTransfersFound": "No se encontraron transferencias que coincidan con tus criterios.",
+    "placeholders": {
+      "searchByClub": "Buscar por nombre del club..."
+    }
   },
   "Contracts": {
     "title": "Contratos",

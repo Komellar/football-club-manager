@@ -1,10 +1,26 @@
 import { z } from "zod";
-import { TransferType, TransferStatus, TransferDirection } from "../../enums/transfer";
+import {
+  TransferType,
+  TransferStatus,
+  TransferDirection,
+} from "../../enums/transfer";
 import { SortOrder } from "../../enums/list";
 import { ListQueryParamsSchema } from "../list/pagination-schemas";
 import { createPaginationResponseSchema } from "../../utils/schema-utils";
 import { DateRangeQuerySchema } from "../list/date-range-schemas";
 import { TransferResponseSchema } from "./transfer-response-schemas";
+
+export const TRANSFER_SORT_COLUMNS = [
+  "transferDirection",
+  "transferDate",
+  "transferType",
+  "transferStatus",
+  "transferFee",
+  "isCompleted",
+  "otherClubName",
+  "createdAt",
+] as const;
+export type TransferSortColumn = (typeof TRANSFER_SORT_COLUMNS)[number];
 
 export const TransferListSchema = ListQueryParamsSchema.extend({
   where: z
@@ -20,7 +36,7 @@ export const TransferListSchema = ListQueryParamsSchema.extend({
     .optional(),
   sort: z
     .object({
-      by: z.enum(["transferDate", "fee", "createdAt"]).default("transferDate"),
+      by: z.enum(TRANSFER_SORT_COLUMNS).default("createdAt"),
       order: z.enum(SortOrder).default(SortOrder.DESC).optional(),
     })
     .optional(),
