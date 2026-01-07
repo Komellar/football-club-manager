@@ -29,23 +29,10 @@ export const prepareExpenseData = (
   );
 };
 
-// TODO
 export const prepareOverviewData = (data: FinancialSummary) => {
-  return [
-    {
-      category: "Income",
-      // amount: data.totalIncome,
-      amount: 1900,
-    },
-    {
-      category: "Expenses",
-      // amount: data.totalExpenses,
-      amount: 1112,
-    },
-    // {
-    //   category: "Net Profit",
-    //   // amount: data.netProfit + 1000,
-    //   amount: -1000,
-    // },
-  ];
+  return data.monthlyData.map((item) => ({
+    month: item.month,
+    income: item.income,
+    expenses: item.expenses,
+  }));
 };

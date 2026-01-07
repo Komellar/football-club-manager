@@ -5,7 +5,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useTranslations } from "next-intl";
 import { PieChartClient } from "@/components/shared/charts";
 import { transformContractDataForChart } from "@/features/contracts/utils/chart";
 import { ChartConfig } from "@/components/ui/chart";
@@ -51,7 +50,11 @@ export async function PieChartCard({
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent>
-        <PieChartClient chartData={chartData} chartConfig={chartConfig} />
+        <PieChartClient
+          chartData={chartData}
+          chartConfig={chartConfig}
+          isMonetary
+        />
       </CardContent>
     </Card>
   );

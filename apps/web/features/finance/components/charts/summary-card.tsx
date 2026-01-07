@@ -8,7 +8,7 @@ import {
 import { FinancialSummary } from "@repo/core";
 import { getTranslations } from "next-intl/server";
 import { formatCurrency } from "@/utils/currency";
-import { TrendingUp, TrendingDown, Wallet } from "lucide-react";
+import { TrendingUp, TrendingDown } from "lucide-react";
 
 interface SummaryCardProps {
   data: FinancialSummary;
@@ -27,13 +27,10 @@ export async function SummaryCard({ data }: SummaryCardProps) {
               {t("periodFinancialSummary")}
             </CardDescription>
           </div>
-          <div className="rounded-full bg-primary/10 p-3">
-            <Wallet className="h-6 w-6 text-primary" />
-          </div>
         </div>
       </CardHeader>
       <CardContent>
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-6 lg:grid-cols-3">
           {/* Total Income */}
           <div className="group relative overflow-hidden rounded-lg border bg-card p-6 shadow-sm transition-all hover:shadow-md hover:border-green-500/50">
             <div className="flex items-start justify-between">
@@ -41,7 +38,7 @@ export async function SummaryCard({ data }: SummaryCardProps) {
                 <p className="text-sm font-medium text-muted-foreground">
                   {t("totalIncome")}
                 </p>
-                <p className="text-3xl font-bold text-green-600">
+                <p className="text-2xl font-bold text-green-600">
                   {formatCurrency(data.summary.totalIncome)}
                 </p>
               </div>
@@ -59,7 +56,7 @@ export async function SummaryCard({ data }: SummaryCardProps) {
                 <p className="text-sm font-medium text-muted-foreground">
                   {t("totalExpenses")}
                 </p>
-                <p className="text-3xl font-bold text-red-600">
+                <p className="text-2xl font-bold text-red-600">
                   {formatCurrency(data.summary.totalExpenses)}
                 </p>
               </div>
@@ -83,17 +80,15 @@ export async function SummaryCard({ data }: SummaryCardProps) {
                 <p className="text-sm font-medium text-muted-foreground">
                   {t("netProfit")}
                 </p>
-                <div className="flex items-baseline gap-2">
-                  <p
-                    className={`text-3xl font-bold ${
-                      data.summary.netProfit >= 0
-                        ? "text-emerald-600"
-                        : "text-orange-600"
-                    }`}
-                  >
-                    {formatCurrency(data.summary.netProfit)}
-                  </p>
-                </div>
+                <p
+                  className={`text-2xl font-bold ${
+                    data.summary.netProfit >= 0
+                      ? "text-emerald-600"
+                      : "text-orange-600"
+                  }`}
+                >
+                  {formatCurrency(data.summary.netProfit)}
+                </p>
               </div>
               <div
                 className={`rounded-full p-2 ${

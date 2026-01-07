@@ -9,25 +9,35 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { ChartDataItem } from "@/types/chart";
+import { TooltipContent } from "./tooltip-content";
 
 interface PieChartClientProps {
   chartData: ChartDataItem[];
   chartConfig: ChartConfig;
+  isMonetary?: boolean;
 }
 
 export function PieChartClient({
   chartData,
   chartConfig,
+  isMonetary = false,
 }: PieChartClientProps) {
   return (
     <ChartContainer config={chartConfig} className="min-h-[150px] w-full">
       <PieChart>
         <ChartTooltip
+          cursor={false}
           content={
             <ChartTooltipContent
-              labelFormatter={(value) =>
-                chartConfig[value as ContractType]?.label || value
-              }
+              hideLabel
+              formatter={(value, name) => (
+                <TooltipContent
+                  value={value}
+                  name={name}
+                  chartConfig={chartConfig}
+                  isMonetary={isMonetary}
+                />
+              )}
             />
           }
         />

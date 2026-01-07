@@ -16,9 +16,10 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { overviewChartConfig } from "../../utils/charts-configs";
+import { TooltipContent } from "@/components/shared/charts";
 
 interface OverviewChartProps {
-  data: Array<{ category: string; amount: number }>;
+  data: Array<{ month: string; income: number; expenses: number }>;
 }
 
 export function OverviewChart({ data }: OverviewChartProps) {
@@ -45,24 +46,35 @@ export function OverviewChart({ data }: OverviewChartProps) {
                 return x.slice(0, -5) + "€";
               }}
               width={60}
-              dataKey="amount"
+              dataKey="expenses"
               type="number"
               tickLine={false}
               axisLine={false}
             />
             <XAxis
-              dataKey="category"
+              dataKey="month"
               tickLine={false}
-              tickMargin={10}
               axisLine={false}
-              tickFormatter={(value) => value.slice(0, 3)}
+              tickMargin={10}
             />
             <ChartTooltip
               cursor={false}
-              content={<ChartTooltipContent indicator="dashed" />}
+              content={
+                <ChartTooltipContent
+                  hideLabel
+                  formatter={(value, name) => (
+                    <TooltipContent
+                      value={value}
+                      name={name}
+                      chartConfig={overviewChartConfig}
+                      isMonetary
+                    />
+                  )}
+                />
+              }
             />
-            <Bar dataKey="amount" fill="var(--chart-1)" radius={4} />
-            {/* <Bar dataKey="amount" fill="var(--chart-2)" radius={4} /> */}
+            <Bar dataKey="income" fill="var(--color-income)" radius={4} />
+            <Bar dataKey="expenses" fill="var(--color-expenses)" radius={4} />
           </BarChart>
         </ChartContainer>
       </CardContent>

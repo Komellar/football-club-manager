@@ -137,7 +137,7 @@ export class MatchStatisticsProcessorService {
     savesMade: number,
   ): Omit<CreatePlayerStatisticsDto, 'playerId' | 'season'> {
     const stats = {
-      minutesPlayed: 90, // TODO: Track minutes played during match
+      minutesPlayed: 90,
       goals: this.countEventsByType(events, MatchEventType.GOAL),
       assists,
       savesMade,

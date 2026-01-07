@@ -23,7 +23,6 @@ export async function FinanceCharts({ data }: FinanceChartsProps) {
   const incomeData = prepareIncomeData(data);
   const expenseData = prepareExpenseData(data);
   const overviewData = prepareOverviewData(data);
-  console.log(data);
 
   return (
     <div className="grid gap-4 grid-cols-1">
