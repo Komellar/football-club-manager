@@ -1,4 +1,9 @@
 import { TransferType, TransferStatus, TransferDirection } from "@repo/core";
+import {
+  transferTypeColors,
+  transferStatusColors,
+  transferDirectionColors,
+} from "../constants/colors";
 
 export function formatTransferType(type: TransferType): string {
   const typeMap: Record<TransferType, string> = {
@@ -27,4 +32,18 @@ export function formatTransferDirection(direction: TransferDirection): string {
     [TransferDirection.OUTGOING]: "Outgoing",
   };
   return directionMap[direction];
+}
+
+export function getTransferTypeColor(type: TransferType): string {
+  return transferTypeColors[type];
+}
+
+export function getTransferStatusColor(status: TransferStatus): string {
+  return transferStatusColors[status];
+}
+
+export function getTransferDirectionColor(
+  direction: TransferDirection
+): string {
+  return transferDirectionColors[direction];
 }
