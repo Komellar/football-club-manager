@@ -29,7 +29,6 @@ export const TransferListFiltersSchema = z.object({
   transferStatus: z.enum(TransferStatus).optional(),
   transferDirection: z.enum(TransferDirection).optional(),
   otherClubName: z.string().optional(),
-  isPermanent: z.coerce.boolean().optional(),
 });
 
 export const TransferListSchema = ListQueryParamsSchema.extend({

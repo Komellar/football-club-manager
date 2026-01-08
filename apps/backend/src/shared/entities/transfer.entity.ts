@@ -90,35 +90,11 @@ export class Transfer {
   })
   agentFee?: number;
 
-  @Column({
-    type: 'decimal',
-    precision: 10,
-    scale: 2,
-    nullable: true,
-    name: 'annual_salary',
-    comment: 'Annual salary agreed in the transfer',
-    transformer: {
-      to: (value: number | null) => value,
-      from: (value: string | null) => (value ? parseFloat(value) : null),
-    },
-  })
-  annualSalary?: number;
-
-  @Column({
-    type: 'int',
-    nullable: true,
-    name: 'contract_length_months',
-  })
-  contractLengthMonths?: number;
-
   @Column({ type: 'date', nullable: true, name: 'loan_end_date' })
   loanEndDate?: Date;
 
   @Column({ type: 'text', nullable: true })
   notes?: string;
-
-  @Column({ type: 'boolean', default: false, name: 'is_permanent' })
-  isPermanent: boolean;
 
   @Column({ type: 'varchar', length: 100, nullable: true, name: 'created_by' })
   createdBy?: string;

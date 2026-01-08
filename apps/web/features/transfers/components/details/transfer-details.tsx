@@ -122,15 +122,6 @@ export async function TransferDetails({ transfer }: TransferDetailsProps) {
             </p>
           </div>
 
-          <div>
-            <label className="text-sm font-medium text-muted-foreground">
-              {t("permanentType")}
-            </label>
-            <p className="text-base mt-1">
-              {transfer.isPermanent ? t("permanent") : t("temporary")}
-            </p>
-          </div>
-
           {transfer.loanEndDate && (
             <div>
               <label className="text-sm font-medium text-muted-foreground">
@@ -138,17 +129,6 @@ export async function TransferDetails({ transfer }: TransferDetailsProps) {
               </label>
               <p className="text-base mt-1">
                 {formatDate(transfer.loanEndDate)}
-              </p>
-            </div>
-          )}
-
-          {transfer.contractLengthMonths && (
-            <div>
-              <label className="text-sm font-medium text-muted-foreground">
-                {t("contractLength")}
-              </label>
-              <p className="text-base mt-1">
-                {transfer.contractLengthMonths} {t("months")}
               </p>
             </div>
           )}
@@ -186,17 +166,6 @@ export async function TransferDetails({ transfer }: TransferDetailsProps) {
                   {formatCurrency(transfer.agentFee)}
                 </p>
               </div>
-
-              {transfer.annualSalary && (
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">
-                    {t("annualSalary")}
-                  </label>
-                  <p className="text-base mt-1">
-                    {formatCurrency(transfer.annualSalary)}
-                  </p>
-                </div>
-              )}
 
               <div>
                 <label className="text-sm font-medium text-muted-foreground">

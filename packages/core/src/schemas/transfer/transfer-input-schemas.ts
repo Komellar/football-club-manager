@@ -32,19 +32,6 @@ export const CreateTransferSchema = z
       .max(50000000, "Agent fee cannot exceed 50 million")
       .optional(),
 
-    annualSalary: z
-      .number()
-      .positive("Annual salary must be positive")
-      .max(100000000, "Annual salary cannot exceed 100 million")
-      .optional(),
-
-    contractLengthMonths: z
-      .number()
-      .int()
-      .positive("Contract length must be positive")
-      .max(120, "Contract length cannot exceed 10 years (120 months)")
-      .optional(),
-
     loanEndDate: z.coerce.date().optional(),
 
     notes: z
@@ -53,20 +40,10 @@ export const CreateTransferSchema = z
       .max(1000, "Notes must be less than 1000 characters")
       .optional(),
 
-    isPermanent: z.boolean().optional(),
-
     createdBy: z.string().trim().optional(),
   })
   .superRefine((data, ctx) => {
     // Business logic validations
-    if (data.transferType === TransferType.LOAN && data.isPermanent) {
-      ctx.addIssue({
-        code: "custom",
-        message: "Loan transfers cannot be permanent",
-        path: ["isPermanent"],
-      });
-    }
-
     if (data.transferType === TransferType.LOAN && !data.loanEndDate) {
       ctx.addIssue({
         code: "custom",
@@ -109,18 +86,6 @@ export const CreateTransferSchema = z
         message: "Retirement and release transfers should not specify another club",
         path: ["otherClubName"],
       });
-    }
-
-    if (data.transferType === TransferType.LOAN && data.isPermanent) {
-      ctx.addIssue({
-        code: "custom",
-        message: "Loan transfers cannot be permanent",
-        path: ["isPermanent"],
-      });
-    }
-
-    if (data.transferType === TransferType.SIGNING && !data.isPermanent) {
-      data.isPermanent = true;
     }
 
     // Validate transfer direction logic

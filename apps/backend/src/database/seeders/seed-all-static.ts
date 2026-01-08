@@ -215,13 +215,6 @@ async function seedDatabase() {
         transferDate: staticPlayer.contractStart,
         transferFee: Math.floor(staticPlayer.marketValue * 0.4),
         agentFee: staticPlayer.agentFee,
-        annualSalary: staticPlayer.salary * 12,
-        contractLengthMonths: Math.floor(
-          (staticPlayer.contractEnd.getTime() -
-            staticPlayer.contractStart.getTime()) /
-            (1000 * 60 * 60 * 24 * 30),
-        ),
-        isPermanent: staticPlayer.contractType === ContractType.PERMANENT,
         createdBy: testUser.email,
         notes: `Transfer from Previous Club`,
       });
@@ -268,12 +261,9 @@ async function seedDatabase() {
         agentFee: isSale
           ? Math.floor(staticPlayer.marketValue * 0.03)
           : undefined,
-        annualSalary: undefined,
-        contractLengthMonths: undefined,
         loanEndDate: isSale
           ? undefined
           : new Date(saleDate.getTime() + 180 * 24 * 60 * 60 * 1000), // 6 months loan
-        isPermanent: isSale,
         createdBy: testUser.email,
         notes: isSale
           ? `Sold to ${['Manchester United', 'FC Bayern Munich', 'Real Madrid', 'Paris SG', 'Juventus'][i]}`

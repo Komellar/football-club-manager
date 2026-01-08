@@ -53,11 +53,8 @@ const createMockTransfer = (overrides = {}): Transfer => ({
   transferDate: new Date('2024-01-15'),
   transferFee: 50000000,
   agentFee: 5000000,
-  annualSalary: 10000000,
-  contractLengthMonths: 36,
   loanEndDate: undefined,
   notes: undefined,
-  isPermanent: true,
   createdBy: 'admin',
   createdAt: new Date('2024-01-10'),
   updatedAt: new Date('2024-01-15'),
@@ -98,9 +95,6 @@ describe('TransfersService', () => {
     transferDate: new Date('2024-01-15'),
     transferFee: 50000000,
     agentFee: 5000000,
-    annualSalary: 10000000,
-    contractLengthMonths: 36,
-    isPermanent: true,
     createdBy: 'admin',
   };
 
@@ -308,7 +302,6 @@ describe('TransfersService', () => {
           transferStatus: TransferStatus.COMPLETED,
           transferDirection: TransferDirection.INCOMING,
           otherClubName: 'Barcelona',
-          isPermanent: true,
           minFee: 1000000,
           maxFee: 100000000,
         },
@@ -337,10 +330,6 @@ describe('TransfersService', () => {
             }),
             // otherClubName should be processed with ILike for partial matching
             otherClubName: expect.objectContaining({ _type: 'ilike' }),
-            isPermanent: expect.objectContaining({
-              _type: 'equal',
-              _value: true,
-            }),
             // minFee and maxFee now use Equal operator (not GTE/LTE)
             minFee: expect.objectContaining({
               _type: 'equal',
@@ -594,11 +583,8 @@ describe('TransfersService', () => {
           transferDate: mockTransfer.transferDate,
           transferFee: mockTransfer.transferFee,
           agentFee: mockTransfer.agentFee,
-          annualSalary: mockTransfer.annualSalary,
-          contractLengthMonths: mockTransfer.contractLengthMonths,
           loanEndDate: mockTransfer.loanEndDate,
           notes: mockTransfer.notes,
-          isPermanent: mockTransfer.isPermanent,
           createdBy: mockTransfer.createdBy,
           createdAt: mockTransfer.createdAt,
           updatedAt: mockTransfer.updatedAt,
