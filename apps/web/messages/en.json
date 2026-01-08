@@ -8,6 +8,7 @@
     "playerPerformance": "Player Performance",
     "playerEdit": "Edit Player",
     "transfers": "Transfers",
+    "transferEdit": "Edit Transfer",
     "contracts": "Contracts",
     "contractEdit": "Edit Contract",
     "matchSimulation": "Match Simulation",
@@ -218,10 +219,26 @@
   },
   "Transfers": {
     "title": "Transfers",
+    "description": "Manage your club's transfer activities",
     "addTransfer": "Add Transfer",
+    "createTransfer": "Create Transfer",
+    "createTransferDescription": "Create a new transfer record",
+    "editTransfer": "Edit Transfer",
+    "editTransferDescription": "Update transfer information",
     "transferDetails": "Transfer Details",
+    "viewTransferInfo": "View detailed transfer information",
     "transferFor": "Transfer for {player}",
+    "transferCreated": "Transfer created successfully",
+    "transferUpdated": "Transfer updated successfully",
+    "failedToCreate": "Failed to create transfer",
+    "failedToUpdate": "Failed to update transfer",
+    "saving": "Saving...",
+    "cancel": "Cancel",
     "edit": "Edit",
+    "somethingWentWrong": "Something went wrong",
+    "errorLoading": "We encountered an error while loading the transfer.",
+    "tryAgain": "Try again",
+    "backToTransfers": "Back to Transfers",
     "manageTransfers": "Manage your club's transfer activities",
     "player": "Player",
     "club": "Other Club",
@@ -256,6 +273,7 @@
       "basicInfo": "Basic Information",
       "transferDetails": "Transfer Details",
       "financialInfo": "Financial Information",
+      "contractInfo": "Contract Information",
       "additionalInfo": "Additional Information",
       "systemInfo": "System Information"
     },
@@ -281,7 +299,28 @@
       "temporary": "Temporary"
     },
     "placeholders": {
-      "searchByClub": "Search by club name..."
+      "searchByClub": "Search by club name...",
+      "selectPlayer": "Select a player",
+      "selectType": "Select transfer type",
+      "selectDirection": "Select direction",
+      "selectStatus": "Select status",
+      "selectDate": "Select date",
+      "selectPermanentType": "Select transfer type",
+      "enterClubName": "Enter club name",
+      "enterNotes": "Enter additional notes...",
+      "enterTransferFee": "Enter transfer fee",
+      "enterAgentFee": "Enter agent fee"
+    },
+    "descriptions": {
+      "playerCannotBeChanged": "Player cannot be changed when editing a transfer",
+      "otherClubName": "Required for signings, sales, and loans",
+      "transferFee": "Amount paid for the transfer (in €)",
+      "agentFee": "Agent commission (in €)",
+      "annualSalary": "Player's annual salary (in €)",
+      "contractLength": "Contract duration in months",
+      "loanEndDate": "Required for loan transfers",
+      "loanNotPermanent": "Loan transfers cannot be permanent",
+      "notes": "Additional information about the transfer"
     }
   },
   "Contracts": {

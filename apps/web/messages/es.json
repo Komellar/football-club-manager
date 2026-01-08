@@ -8,6 +8,7 @@
     "playerContracts": "Contratos del Jugador",
     "playerEdit": "Editar Jugador",
     "transfers": "Traspasos",
+    "transferEdit": "Editar Traspaso",
     "contracts": "Contratos",
     "contractEdit": "Editar Contrato",
     "matchSimulation": "Simulación de Partido",
@@ -217,9 +218,19 @@
   },
   "Transfers": {
     "title": "Transferencias",
+    "description": "Gestiona las actividades de transferencia de tu club",
     "addTransfer": "Agregar Transferencia",
+    "createTransfer": "Crear Transferencia",
+    "createTransferDescription": "Crear un nuevo registro de transferencia",
+    "editTransfer": "Editar Transferencia",
+    "editTransferDescription": "Actualizar información de transferencia",
     "transferDetails": "Detalles de Transferencia",
+    "viewTransferInfo": "Ver información detallada de transferencia",
     "transferFor": "Transferencia de {player}",
+    "somethingWentWrong": "Algo salió mal",
+    "errorLoading": "Encontramos un error al cargar la transferencia.",
+    "tryAgain": "Intentar de nuevo",
+    "backToTransfers": "Volver a Transferencias",
     "edit": "Editar",
     "manageTransfers": "Gestiona las actividades de transferencia de tu club",
     "player": "Jugador",
@@ -280,7 +291,25 @@
       "temporary": "Temporal"
     },
     "placeholders": {
-      "searchByClub": "Buscar por nombre del club..."
+      "searchByClub": "Buscar por nombre del club...",
+      "selectDirection": "Seleccionar dirección",
+      "selectType": "Seleccionar tipo",
+      "selectStatus": "Seleccionar estado",
+      "selectPermanentStatus": "Seleccionar tipo de transferencia",
+      "selectDate": "Seleccionar fecha",
+      "selectLoanEndDate": "Seleccionar fecha de fin del préstamo",
+      "enterClubName": "Ingresa el nombre del club",
+      "enterNotes": "Agrega notas adicionales...",
+      "enterTransferFee": "Ingresa la tarifa de transferencia",
+      "enterAgentFee": "Ingresa la comisión del agente"
+    },
+    "descriptions": {
+      "playerCannotBeChanged": "El jugador no se puede cambiar al editar una transferencia",
+      "otherClubName": "Requerido para fichajes, ventas y préstamos",
+      "transferFee": "Monto pagado por la transferencia (en €)",
+      "agentFee": "Comisión del agente (en €)",
+      "loanEndDate": "Requerido para transferencias de préstamo",
+      "notes": "Información adicional sobre la transferencia"
     }
   },
   "Contracts": {

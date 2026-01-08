@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { TransferType, TransferStatus, TransferDirection } from "../../enums/transfer";
+import {
+  TransferType,
+  TransferStatus,
+  TransferDirection,
+} from "../../enums/transfer";
 
 export const CreateTransferSchema = z
   .object({
@@ -16,7 +20,7 @@ export const CreateTransferSchema = z
 
     transferType: z.enum(TransferType),
 
-    transferStatus: z.enum(TransferStatus).default(TransferStatus.PENDING),
+    transferStatus: z.enum(TransferStatus),
 
     transferDate: z.coerce.date(),
 
@@ -83,13 +87,17 @@ export const CreateTransferSchema = z
     ) {
       ctx.addIssue({
         code: "custom",
-        message: "Retirement and release transfers should not specify another club",
+        message:
+          "Retirement and release transfers should not specify another club",
         path: ["otherClubName"],
       });
     }
 
     // Validate transfer direction logic
-    if (data.transferType === TransferType.SIGNING && data.transferDirection !== TransferDirection.INCOMING) {
+    if (
+      data.transferType === TransferType.SIGNING &&
+      data.transferDirection !== TransferDirection.INCOMING
+    ) {
       ctx.addIssue({
         code: "custom",
         message: "Signings must be incoming transfers",
@@ -97,7 +105,10 @@ export const CreateTransferSchema = z
       });
     }
 
-    if (data.transferType === TransferType.SALE && data.transferDirection !== TransferDirection.OUTGOING) {
+    if (
+      data.transferType === TransferType.SALE &&
+      data.transferDirection !== TransferDirection.OUTGOING
+    ) {
       ctx.addIssue({
         code: "custom",
         message: "Sales must be outgoing transfers",
