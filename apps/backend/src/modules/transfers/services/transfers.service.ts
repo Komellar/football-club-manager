@@ -163,7 +163,6 @@ export class TransfersService {
   async remove(id: number): Promise<void> {
     const transfer = await this.transferRepository.findOneOrFail({
       where: { id },
-      relations: ['player'],
     });
 
     if (transfer.transferStatus === TransferStatus.COMPLETED) {

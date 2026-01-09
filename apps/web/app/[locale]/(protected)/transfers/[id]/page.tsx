@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { ArrowLeft, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { TransferDetails } from "@/features/transfers/components";
+import { TransferDetails, DeleteTransferDialog } from "@/features/transfers/components";
 import { getTransferById } from "@/features/transfers/api";
 
 interface TransferDetailsPageProps {
@@ -59,6 +59,11 @@ export default async function TransferDetailsPage({
               {t("edit")}
             </Button>
           </Link>
+          <DeleteTransferDialog
+            transferId={transferId}
+            playerName={transfer.player?.name || `Player #${transfer.playerId}`}
+            redirectPath={`/${locale}/transfers`}
+          />
         </div>
       </div>
 

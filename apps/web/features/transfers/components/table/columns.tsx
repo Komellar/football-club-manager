@@ -4,7 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { TransferResponseDto, TransferSortColumn } from "@repo/core";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Eye, Edit, Trash2 } from "lucide-react";
+import { Eye, Edit } from "lucide-react";
 import { formatCurrency } from "@/utils/currency";
 import { dateToString } from "@/utils/date";
 import {
@@ -21,6 +21,7 @@ import { useTranslations } from "next-intl";
 import { UseTableSortReturn } from "@/hooks";
 import { SortableHeader } from "@/components/shared/data-table/sortable-header";
 import Link from "next/link";
+import { DeleteTransferDialog } from "../delete-transfer-dialog";
 
 export const createTransferColumns = (
   sortHook: UseTableSortReturn<TransferSortColumn>
@@ -126,6 +127,7 @@ export const createTransferColumns = (
       header: () => <div>{t("actions")}</div>,
       cell: ({ row }) => {
         const transfer = row.original;
+        const playerName = transfer.player?.name || `Player #${transfer.playerId}`;
 
         return (
           <div className="flex justify-start gap-2">
@@ -139,9 +141,10 @@ export const createTransferColumns = (
                 <Edit className="h-4 w-4" />
               </Link>
             </Button>
-            <Button variant="ghost" size="icon">
-              <Trash2 className="h-4 w-4" />
-            </Button>
+            <DeleteTransferDialog
+              transferId={transfer.id}
+              playerName={playerName}
+            />
           </div>
         );
       },
