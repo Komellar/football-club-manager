@@ -30,6 +30,9 @@ export function PlayerTabNavigation({ playerId }: PlayerTabNavigationProps) {
         <Link href={`/${locale}/players/${playerId}/performance`}>
           <TabsTrigger value="performance">{t("performance")}</TabsTrigger>
         </Link>
+        <Link href={`/${locale}/players/${playerId}/transfers`}>
+          <TabsTrigger value="transfers">{t("transferHistory")}</TabsTrigger>
+        </Link>
       </TabsList>
     </Tabs>
   );

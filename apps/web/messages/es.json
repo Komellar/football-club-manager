@@ -6,6 +6,7 @@
     "playerDetails": "Detalles del Jugador",
     "playerPerformance": "Rendimiento del Jugador",
     "playerContracts": "Contratos del Jugador",
+    "playerTransfers": "Transferencias del Jugador",
     "playerEdit": "Editar Jugador",
     "transfers": "Traspasos",
     "transferEdit": "Editar Traspaso",
@@ -166,6 +167,12 @@
     "activeContract": "Contrato Activo",
     "contracts": "Contratos",
     "performance": "Rendimiento",
+    "transferHistory": "Historial de Transferencias",
+    "totalTransfers": "Transferencias Totales",
+    "currentClub": "Club Actual",
+    "freeAgent": "Agente Libre",
+    "careerValue": "Valor de Carrera",
+    "noTransferHistory": "No hay historial de transferencias disponible para este jugador.",
     "noActiveContract": "No hay contrato activo para este jugador",
     "contractHistory": "Historial de Contratos",
     "clubFinancialSummary": "Resumen Financiero del Club",
@@ -293,6 +300,7 @@
       "release": "Liberación",
       "retirement": "Retiro"
     },
+    "activeLoan": "Préstamo Activo",
     "statusValues": {
       "pending": "Pendiente",
       "completed": "Completado",

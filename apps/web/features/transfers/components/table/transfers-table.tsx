@@ -15,6 +15,7 @@ import { useTranslations } from "next-intl";
 import { useTableSort } from "@/hooks";
 import { TableSearchInput } from "@/components/shared/data-table/table-search-input";
 import { TransfersFilterDrawer } from "./transfers-filter-drawer";
+import { useParams } from "next/navigation";
 
 interface TransfersTableProps {
   transfersData: PaginatedTransferResponseDto;
@@ -22,6 +23,8 @@ interface TransfersTableProps {
 
 export function TransfersTable({ transfersData }: TransfersTableProps) {
   const t = useTranslations("Transfers");
+  const params = useParams();
+  const locale = params.locale as string;
   const { data: transfers, pagination } = transfersData;
 
   const sortHook = useTableSort<TransferSortColumn>({
@@ -42,7 +45,7 @@ export function TransfersTable({ transfersData }: TransfersTableProps) {
             {t("noTransfersMessage")}
           </p>
           <Button asChild>
-            <Link href="/transfers/new">
+            <Link href={`/${locale}/transfers/new`}>
               <Plus className="h-4 w-4 mr-2" />
               {t("addTransfer")}
             </Link>

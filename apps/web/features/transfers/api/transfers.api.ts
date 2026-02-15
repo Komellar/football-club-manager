@@ -8,6 +8,7 @@ import type {
   TransferResponseDto,
   CreateTransferDto,
   UpdateTransferDto,
+  TransferHistoryDto,
 } from "@repo/core";
 
 export async function getTransfers(
@@ -31,8 +32,9 @@ export async function getTransferById(
   id: number
 ): Promise<TransferResponseDto> {
   try {
-    const { data }: AxiosResponse<TransferResponseDto> =
-      await apiClient.get(`/transfers/${id}`);
+    const { data }: AxiosResponse<TransferResponseDto> = await apiClient.get(
+      `/transfers/${id}`
+    );
     return data;
   } catch (error) {
     if (error instanceof AxiosError) {
@@ -48,8 +50,10 @@ export async function createTransfer(
   transferData: CreateTransferDto
 ): Promise<TransferResponseDto> {
   try {
-    const { data }: AxiosResponse<TransferResponseDto> =
-      await apiClient.post("/transfers", transferData);
+    const { data }: AxiosResponse<TransferResponseDto> = await apiClient.post(
+      "/transfers",
+      transferData
+    );
     return data;
   } catch (error) {
     if (error instanceof AxiosError) {
@@ -66,8 +70,10 @@ export async function updateTransfer(
   transferData: UpdateTransferDto
 ): Promise<TransferResponseDto> {
   try {
-    const { data }: AxiosResponse<TransferResponseDto> =
-      await apiClient.patch(`/transfers/${id}`, transferData);
+    const { data }: AxiosResponse<TransferResponseDto> = await apiClient.patch(
+      `/transfers/${id}`,
+      transferData
+    );
     return data;
   } catch (error) {
     if (error instanceof AxiosError) {
@@ -89,5 +95,23 @@ export async function deleteTransfer(id: number): Promise<void> {
       throw new Error(errorMessage);
     }
     throw new Error("Failed to delete transfer");
+  }
+}
+
+export async function getPlayerTransferHistory(
+  playerId: number
+): Promise<TransferHistoryDto> {
+  try {
+    const { data }: AxiosResponse<TransferHistoryDto> = await apiClient.get(
+      `/transfers/player/${playerId}`
+    );
+    return data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      const errorMessage =
+        error.response?.data?.message || "Failed to fetch transfer history";
+      throw new Error(errorMessage);
+    }
+    throw new Error("Failed to fetch transfer history");
   }
 }
