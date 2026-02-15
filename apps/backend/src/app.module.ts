@@ -12,6 +12,7 @@ import { TransfersModule } from './modules/transfers/transfers.module';
 import { ContractsModule } from './modules/contracts/contracts.module';
 import { MatchEventsModule } from './modules/match-events/match-events.module';
 import { FinanceModule } from './modules/finance/finance.module';
+import { SponsorshipsModule } from './modules/sponsorships/sponsorships.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { FinanceModule } from './modules/finance/finance.module';
     ContractsModule,
     MatchEventsModule,
     FinanceModule,
+    SponsorshipsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
