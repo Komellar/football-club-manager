@@ -4,6 +4,7 @@ import { User, Contract } from '../shared/entities';
 import { Player } from '../shared/entities/player.entity';
 import { PlayerStatistics } from '../shared/entities/player-statistics.entity';
 import { Transfer } from '../shared/entities/transfer.entity';
+import { Sponsorship } from '../shared/entities/sponsorship.entity';
 
 export const getDatabaseConfig = (
   configService: ConfigService,
@@ -14,7 +15,7 @@ export const getDatabaseConfig = (
   username: configService.get('DB_USERNAME'),
   password: configService.get('DB_PASSWORD'),
   database: configService.get('DB_NAME'),
-  entities: [User, Player, PlayerStatistics, Transfer, Contract],
+  entities: [User, Player, PlayerStatistics, Transfer, Contract, Sponsorship],
   migrations: [__dirname + '/../database/migrations/*{.ts,.js}'],
   synchronize: false,
   migrationsRun: false,
