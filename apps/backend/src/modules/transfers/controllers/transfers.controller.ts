@@ -17,7 +17,7 @@ import { TransfersService } from '../services/transfers.service';
 import { AuthGuard } from '@/shared/guards/auth.guard';
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe';
 import {
-  CreateTransferSchema,
+  CreateTransferValidationSchema as CreateTransferSchema,
   UpdateTransferSchema,
   TransferListSchema,
   type CreateTransferDto,

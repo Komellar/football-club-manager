@@ -30,11 +30,9 @@ export function TransferForm({ players = [] }: TransferFormProps) {
   const [isPending, startTransition] = useTransition();
   const [serverError, setServerError] = useState<string | null>(null);
 
-  const form = useForm<any>({
+  const form = useForm<CreateTransferDto>({
     resolver: zodResolver(CreateTransferSchema),
-    defaultValues: {
-      ...DEFAULT_TRANSFER_FORM_VALUES,
-    },
+    defaultValues: DEFAULT_TRANSFER_FORM_VALUES,
   });
 
   const onSubmit = async (data: CreateTransferDto) => {

@@ -5,48 +5,49 @@ import {
   TransferDirection,
 } from "../../enums/transfer";
 
-export const CreateTransferSchema = z
-  .object({
-    playerId: z.number().int().positive("Player ID must be a positive integer"),
+export const CreateTransferSchema = z.object({
+  playerId: z.number().int().positive("Player ID must be a positive integer"),
 
-    otherClubName: z
-      .string()
-      .trim()
-      .min(3, "Other club name is required")
-      .max(100, "Other club name must be less than 100 characters")
-      .optional(),
+  otherClubName: z
+    .string()
+    .trim()
+    .min(3, "Other club name is required")
+    .max(100, "Other club name must be less than 100 characters")
+    .optional(),
 
-    transferDirection: z.enum(TransferDirection),
+  transferDirection: z.enum(TransferDirection),
 
-    transferType: z.enum(TransferType),
+  transferType: z.enum(TransferType),
 
-    transferStatus: z.enum(TransferStatus),
+  transferStatus: z.enum(TransferStatus),
 
-    transferDate: z.coerce.date(),
+  transferDate: z.coerce.date<Date>("Invalid date"),
 
-    transferFee: z
-      .number()
-      .positive("Transfer fee must be positive")
-      .max(500000000, "Transfer fee cannot exceed 500 million")
-      .optional(),
+  transferFee: z
+    .number()
+    .positive("Transfer fee must be positive")
+    .max(500000000, "Transfer fee cannot exceed 500 million")
+    .optional(),
 
-    agentFee: z
-      .number()
-      .positive("Agent fee must be positive")
-      .max(50000000, "Agent fee cannot exceed 50 million")
-      .optional(),
+  agentFee: z
+    .number()
+    .positive("Agent fee must be positive")
+    .max(50000000, "Agent fee cannot exceed 50 million")
+    .optional(),
 
-    loanEndDate: z.coerce.date().optional(),
+  loanEndDate: z.coerce.date<Date>("Invalid date").optional(),
 
-    notes: z
-      .string()
-      .trim()
-      .max(1000, "Notes must be less than 1000 characters")
-      .optional(),
+  notes: z
+    .string()
+    .trim()
+    .max(1000, "Notes must be less than 1000 characters")
+    .optional(),
 
-    createdBy: z.string().trim().optional(),
-  })
-  .superRefine((data, ctx) => {
+  createdBy: z.string().trim().optional(),
+});
+
+export const CreateTransferValidationSchema = CreateTransferSchema.superRefine(
+  (data, ctx) => {
     // Business logic validations
     if (data.transferType === TransferType.LOAN && !data.loanEndDate) {
       ctx.addIssue({
@@ -123,3 +124,6 @@ export const UpdateTransferSchema = CreateTransferSchema.partial().omit({
 
 export type CreateTransferDto = z.infer<typeof CreateTransferSchema>;
 export type UpdateTransferDto = z.infer<typeof UpdateTransferSchema>;
+export type CreateTransferValidationDto = z.infer<
+  typeof CreateTransferValidationSchema
+>;

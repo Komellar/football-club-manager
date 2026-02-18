@@ -5,13 +5,14 @@ import { createTransfer, updateTransfer, deleteTransfer } from "../api";
 import type { CreateTransferDto, UpdateTransferDto } from "@repo/core";
 
 export async function createTransferAction(data: CreateTransferDto) {
-  await createTransfer(data);
+  const result = await createTransfer(data);
   revalidatePath("/transfers");
+  return result;
 }
 
 export async function updateTransferAction(
   id: number,
-  data: UpdateTransferDto
+  data: UpdateTransferDto,
 ) {
   await updateTransfer(id, data);
   revalidatePath("/transfers");
