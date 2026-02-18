@@ -22,6 +22,10 @@ export class SponsorshipsService {
   async create(
     createSponsorshipDto: CreateSponsorshipDto,
   ): Promise<SponsorshipResponseDto> {
+    if (createSponsorshipDto.endDate <= createSponsorshipDto.startDate) {
+      throw new BadRequestException('End date must be after start date');
+    }
+
     await this.checkOverlappingSponsorship(
       createSponsorshipDto.sponsorshipType,
       createSponsorshipDto.startDate,
