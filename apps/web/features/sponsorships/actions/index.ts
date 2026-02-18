@@ -2,4 +2,4 @@ export {
   createSponsorshipAction,
   updateSponsorshipAction,
   deleteSponsorshipAction,
-} from "./sponsorship.actions";
+} from "./sponsorship-actions";

@@ -4,4 +4,4 @@ export {
   createSponsorship,
   updateSponsorship,
   deleteSponsorship,
-} from "./sponsorships.api";
+} from "./sponsorships-api";

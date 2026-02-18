@@ -11,7 +11,7 @@ import type {
 } from "@repo/core";
 
 export async function getSponsorships(
-  params?: SponsorshipListDto
+  params?: SponsorshipListDto,
 ): Promise<PaginatedSponsorshipResponseDto> {
   try {
     const { data }: AxiosResponse<PaginatedSponsorshipResponseDto> =
@@ -28,11 +28,11 @@ export async function getSponsorships(
 }
 
 export async function getSponsorshipById(
-  id: number
+  id: number,
 ): Promise<SponsorshipResponseDto> {
   try {
     const { data }: AxiosResponse<SponsorshipResponseDto> = await apiClient.get(
-      `/sponsorships/${id}`
+      `/sponsorships/${id}`,
     );
     return data;
   } catch (error) {
@@ -46,7 +46,7 @@ export async function getSponsorshipById(
 }
 
 export async function createSponsorship(
-  sponsorshipData: CreateSponsorshipDto
+  sponsorshipData: CreateSponsorshipDto,
 ): Promise<SponsorshipResponseDto> {
   try {
     const { data }: AxiosResponse<SponsorshipResponseDto> =
@@ -64,7 +64,7 @@ export async function createSponsorship(
 
 export async function updateSponsorship(
   id: number,
-  sponsorshipData: UpdateSponsorshipDto
+  sponsorshipData: UpdateSponsorshipDto,
 ): Promise<SponsorshipResponseDto> {
   try {
     const { data }: AxiosResponse<SponsorshipResponseDto> =

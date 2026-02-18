@@ -23,7 +23,8 @@
     "revenues": "Ingresos",
     "new": "Nuevo",
     "edit": "Editar",
-    "navigation": "Navegación"
+    "navigation": "Navegación",
+    "sponsorshipEdit": "Editar Patrocinio"
   },
   "Auth": {
     "login": "Iniciar Sesión",
@@ -654,6 +655,10 @@
     "failedToCreate": "Error al crear el patrocinio",
     "failedToUpdate": "Error al actualizar el patrocinio",
     "failedToDelete": "Error al eliminar el patrocinio",
+    "somethingWentWrong": "Algo salió mal",
+    "errorLoading": "Hubo un problema al cargar los datos.",
+    "tryAgain": "Intentar de nuevo",
+    "backToSponsorships": "Volver a Patrocinios",
     "saving": "Guardando...",
     "deleting": "Eliminando...",
     "cancel": "Cancelar",

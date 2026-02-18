@@ -24,7 +24,8 @@
     "new": "New",
     "edit": "Edit",
     "navigation": "Navigation",
-    "details": "Details"
+    "details": "Details",
+    "sponsorshipEdit": "Edit Sponsorship"
   },
   "Auth": {
     "login": "Login",
@@ -659,6 +660,10 @@
     "failedToCreate": "Failed to create sponsorship",
     "failedToUpdate": "Failed to update sponsorship",
     "failedToDelete": "Failed to delete sponsorship",
+    "somethingWentWrong": "Something went wrong",
+    "errorLoading": "There was a problem loading the data.",
+    "tryAgain": "Try again",
+    "backToSponsorships": "Back to Sponsorships",
     "saving": "Saving...",
     "deleting": "Deleting...",
     "cancel": "Cancel",
