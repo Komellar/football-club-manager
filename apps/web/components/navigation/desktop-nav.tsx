@@ -36,6 +36,12 @@ export async function DesktopNav({ className }: StaticNavProps) {
         {t("transfers")}
       </Link>
       <Link
+        href={`/${locale}/sponsorships`}
+        className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground cursor-pointer"
+      >
+        {t("sponsorships")}
+      </Link>
+      <Link
         href={`/${locale}/match-simulation`}
         className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground cursor-pointer"
       >

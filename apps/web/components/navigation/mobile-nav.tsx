@@ -21,6 +21,7 @@ const navigationItems = [
   { href: "/players", key: "players" },
   { href: "/contracts", key: "contracts" },
   { href: "/transfers", key: "transfers" },
+  { href: "/sponsorships", key: "sponsorships" },
   { href: "/match-simulation", key: "matchSimulation" },
 ];
 
