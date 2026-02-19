@@ -11,7 +11,6 @@ export function transformToFormValues(
     endDate: new Date(sponsorship.endDate),
     annualValue: sponsorship.annualValue,
     paymentFrequency: sponsorship.paymentFrequency,
-    description: sponsorship.description ?? undefined,
     contactPerson: sponsorship.contactPerson ?? undefined,
     contactEmail: sponsorship.contactEmail ?? undefined,
     contactPhone: sponsorship.contactPhone ?? undefined,

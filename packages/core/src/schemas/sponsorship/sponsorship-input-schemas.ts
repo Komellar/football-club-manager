@@ -27,12 +27,6 @@ export const CreateSponsorshipSchema = z.object({
 
   paymentFrequency: z.enum(PaymentFrequency),
 
-  description: z
-    .string()
-    .trim()
-    .max(500, "Description must be less than 500 characters")
-    .optional(),
-
   contactPerson: z
     .string()
     .trim()

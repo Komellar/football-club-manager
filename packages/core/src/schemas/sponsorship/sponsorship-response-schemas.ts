@@ -14,7 +14,6 @@ export const SponsorshipResponseSchema = z.object({
   endDate: z.coerce.date(),
   annualValue: z.number(),
   paymentFrequency: z.enum(PaymentFrequency),
-  description: z.string().optional(),
   contactPerson: z.string().optional(),
   contactEmail: z.string().optional(),
   contactPhone: z.string().optional(),

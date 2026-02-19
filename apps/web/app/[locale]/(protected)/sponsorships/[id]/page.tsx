@@ -193,18 +193,6 @@ export default async function SponsorshipDetailsPage({
           </Card>
         )}
 
-        {/* Description */}
-        {sponsorship.description && (
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("description")}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="whitespace-pre-wrap">{sponsorship.description}</p>
-            </CardContent>
-          </Card>
-        )}
-
         {/* Notes */}
         {sponsorship.notes && (
           <Card>

@@ -67,9 +67,6 @@ export class Sponsorship {
   })
   paymentFrequency: PaymentFrequency;
 
-  @Column({ type: 'text', nullable: true })
-  description?: string;
-
   @Column({
     type: 'varchar',
     length: 100,

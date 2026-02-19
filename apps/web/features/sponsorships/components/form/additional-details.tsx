@@ -20,24 +20,6 @@ export function AdditionalDetails() {
 
       <FormField
         control={control}
-        name="description"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>{t("description")}</FormLabel>
-            <FormControl>
-              <Textarea
-                placeholder={t("placeholders.description")}
-                {...field}
-                value={field.value ?? ""}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={control}
         name="notes"
         render={({ field }) => (
           <FormItem>
