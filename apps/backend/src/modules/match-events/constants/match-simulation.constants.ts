@@ -7,5 +7,8 @@ export const MATCH_SIMULATION_CONFIG = {
   EVENT_GENERATION_PROBABILITY: 1, // 100% chance to generate event per tick
 } as const;
 
+export const ACTIVE_MATCH_ROOM = 'active-match';
+export const MATCH_INTERNAL_EVENT = 'match.internal.event';
+export const MATCH_INTERNAL_ENDED = 'match.internal.ended';
 export const OPPONENT_PLAYER_ID_OFFSET = 1000;
 export const MAX_JERSEY_NUMBER = 99;

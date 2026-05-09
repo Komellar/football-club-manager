@@ -1,5 +1,5 @@
 import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
-import { Server } from 'socket.io';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import {
   MatchEventType,
   StartMatch,
@@ -8,10 +8,15 @@ import {
   MatchEvent,
 } from '@repo/core';
 import { interval, Subject, Subscription, takeUntil, tap } from 'rxjs';
-import { MATCH_SIMULATION_CONFIG } from '../constants/match-simulation.constants';
+import {
+  MATCH_SIMULATION_CONFIG,
+  MATCH_INTERNAL_EVENT,
+  MATCH_INTERNAL_ENDED,
+} from '../constants/match-simulation.constants';
 import { MatchSimulationEngineService } from './match-simulation-engine.service';
 import { MatchStatisticsProcessorService } from '../../statistics/services/match-statistics-processor.service';
 import { getCurrentSeason } from '@/shared/utils/season.helper';
+import { randomUUID } from 'crypto';
 
 interface ExtendedMatchSimulationState extends MatchSimulationState {
   destroy$: Subject<void>;
@@ -20,75 +25,59 @@ interface ExtendedMatchSimulationState extends MatchSimulationState {
 
 @Injectable()
 export class MatchEventsService implements OnModuleDestroy {
-  private server: Server;
   private readonly logger = new Logger(MatchEventsService.name);
 
-  private clientSubscriptions: Map<string, Set<number>> = new Map();
-  private activeMatches: Map<number, ExtendedMatchSimulationState> = new Map();
+  private activeMatch: ExtendedMatchSimulationState | null = null;
 
   constructor(
     private readonly simulationEngine: MatchSimulationEngineService,
     private readonly matchStatisticsProcessor: MatchStatisticsProcessorService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   onModuleDestroy() {
-    // Clean up all active matches when service is destroyed
-    this.activeMatches.forEach((matchState) => {
-      matchState.destroy$.next();
-      matchState.destroy$.complete();
-      matchState.subscription?.unsubscribe();
-    });
-    this.activeMatches.clear();
-  }
-
-  setServer(server: Server) {
-    this.server = server;
-  }
-
-  subscribeToMatch(clientId: string, matchId: number) {
-    if (!this.clientSubscriptions.has(clientId)) {
-      this.clientSubscriptions.set(clientId, new Set());
-    }
-    this.clientSubscriptions.get(clientId)!.add(matchId);
-    this.logger.log(`Client ${clientId} subscribed to match ${matchId}`);
-  }
-
-  unsubscribeFromMatch(clientId: string, matchId: number) {
-    const subscriptions = this.clientSubscriptions.get(clientId);
-    if (subscriptions) {
-      subscriptions.delete(matchId);
-      this.logger.log(`Client ${clientId} unsubscribed from match ${matchId}`);
+    if (this.activeMatch) {
+      this.activeMatch.destroy$.next();
+      this.activeMatch.destroy$.complete();
+      this.activeMatch.subscription?.unsubscribe();
+      this.activeMatch = null;
     }
   }
 
-  handleClientDisconnect(clientId: string) {
-    const subscriptions = this.clientSubscriptions.get(clientId);
-    if (subscriptions) {
-      this.logger.log(
-        `Cleaning up subscriptions for disconnected client ${clientId}`,
-      );
-      this.clientSubscriptions.delete(clientId);
-    }
+  subscribeToMatch(clientId: string): string | null {
+    this.logger.log(`Client ${clientId} subscribed to active match`);
+    return this.activeMatch?.matchId ?? null;
   }
 
-  isMatchActive(matchId: number): boolean {
-    return this.activeMatches.has(matchId);
+  unsubscribeFromMatch(clientId: string): void {
+    this.logger.log(`Client ${clientId} unsubscribed from active match`);
   }
 
-  startMatchSimulation(data: StartMatch): void {
-    if (this.activeMatches.has(data.matchId)) {
-      this.logger.warn(`Match ${data.matchId} is already running`);
-      throw new Error(`Match ${data.matchId} is already running`);
+  handleClientDisconnect(clientId: string): void {
+    this.logger.log(`Client ${clientId} disconnected`);
+  }
+
+  isMatchActive(): boolean {
+    return this.activeMatch !== null;
+  }
+
+  getActiveMatchId(): string | null {
+    return this.activeMatch?.matchId ?? null;
+  }
+
+  startMatchSimulation(data: StartMatch): string {
+    if (this.activeMatch !== null) {
+      this.logger.warn('A match is already running');
+      throw new Error('A match is already running');
     }
 
+    const matchId = randomUUID();
     const destroy$ = new Subject<void>();
 
     const matchState: ExtendedMatchSimulationState = {
       ...data,
-      score: {
-        home: 0,
-        away: 0,
-      },
+      matchId,
+      score: { home: 0, away: 0 },
       currentMinute: 0,
       destroy$,
       subscription: null,
@@ -96,9 +85,8 @@ export class MatchEventsService implements OnModuleDestroy {
       startTime: new Date(),
     };
 
-    this.activeMatches.set(data.matchId, matchState);
+    this.activeMatch = matchState;
 
-    // Broadcast match start event
     this.createAndBroadcastMatchStateTimeEvent(
       matchState,
       MatchEventType.MATCH_START,
@@ -107,54 +95,49 @@ export class MatchEventsService implements OnModuleDestroy {
     const subscription = interval(MATCH_SIMULATION_CONFIG.TICK_INTERVAL_MS)
       .pipe(
         takeUntil(destroy$),
-        tap(() => this.simulateMatchTick(data.matchId)),
+        tap(() => this.simulateMatchTick()),
       )
       .subscribe();
 
     matchState.subscription = subscription;
+
+    this.logger.log(`Match simulation started with id ${matchId}`);
+    return matchId;
   }
 
-  private simulateMatchTick(matchId: number): void {
-    const matchState = this.activeMatches.get(matchId);
-    if (!matchState) return;
+  private simulateMatchTick(): void {
+    if (!this.activeMatch) return;
 
-    this.simulationEngine.advanceTime(matchState);
+    this.simulationEngine.advanceTime(this.activeMatch);
 
-    if (this.simulationEngine.isHalfTime(matchState.currentMinute)) {
+    if (this.simulationEngine.isHalfTime(this.activeMatch.currentMinute)) {
       this.createAndBroadcastMatchStateTimeEvent(
-        matchState,
+        this.activeMatch,
         MatchEventType.HALF_TIME,
       );
     }
 
-    if (this.simulationEngine.isMatchEnded(matchState.currentMinute)) {
-      void this.endMatch(matchId);
+    if (this.simulationEngine.isMatchEnded(this.activeMatch.currentMinute)) {
+      void this.endMatch();
       return;
     }
 
-    // Random event generation
     if (this.simulationEngine.shouldGenerateEvent()) {
-      const event = this.simulationEngine.generateRandomEvent(matchState);
-
-      matchState.events.push(event);
-      this.broadcastMatchEvent(matchState.matchId, event);
+      const event = this.simulationEngine.generateRandomEvent(this.activeMatch);
+      this.activeMatch.events.push(event);
+      this.emitMatchEvent(event);
     }
   }
 
-  private broadcastMatchEvent(matchId: number, event: MatchEvent) {
-    if (!this.server) {
-      this.logger.error('Server not initialized');
-      return;
-    }
-
-    this.server.to(`match:${matchId}`).emit('matchEvent', event);
+  private emitMatchEvent(event: MatchEvent) {
+    this.eventEmitter.emit(MATCH_INTERNAL_EVENT as string, event);
   }
 
-  private async endMatch(matchId: number): Promise<void> {
-    const matchState = this.activeMatches.get(matchId);
-    if (!matchState) return;
+  private async endMatch(): Promise<void> {
+    if (!this.activeMatch) return;
 
-    // Stop the RxJS interval stream
+    const matchState = this.activeMatch;
+
     matchState.destroy$.next();
     matchState.destroy$.complete();
     matchState.subscription?.unsubscribe();
@@ -170,25 +153,24 @@ export class MatchEventsService implements OnModuleDestroy {
       events: matchState.events,
     };
 
-    this.server.to(`match:${matchId}`).emit('matchEnded', matchEnded);
+    this.eventEmitter.emit(MATCH_INTERNAL_ENDED as string, matchEnded);
 
-    // Process match events and update player statistics
+    this.activeMatch = null;
+
     try {
       const currentSeason = getCurrentSeason();
-
       await this.matchStatisticsProcessor.processMatchEvents(
         matchState,
         currentSeason,
       );
     } catch (error) {
       this.logger.error(
-        `Failed to update player statistics for match ${matchId}`,
+        `Failed to update player statistics for match ${matchState.matchId}`,
         error,
       );
     }
 
-    this.activeMatches.delete(matchId);
-    this.logger.log(`Match ${matchId} ended and cleaned up`);
+    this.logger.log(`Match ${matchState.matchId} ended and cleaned up`);
   }
 
   private createAndBroadcastMatchStateTimeEvent(
@@ -197,6 +179,6 @@ export class MatchEventsService implements OnModuleDestroy {
   ): void {
     const event = this.simulationEngine.createMatchEvent(matchState, eventType);
     matchState.events.push(event);
-    this.broadcastMatchEvent(matchState.matchId, event);
+    this.emitMatchEvent(event);
   }
 }

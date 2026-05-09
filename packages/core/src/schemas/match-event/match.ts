@@ -7,14 +7,11 @@ const ScoreSchema = z.object({
   away: z.number().int().min(0),
 });
 
-export const SubscribeToMatchSchema = z.object({
-  matchId: z.number().int().positive(),
-});
+export const SubscribeToMatchSchema = z.object({});
 
-export const UnsubscribeFromMatchSchema = SubscribeToMatchSchema;
+export const UnsubscribeFromMatchSchema = z.object({});
 
 const BaseMatchSchema = z.object({
-  matchId: z.number().int().positive(),
   homeTeam: z.object({
     id: z.number().int().positive(),
     name: z.string().min(1),
@@ -29,12 +26,13 @@ const BaseMatchSchema = z.object({
 export const StartMatchSchema = BaseMatchSchema;
 
 export const MatchEndedSchema = z.object({
-  matchId: z.number().int().positive(),
+  matchId: z.uuid(),
   score: ScoreSchema,
   events: z.array(MatchEventSchema),
 });
 
 export const MatchSimulationStateSchema = BaseMatchSchema.extend({
+  matchId: z.uuid(),
   score: ScoreSchema,
   currentMinute: z.number().int().min(0).max(120),
   events: z.array(MatchEventSchema),

@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -25,6 +26,7 @@ import { SponsorshipsModule } from './modules/sponsorships/sponsorships.module';
       useFactory: getDatabaseConfig,
       inject: [ConfigService],
     }),
+    EventEmitterModule.forRoot(),
     UserModule,
     AuthModule,
     PlayersModule,

@@ -4,7 +4,7 @@ import { MatchEventPlayerSchema } from "./player";
 
 export const MatchEventSchema = z.object({
   id: z.uuid(),
-  matchId: z.number().int().positive(),
+  matchId: z.uuid(),
   type: z.enum(MatchEventType),
   minute: z.number().int().min(0).max(120), // Regular time + extra time
   timestamp: z.date(),
