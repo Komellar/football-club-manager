@@ -3,7 +3,8 @@
 import { io, Socket } from "socket.io-client";
 import type {
   MatchEvent,
-  StartMatch,
+  MatchSimulationState,
+  MatchEnded,
   SubscribeToMatch,
   UnsubscribeFromMatch,
 } from "@repo/core";
@@ -40,14 +41,12 @@ class MatchEventsSocketService {
   private errors$: Observable<string> | null = null;
 
   connect() {
-    if (this.socket?.connected) {
+    if (this.socket) {
       return;
     }
 
     // Reset destroy$ for reconnection scenarios
-    if (this.destroy$.closed) {
-      this.destroy$ = new Subject<void>();
-    }
+    this.destroy$ = new Subject<void>();
 
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -70,6 +69,9 @@ class MatchEventsSocketService {
       map(() => true),
       tap(() => {
         this.reconnectAttempts = 0;
+        void this.subscribeToMatch().catch((error: Error) =>
+          store.dispatch(setError(error.message)),
+        );
       }),
     );
 
@@ -95,9 +97,16 @@ class MatchEventsSocketService {
       share(),
     );
 
-    fromEvent(this.socket, "matchEnded")
+    fromEvent<MatchSimulationState>(this.socket, "matchState")
       .pipe(
-        tap(() => store.dispatch(endMatch())),
+        tap((state) => store.dispatch(startMatch(state))),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+
+    fromEvent<MatchEnded>(this.socket, "matchEnded")
+      .pipe(
+        tap((result) => store.dispatch(endMatch(result))),
         takeUntil(this.destroy$),
       )
       .subscribe();
@@ -193,7 +202,11 @@ class MatchEventsSocketService {
         data,
         (
           error: Error | null,
-          response?: { success: boolean; message?: string },
+          response?: {
+            success: boolean;
+            message?: string;
+            state?: MatchSimulationState | null;
+          },
         ) => {
           if (error || !response?.success) {
             reject(
@@ -202,6 +215,8 @@ class MatchEventsSocketService {
             );
             return;
           }
+          if (response.state) store.dispatch(startMatch(response.state));
+          else store.dispatch(endMatch());
           resolve();
         },
       );
@@ -224,7 +239,7 @@ class MatchEventsSocketService {
     );
   }
 
-  startMatch(matchData: StartMatch): Promise<string> {
+  startMatch(fixtureId: string): Promise<string> {
     if (!this.socket?.connected) {
       return Promise.reject(new Error("Not connected to server"));
     }
@@ -232,28 +247,29 @@ class MatchEventsSocketService {
     return new Promise((resolve, reject) => {
       this.socket!.timeout(5000).emit(
         MatchEventsSocketMessage.START_MATCH,
-        matchData,
+        { fixtureId },
         (
           error: Error | null,
-          response?: { success: boolean; matchId?: string; message?: string },
+          response?: {
+            success: boolean;
+            matchId?: string;
+            message?: string;
+            state?: MatchSimulationState;
+          },
         ) => {
-          if (error || !response?.success || !response.matchId) {
+          if (
+            error ||
+            !response?.success ||
+            !response.matchId ||
+            !response.state
+          ) {
             reject(
               error ?? new Error(response?.message || "Could not start match"),
             );
             return;
           }
 
-          store.dispatch(
-            startMatch({
-              ...matchData,
-              matchId: response.matchId,
-              score: { home: 0, away: 0 },
-              currentMinute: 0,
-              events: [],
-              startTime: new Date(),
-            }),
-          );
+          store.dispatch(startMatch(response.state));
           resolve(response.matchId);
         },
       );

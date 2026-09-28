@@ -17,6 +17,7 @@ import { MatchSimulationEngineService } from './match-simulation-engine.service'
 import { MatchStatisticsProcessorService } from '../../statistics/services/match-statistics-processor.service';
 import { getCurrentSeason } from '@/shared/utils/season.helper';
 import { randomUUID } from 'crypto';
+import { FixturesService } from './fixtures.service';
 
 interface ExtendedMatchSimulationState extends MatchSimulationState {
   destroy$: Subject<void>;
@@ -28,14 +29,18 @@ export class MatchEventsService implements OnModuleDestroy {
   private readonly logger = new Logger(MatchEventsService.name);
 
   private activeMatch: ExtendedMatchSimulationState | null = null;
+  private starting = false;
+  private completionRetry: ReturnType<typeof setTimeout> | undefined;
 
   constructor(
     private readonly simulationEngine: MatchSimulationEngineService,
     private readonly matchStatisticsProcessor: MatchStatisticsProcessorService,
     private readonly eventEmitter: EventEmitter2,
+    private readonly fixtures: FixturesService,
   ) {}
 
   onModuleDestroy() {
+    clearTimeout(this.completionRetry);
     if (this.activeMatch) {
       this.activeMatch.destroy$.next();
       this.activeMatch.destroy$.complete();
@@ -63,6 +68,34 @@ export class MatchEventsService implements OnModuleDestroy {
 
   getActiveMatchId(): string | null {
     return this.activeMatch?.matchId ?? null;
+  }
+
+  getActiveMatch(): MatchSimulationState | null {
+    if (!this.activeMatch) return null;
+    const { destroy$, subscription, ...state } = this.activeMatch;
+    return state;
+  }
+
+  async startFixture(id: string): Promise<MatchSimulationState> {
+    if (this.starting || this.activeMatch)
+      throw new Error('A match is already running');
+    this.starting = true;
+    let claimed = false;
+    try {
+      const fixture = await this.fixtures.claim(id);
+      claimed = true;
+      this.startMatchSimulation({
+        fixtureId: fixture.id,
+        homeTeam: { id: 1, name: 'My Club', players: fixture.lineup },
+        awayTeam: { id: 2, name: fixture.opponentName },
+      });
+      return this.getActiveMatch()!;
+    } catch (error) {
+      if (claimed) await this.fixtures.interrupt(id);
+      throw error;
+    } finally {
+      this.starting = false;
+    }
   }
 
   startMatchSimulation(data: StartMatch): string {
@@ -142,10 +175,34 @@ export class MatchEventsService implements OnModuleDestroy {
     matchState.destroy$.complete();
     matchState.subscription?.unsubscribe();
 
-    this.createAndBroadcastMatchStateTimeEvent(
-      matchState,
-      MatchEventType.MATCH_END,
-    );
+    if (
+      !matchState.events.some(
+        (event) => event.type === MatchEventType.MATCH_END,
+      )
+    ) {
+      this.createAndBroadcastMatchStateTimeEvent(
+        matchState,
+        MatchEventType.MATCH_END,
+      );
+    }
+
+    if (matchState.fixtureId) {
+      try {
+        await this.fixtures.complete(
+          matchState.fixtureId,
+          this.getActiveMatch()!,
+        );
+      } catch (error) {
+        this.logger.error(
+          'Could not save match result; retrying in five seconds',
+          error,
+        );
+        this.completionRetry = setTimeout(() => {
+          void this.endMatch();
+        }, 5000);
+        return;
+      }
+    }
 
     const matchEnded: MatchEnded = {
       matchId: matchState.matchId,

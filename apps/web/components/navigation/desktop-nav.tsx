@@ -47,6 +47,12 @@ export async function DesktopNav({ className }: StaticNavProps) {
       >
         {t("matchSimulation")}
       </Link>
+      <Link
+        href={`/${locale}/fixtures`}
+        className="text-sm font-medium text-muted-foreground hover:text-foreground"
+      >
+        {t("fixtures")}
+      </Link>
     </nav>
   );
 }

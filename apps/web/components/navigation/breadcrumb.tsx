@@ -30,7 +30,10 @@ export function Breadcrumb() {
       if (!segment) continue;
 
       // Skip numeric segments (like [id] dynamic routes)
-      if (/^\d+$/.test(segment)) {
+      if (
+        /^\d+$/.test(segment) ||
+        /^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(segment)
+      ) {
         continue;
       }
 
@@ -44,7 +47,7 @@ export function Breadcrumb() {
         label = segment
           .split("-")
           .map((word, idx) =>
-            idx === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1)
+            idx === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1),
           )
           .join("");
       }

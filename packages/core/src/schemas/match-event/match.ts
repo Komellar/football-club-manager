@@ -12,6 +12,7 @@ export const SubscribeToMatchSchema = z.object({});
 export const UnsubscribeFromMatchSchema = z.object({});
 
 const BaseMatchSchema = z.object({
+  fixtureId: z.uuid().optional(),
   homeTeam: z.object({
     id: z.number().int().positive(),
     name: z.string().min(1),

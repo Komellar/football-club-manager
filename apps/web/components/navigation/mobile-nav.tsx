@@ -23,6 +23,7 @@ const navigationItems = [
   { href: "/transfers", key: "transfers" },
   { href: "/sponsorships", key: "sponsorships" },
   { href: "/match-simulation", key: "matchSimulation" },
+  { href: "/fixtures", key: "fixtures" },
 ];
 
 export function MobileNav() {
@@ -66,7 +67,7 @@ export function MobileNav() {
                   "block px-2 py-1 text-lg cursor-pointer",
                   pathname === item.href
                     ? "text-foreground"
-                    : "text-foreground/60"
+                    : "text-foreground/60",
                 )}
               >
                 {t(item.key)}

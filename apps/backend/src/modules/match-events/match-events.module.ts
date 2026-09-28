@@ -10,19 +10,23 @@ import { ConfigModule } from '@nestjs/config';
 import { Player } from '@/shared/entities/player.entity';
 import { LineupService } from './services/lineup.service';
 import { LineupController } from './controllers/lineup.controller';
+import { Fixture } from '@/shared/entities/fixture.entity';
+import { FixturesService } from './services/fixtures.service';
+import { FixturesController } from './controllers/fixtures.controller';
 
 @Module({
   imports: [
     PlayersModule,
     StatisticsModule,
-    TypeOrmModule.forFeature([Player]),
+    TypeOrmModule.forFeature([Player, Fixture]),
     JwtModule,
     ConfigModule,
   ],
-  controllers: [LineupController],
+  controllers: [LineupController, FixturesController],
   providers: [
     MatchEventsGateway,
     LineupService,
+    FixturesService,
     MatchEventsService,
     MatchSimulationEngineService,
   ],

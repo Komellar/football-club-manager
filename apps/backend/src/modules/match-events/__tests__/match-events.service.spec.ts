@@ -4,6 +4,7 @@ import { MatchEventType, PlayerPosition, type StartMatch } from '@repo/core';
 import { MatchEventsService } from '../services/match-events.service';
 import { MatchSimulationEngineService } from '../services/match-simulation-engine.service';
 import { MatchStatisticsProcessorService } from '../../statistics/services/match-statistics-processor.service';
+import { FixturesService } from '../services/fixtures.service';
 import {
   MATCH_INTERNAL_ENDED,
   MATCH_INTERNAL_EVENT,
@@ -30,6 +31,7 @@ describe('MatchEventsService', () => {
   let simulationEngine: MatchSimulationEngineService;
   let statisticsProcessor: MatchStatisticsProcessorService;
   let eventEmitter: EventEmitter2;
+  let fixtures: FixturesService;
 
   beforeEach(async () => {
     jest.useFakeTimers();
@@ -44,6 +46,14 @@ describe('MatchEventsService', () => {
           },
         },
         { provide: EventEmitter2, useValue: { emit: jest.fn() } },
+        {
+          provide: FixturesService,
+          useValue: {
+            claim: jest.fn(),
+            complete: jest.fn().mockResolvedValue(undefined),
+            interrupt: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
@@ -51,6 +61,7 @@ describe('MatchEventsService', () => {
     simulationEngine = module.get(MatchSimulationEngineService);
     statisticsProcessor = module.get(MatchStatisticsProcessorService);
     eventEmitter = module.get(EventEmitter2);
+    fixtures = module.get(FixturesService);
   });
 
   afterEach(() => {
@@ -135,5 +146,28 @@ describe('MatchEventsService', () => {
       expect.any(String),
     );
     expect(service.isMatchActive()).toBe(false);
+  });
+
+  it('keeps the result and retries a failed save before publishing completion', async () => {
+    const fixtureId = '83ce6cb0-700d-4a39-a647-921c49c6df53';
+    jest
+      .spyOn(fixtures, 'complete')
+      .mockRejectedValueOnce(new Error('Database unavailable'))
+      .mockResolvedValue(undefined);
+    service.startMatchSimulation({ ...matchData, fixtureId });
+    jest.spyOn(simulationEngine, 'isMatchEnded').mockReturnValue(true);
+    await jest.advanceTimersByTimeAsync(
+      MATCH_SIMULATION_CONFIG.TICK_INTERVAL_MS,
+    );
+    expect(service.isMatchActive()).toBe(true);
+    expect(statisticsProcessor.processMatchEvents).not.toHaveBeenCalled();
+    await jest.advanceTimersByTimeAsync(5000);
+    expect(service.isMatchActive()).toBe(false);
+    expect(fixtures.complete).toHaveBeenCalledTimes(2);
+    expect(statisticsProcessor.processMatchEvents).toHaveBeenCalledTimes(1);
+    const endEvents = jest
+      .mocked(eventEmitter.emit)
+      .mock.calls.filter(([name]) => name === MATCH_INTERNAL_ENDED);
+    expect(endEvents).toHaveLength(1);
   });
 });

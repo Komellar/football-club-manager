@@ -25,7 +25,8 @@
     "edit": "Edit",
     "navigation": "Navigation",
     "details": "Details",
-    "sponsorshipEdit": "Edit Sponsorship"
+    "sponsorshipEdit": "Edit Sponsorship",
+    "fixtures": "Fixtures"
   },
   "Auth": {
     "login": "Login",
@@ -756,6 +757,36 @@
       "defender": "Defenders",
       "midfielder": "Midfielders",
       "forward": "Forwards"
+    }
+  },
+  "Fixtures": {
+    "title": "Fixtures",
+    "description": "Schedule home fixtures, select your starting XI, and play the match.",
+    "opponent": "Opponent",
+    "kickoff": "Kickoff (local time)",
+    "competition": "Competition",
+    "friendly": "Friendly",
+    "create": "Schedule fixture",
+    "saving": "Saving…",
+    "save": "Save fixture",
+    "saved": "Fixture saved.",
+    "start": "Save and start match",
+    "cancel": "Cancel fixture",
+    "back": "Back to fixtures",
+    "loading": "Loading fixtures…",
+    "retry": "Retry",
+    "empty": "No fixtures scheduled yet.",
+    "versus": "My Club vs {opponent}",
+    "watch": "Watch live match",
+    "connecting": "Connecting to match server…",
+    "chooseFixture": "Choose a scheduled fixture and select your starting XI to begin.",
+    "interruptedHelp": "The server stopped during this match. You can start it again with a new simulation.",
+    "statuses": {
+      "scheduled": "Scheduled",
+      "in_progress": "In progress",
+      "completed": "Completed",
+      "interrupted": "Interrupted",
+      "cancelled": "Cancelled"
     }
   }
 }

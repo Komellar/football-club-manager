@@ -7,3 +7,4 @@ export * from "./list";
 export * from "./match-event";
 export * from "./finance";
 export * from "./sponsorship";
+export * from "./fixture";

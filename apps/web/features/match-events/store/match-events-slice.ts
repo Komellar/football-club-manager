@@ -5,6 +5,7 @@ import {
   MatchEvent,
   MatchEventType,
   type MatchSimulationState,
+  type MatchEnded,
 } from "@repo/core";
 
 export interface MatchEventsState {
@@ -41,7 +42,12 @@ const matchEventsSlice = createSlice({
     addMatchEvent: (state, action: PayloadAction<MatchEvent>) => {
       const event = action.payload;
       const match = state.activeMatch;
-      if (!match || event.matchId !== match.matchId) return;
+      if (
+        !match ||
+        event.matchId !== match.matchId ||
+        match.events.some((e) => e.id === event.id)
+      )
+        return;
 
       match.currentMinute = event.minute;
       match.events.push(event);
@@ -54,7 +60,14 @@ const matchEventsSlice = createSlice({
         }
       }
     },
-    endMatch: (state) => {
+    endMatch: (state, action: PayloadAction<MatchEnded | undefined>) => {
+      if (
+        action.payload &&
+        state.activeMatch?.matchId === action.payload.matchId
+      ) {
+        state.activeMatch.score = action.payload.score;
+        state.activeMatch.events = action.payload.events;
+      }
       state.isMatchActive = false;
     },
     clearMatch: (state) => {

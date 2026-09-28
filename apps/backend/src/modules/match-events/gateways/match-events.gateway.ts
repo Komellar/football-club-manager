@@ -12,14 +12,14 @@ import { Logger, UseFilters } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Server, Socket } from 'socket.io';
 import { MatchEventsService } from '../services/match-events.service';
-import { LineupService } from '../services/lineup.service';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import {
   SubscribeToMatch,
   UnsubscribeFromMatch,
   SubscribeToMatchSchema,
   UnsubscribeFromMatchSchema,
-  StartMatch,
-  StartMatchSchema,
+  StartFixtureSchema,
   MatchEventsSocketMessage,
   MatchEvent,
   MatchEnded,
@@ -57,7 +57,8 @@ export class MatchEventsGateway
 
   constructor(
     private readonly matchEventsService: MatchEventsService,
-    private readonly lineups: LineupService,
+    private readonly jwt: JwtService,
+    private readonly config: ConfigService,
   ) {}
 
   handleConnection(client: Socket) {
@@ -79,9 +80,14 @@ export class MatchEventsGateway
     _data: SubscribeToMatch,
     @ConnectedSocket() client: Socket,
   ) {
+    await this.authenticate(client);
     const matchId = this.matchEventsService.subscribeToMatch(client.id);
     await client.join(ACTIVE_MATCH_ROOM);
-    return { success: true, matchId };
+    return {
+      success: true,
+      matchId,
+      state: this.matchEventsService.getActiveMatch(),
+    };
   }
 
   @SubscribeMessage(MatchEventsSocketMessage.UNSUBSCRIBE_FROM_MATCH)
@@ -97,27 +103,39 @@ export class MatchEventsGateway
 
   @SubscribeMessage(MatchEventsSocketMessage.START_MATCH)
   async handleStartMatch(
-    @MessageBody(new WsValidationPipe(StartMatchSchema)) data: StartMatch,
+    @MessageBody(new WsValidationPipe(StartFixtureSchema))
+    data: { fixtureId: string },
+    @ConnectedSocket() client: Socket,
   ) {
-    if (this.matchEventsService.isMatchActive()) {
-      throw new WsException('A match is already in progress');
-    }
-
     try {
-      const players = await this.lineups.resolve(
-        data.homeTeam.players.map((p) => p.id),
-      );
-      const matchId = this.matchEventsService.startMatchSimulation({
-        ...data,
-        homeTeam: { ...data.homeTeam, players },
-      });
-      return { success: true, matchId };
+      await this.authenticate(client);
+      await client.join(ACTIVE_MATCH_ROOM);
+      const state = await this.matchEventsService.startFixture(data.fixtureId);
+      this.server.to(ACTIVE_MATCH_ROOM).emit('matchState', state);
+      return { success: true, matchId: state.matchId, state };
     } catch (error) {
       return {
         success: false,
         message:
           error instanceof Error ? error.message : 'Could not start match',
       };
+    }
+  }
+
+  private async authenticate(client: Socket) {
+    const cookie = client.handshake.headers.cookie
+      ?.split(';')
+      .map((part) => part.trim())
+      .find((part) => part.startsWith('auth_token='))
+      ?.slice('auth_token='.length);
+    const token = client.handshake.auth?.token || cookie;
+    try {
+      if (!token) throw new Error('Missing token');
+      await this.jwt.verifyAsync(token, {
+        secret: this.config.get<string>('JWT_SECRET'),
+      });
+    } catch {
+      throw new WsException('Please sign in to access matches');
     }
   }
 

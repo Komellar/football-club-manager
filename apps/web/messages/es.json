@@ -24,7 +24,8 @@
     "new": "Nuevo",
     "edit": "Editar",
     "navigation": "Navegación",
-    "sponsorshipEdit": "Editar Patrocinio"
+    "sponsorshipEdit": "Editar Patrocinio",
+    "fixtures": "Calendario"
   },
   "Auth": {
     "login": "Iniciar Sesión",
@@ -751,6 +752,36 @@
       "defender": "Defensas",
       "midfielder": "Centrocampistas",
       "forward": "Delanteros"
+    }
+  },
+  "Fixtures": {
+    "title": "Calendario",
+    "description": "Programa partidos en casa, elige tu once inicial y juega el partido.",
+    "opponent": "Rival",
+    "kickoff": "Inicio (hora local)",
+    "competition": "Competición",
+    "friendly": "Amistoso",
+    "create": "Programar partido",
+    "saving": "Guardando…",
+    "save": "Guardar partido",
+    "saved": "Partido guardado.",
+    "start": "Guardar e iniciar partido",
+    "cancel": "Cancelar partido",
+    "back": "Volver al calendario",
+    "loading": "Cargando partidos…",
+    "retry": "Reintentar",
+    "empty": "No hay partidos programados.",
+    "versus": "Mi Club vs {opponent}",
+    "watch": "Ver partido en directo",
+    "connecting": "Conectando al servidor…",
+    "chooseFixture": "Elige un partido programado y tu once inicial para empezar.",
+    "interruptedHelp": "El servidor se detuvo durante este partido. Puedes iniciar una nueva simulación.",
+    "statuses": {
+      "scheduled": "Programado",
+      "in_progress": "En curso",
+      "completed": "Finalizado",
+      "interrupted": "Interrumpido",
+      "cancelled": "Cancelado"
     }
   }
 }

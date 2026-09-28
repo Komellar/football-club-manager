@@ -1,124 +1,49 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useEffect } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import Link from "next/link";
 import { useAppSelector } from "@/store/hooks";
 import {
   matchEventsSocket,
   MatchStatsCard,
-  setError,
-} from "@/features/match-events";
-import {
   MatchEventList,
   MatchScoreBoard,
   ConnectionStatus,
 } from "@/features/match-events";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Play, AlertCircle } from "lucide-react";
-import { startMatch } from "@/features/match-events/utils";
-import { store } from "@/store";
-import { MatchEventPlayer, PlayerPosition } from "@repo/core";
-import { LineupSelector } from "@/features/match-events/components/lineup-selector";
 
 export default function MatchSimulationPage() {
   const t = useTranslations("MatchEvents");
-  const [isInitialized, setIsInitialized] = useState(false);
-  const [isStartingMatch, setIsStartingMatch] = useState(false);
-  const [lineup, setLineup] = useState<MatchEventPlayer[]>([]);
-  const lineupReady =
-    lineup.length === 11 &&
-    lineup.filter((p) => p.position === PlayerPosition.GOALKEEPER).length === 1;
-
-  const { activeMatch, isConnected, isMatchActive, error } = useAppSelector(
-    (state) => state.matchEvents,
-  );
-
+  const f = useTranslations("Fixtures");
+  const locale = useLocale();
+  const { activeMatch, error } = useAppSelector((s) => s.matchEvents);
   useEffect(() => {
-    // Connect to Socket.IO when component mounts
     matchEventsSocket.connect();
-    setIsInitialized(true);
+    void matchEventsSocket.subscribeToMatch().catch(() => {});
   }, []);
-
-  const handleStartMatch = async () => {
-    try {
-      setIsStartingMatch(true);
-      await startMatch(lineup);
-    } catch (error) {
-      console.error("Failed to start match:", error);
-      store.dispatch(
-        setError(
-          error instanceof Error ? error.message : t("failedToStartMatch"),
-        ),
-      );
-    } finally {
-      setIsStartingMatch(false);
-    }
-  };
-
-  if (!isInitialized) {
-    return (
-      <div className="container mx-auto py-8">
-        <div className="text-center text-muted-foreground">
-          {t("connecting")}
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="container mx-auto py-8 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">{t("title")}</h1>
-          <p className="text-muted-foreground mt-1">{t("liveMatch")}</p>
-        </div>
-        <div className="flex items-center gap-4">
-          <Button
-            onClick={handleStartMatch}
-            disabled={
-              !isConnected || isMatchActive || isStartingMatch || !lineupReady
-            }
-            size="lg"
-          >
-            <Play className="mr-2 h-5 w-5" />
-            {activeMatch ? t("startNewMatch") : t("startMatch")}
-          </Button>
-        </div>
+      <div className="flex flex-wrap justify-between gap-4">
+        <h1 className="text-3xl font-bold">{t("title")}</h1>
+        <Button asChild>
+          <Link href={`/${locale}/fixtures`}>{f("title")}</Link>
+        </Button>
       </div>
-
       {error && (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
+        <p role="alert" className="text-destructive">
+          {error}
+        </p>
       )}
-
       <ConnectionStatus />
-      {!isMatchActive && (
-        <LineupSelector
-          selected={lineup}
-          onChange={setLineup}
-          disabled={isStartingMatch}
-        />
-      )}
-
       {activeMatch ? (
-        <div className="grid grid-cols-1 gap-6">
+        <>
           <MatchScoreBoard />
           <MatchStatsCard />
           <MatchEventList />
-        </div>
+        </>
       ) : (
-        <Card>
-          <CardContent className="py-12">
-            <div className="text-center text-muted-foreground">
-              <p className="text-lg mb-4">{t("matchNotStarted")}</p>
-              <p className="text-sm">{t("simulationInstruction")}</p>
-            </div>
-          </CardContent>
-        </Card>
+        <p>{f("chooseFixture")}</p>
       )}
     </div>
   );
