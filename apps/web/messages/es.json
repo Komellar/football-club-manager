@@ -735,5 +735,22 @@
       "notes": "Ingrese notas adicionales...",
       "selectDate": "Seleccione una fecha"
     }
+  },
+  "Lineup": {
+    "title": "Once inicial",
+    "instruction": "Elige once jugadores activos, incluido exactamente un portero.",
+    "selected": "{count}/11 seleccionados",
+    "goalkeepers": "{count}/1 portero",
+    "loading": "Cargando plantilla…",
+    "loadError": "No se pudo cargar la plantilla.",
+    "retry": "Reintentar",
+    "notEnough": "Se necesitan al menos once jugadores activos para iniciar un partido.",
+    "clear": "Borrar selección",
+    "positions": {
+      "goalkeeper": "Porteros",
+      "defender": "Defensas",
+      "midfielder": "Centrocampistas",
+      "forward": "Delanteros"
+    }
   }
 }

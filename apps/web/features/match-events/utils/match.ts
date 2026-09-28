@@ -2,23 +2,13 @@
 
 import type { MatchEventPlayer, StartMatch } from "@repo/core";
 import { matchEventsSocket } from "../services/match-events-socket.service";
-import { getRandomMatchSquad } from "@/features/players/api";
 
-export const startMatch = async () => {
-  const players = await getRandomMatchSquad();
-
-  const myClubPlayers: MatchEventPlayer[] = players.map((player) => ({
-    id: player.id,
-    name: player.name,
-    jerseyNumber: player.jerseyNumber ?? undefined,
-    position: player.position,
-  }));
-
+export const startMatch = async (players: MatchEventPlayer[]) => {
   const matchData: StartMatch = {
     homeTeam: {
       id: 1,
       name: "My Club",
-      players: myClubPlayers,
+      players,
     },
     awayTeam: {
       id: 2,

@@ -740,5 +740,22 @@
       "notes": "Enter additional notes...",
       "selectDate": "Select date"
     }
+  },
+  "Lineup": {
+    "title": "Starting XI",
+    "instruction": "Choose eleven active players, including exactly one goalkeeper.",
+    "selected": "{count}/11 selected",
+    "goalkeepers": "{count}/1 goalkeeper",
+    "loading": "Loading squad…",
+    "loadError": "Could not load the squad.",
+    "retry": "Retry",
+    "notEnough": "At least eleven active players are needed to start a match.",
+    "clear": "Clear selection",
+    "positions": {
+      "goalkeeper": "Goalkeepers",
+      "defender": "Defenders",
+      "midfielder": "Midfielders",
+      "forward": "Forwards"
+    }
   }
 }

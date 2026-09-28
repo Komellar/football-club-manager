@@ -19,14 +19,20 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Play, AlertCircle } from "lucide-react";
 import { startMatch } from "@/features/match-events/utils";
 import { store } from "@/store";
+import { MatchEventPlayer, PlayerPosition } from "@repo/core";
+import { LineupSelector } from "@/features/match-events/components/lineup-selector";
 
 export default function MatchSimulationPage() {
   const t = useTranslations("MatchEvents");
   const [isInitialized, setIsInitialized] = useState(false);
   const [isStartingMatch, setIsStartingMatch] = useState(false);
+  const [lineup, setLineup] = useState<MatchEventPlayer[]>([]);
+  const lineupReady =
+    lineup.length === 11 &&
+    lineup.filter((p) => p.position === PlayerPosition.GOALKEEPER).length === 1;
 
   const { activeMatch, isConnected, isMatchActive, error } = useAppSelector(
-    (state) => state.matchEvents
+    (state) => state.matchEvents,
   );
 
   useEffect(() => {
@@ -38,10 +44,14 @@ export default function MatchSimulationPage() {
   const handleStartMatch = async () => {
     try {
       setIsStartingMatch(true);
-      await startMatch();
+      await startMatch(lineup);
     } catch (error) {
       console.error("Failed to start match:", error);
-      store.dispatch(setError(t("failedToStartMatch")));
+      store.dispatch(
+        setError(
+          error instanceof Error ? error.message : t("failedToStartMatch"),
+        ),
+      );
     } finally {
       setIsStartingMatch(false);
     }
@@ -67,7 +77,9 @@ export default function MatchSimulationPage() {
         <div className="flex items-center gap-4">
           <Button
             onClick={handleStartMatch}
-            disabled={!isConnected || isMatchActive || isStartingMatch}
+            disabled={
+              !isConnected || isMatchActive || isStartingMatch || !lineupReady
+            }
             size="lg"
           >
             <Play className="mr-2 h-5 w-5" />
@@ -84,6 +96,13 @@ export default function MatchSimulationPage() {
       )}
 
       <ConnectionStatus />
+      {!isMatchActive && (
+        <LineupSelector
+          selected={lineup}
+          onChange={setLineup}
+          disabled={isStartingMatch}
+        />
+      )}
 
       {activeMatch ? (
         <div className="grid grid-cols-1 gap-6">

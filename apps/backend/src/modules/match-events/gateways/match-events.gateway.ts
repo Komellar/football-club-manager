@@ -12,6 +12,7 @@ import { Logger, UseFilters } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Server, Socket } from 'socket.io';
 import { MatchEventsService } from '../services/match-events.service';
+import { LineupService } from '../services/lineup.service';
 import {
   SubscribeToMatch,
   UnsubscribeFromMatch,
@@ -54,7 +55,10 @@ export class MatchEventsGateway
 
   private readonly logger = new Logger(MatchEventsGateway.name);
 
-  constructor(private readonly matchEventsService: MatchEventsService) {}
+  constructor(
+    private readonly matchEventsService: MatchEventsService,
+    private readonly lineups: LineupService,
+  ) {}
 
   handleConnection(client: Socket) {
     this.logger.log(`Client connected: ${client.id}`);
@@ -92,16 +96,29 @@ export class MatchEventsGateway
   }
 
   @SubscribeMessage(MatchEventsSocketMessage.START_MATCH)
-  handleStartMatch(
+  async handleStartMatch(
     @MessageBody(new WsValidationPipe(StartMatchSchema)) data: StartMatch,
   ) {
     if (this.matchEventsService.isMatchActive()) {
       throw new WsException('A match is already in progress');
     }
 
-    const matchId = this.matchEventsService.startMatchSimulation(data);
-
-    return { success: true, matchId };
+    try {
+      const players = await this.lineups.resolve(
+        data.homeTeam.players.map((p) => p.id),
+      );
+      const matchId = this.matchEventsService.startMatchSimulation({
+        ...data,
+        homeTeam: { ...data.homeTeam, players },
+      });
+      return { success: true, matchId };
+    } catch (error) {
+      return {
+        success: false,
+        message:
+          error instanceof Error ? error.message : 'Could not start match',
+      };
+    }
   }
 
   @OnEvent(MATCH_INTERNAL_EVENT)
