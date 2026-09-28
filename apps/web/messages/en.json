@@ -505,6 +505,7 @@
     "description": "Overview of club performance and activities",
     "contractOverview": "Contract Overview",
     "financialOverview": "Financial Overview",
+    "sponsorshipProjectionNote": "Sponsorship income follows scheduled payments and is projected; actual receipts are not tracked.",
     "contractsByType": "Contracts by Type",
     "contractDistribution": "Distribution of active contracts",
     "noActiveContracts": "No active contracts",
@@ -687,6 +688,9 @@
     "notes": "Notes",
     "basicInformation": "Basic Information",
     "financialInformation": "Financial Information",
+    "paymentSchedule": "Payment Schedule",
+    "paymentScheduleNote": "Projected payments based on the deal terms; actual receipts are not tracked.",
+    "noScheduledPayments": "No payments are scheduled for this deal.",
     "daysRemaining": "Days Remaining",
     "sections": {
       "basicInfo": "Basic Information",

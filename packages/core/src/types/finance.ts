@@ -5,8 +5,14 @@ export interface FinancialSummary {
   monthlyData: MonthlyFinanceData[];
 }
 
+export interface SponsorshipPayment {
+  date: string; // YYYY-MM-DD
+  amount: number;
+}
+
 export interface MonthlyTotals {
   totalTransferIncome: number;
+  totalSponsorshipIncome: number;
   totalWages: number;
   totalSignOnFees: number;
   totalContractAgentFees: number;
@@ -19,6 +25,7 @@ export interface MonthlyFinances {
   monthSignOnFees: number;
   monthContractAgentFees: number;
   monthTransferIncome: number;
+  monthSponsorshipIncome: number;
   monthTransferExpenses: number;
   monthTransferAgentFees: number;
 }

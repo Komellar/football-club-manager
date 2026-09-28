@@ -29,6 +29,9 @@ export default async function FinanceSlot({ searchParams }: FinanceSlotProps) {
         <h2 className="text-2xl font-semibold mb-4">
           {t("financialOverview")}
         </h2>
+        <p className="text-sm text-muted-foreground">
+          {t("sponsorshipProjectionNote")}
+        </p>
         <DateRangeSelector startDate={startDate} endDate={endDate} />
         <FinanceCharts data={data} />
       </div>

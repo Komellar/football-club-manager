@@ -4,7 +4,10 @@ import Link from "next/link";
 import { ArrowLeft, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DeleteSponsorshipDialog } from "@/features/sponsorships/components/delete-sponsorship-dialog";
-import { getSponsorshipById } from "@/features/sponsorships/api";
+import {
+  getSponsorshipById,
+  getSponsorshipPaymentSchedule,
+} from "@/features/sponsorships/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -40,6 +43,13 @@ export default async function SponsorshipDetailsPage({
   if (!sponsorship) {
     notFound();
   }
+
+  const payments = await getSponsorshipPaymentSchedule(sponsorshipId);
+  const today = new Date().toISOString().slice(0, 10);
+  const upcomingPayments = payments.filter((payment) => payment.date >= today);
+  const displayedPayments = upcomingPayments.length
+    ? upcomingPayments.slice(0, 6)
+    : payments.slice(-6);
 
   return (
     <div className="space-y-6">
@@ -96,7 +106,7 @@ export default async function SponsorshipDetailsPage({
               <Badge
                 variant="outline"
                 className={getSponsorshipStatusColor(
-                  sponsorship.sponsorshipStatus
+                  sponsorship.sponsorshipStatus,
                 )}
               >
                 {formatSponsorshipStatus(sponsorship.sponsorshipStatus)}
@@ -153,6 +163,34 @@ export default async function SponsorshipDetailsPage({
                 {formatCurrency(sponsorship.monthlyValue)}
               </p>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("paymentSchedule")}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              {t("paymentScheduleNote")}
+            </p>
+            {displayedPayments.length ? (
+              displayedPayments.map((payment) => (
+                <div
+                  key={payment.date}
+                  className="flex justify-between gap-4 border-b pb-2 last:border-0"
+                >
+                  <span>{payment.date}</span>
+                  <span className="font-medium">
+                    {formatCurrency(payment.amount)}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                {t("noScheduledPayments")}
+              </p>
+            )}
           </CardContent>
         </Card>
 

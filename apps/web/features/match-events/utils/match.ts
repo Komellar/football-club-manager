@@ -14,10 +14,7 @@ export const startMatch = async () => {
     position: player.position,
   }));
 
-  const matchId = Date.now();
-
   const matchData: StartMatch = {
-    matchId,
     homeTeam: {
       id: 1,
       name: "My Club",
@@ -30,6 +27,6 @@ export const startMatch = async () => {
   };
 
   // Subscribe to match and start simulation
-  matchEventsSocket.subscribeToMatch(matchData.matchId);
-  matchEventsSocket.startMatch(matchData);
+  await matchEventsSocket.subscribeToMatch();
+  await matchEventsSocket.startMatch(matchData);
 };

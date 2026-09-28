@@ -8,6 +8,7 @@ import type {
   SponsorshipResponseDto,
   CreateSponsorshipDto,
   UpdateSponsorshipDto,
+  SponsorshipPayment,
 } from "@repo/core";
 
 export async function getSponsorships(
@@ -43,6 +44,15 @@ export async function getSponsorshipById(
     }
     throw new Error("Failed to fetch sponsorship");
   }
+}
+
+export async function getSponsorshipPaymentSchedule(
+  id: number,
+): Promise<SponsorshipPayment[]> {
+  const { data }: AxiosResponse<SponsorshipPayment[]> = await apiClient.get(
+    `/sponsorships/${id}/payments`,
+  );
+  return data;
 }
 
 export async function createSponsorship(

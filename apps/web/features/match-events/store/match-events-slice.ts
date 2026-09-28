@@ -40,7 +40,8 @@ const matchEventsSlice = createSlice({
     },
     addMatchEvent: (state, action: PayloadAction<MatchEvent>) => {
       const event = action.payload;
-      const match = state.activeMatch!;
+      const match = state.activeMatch;
+      if (!match || event.matchId !== match.matchId) return;
 
       match.currentMinute = event.minute;
       match.events.push(event);

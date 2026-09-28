@@ -248,6 +248,7 @@ describe('TransfersService', () => {
       expect(transferRepository.findAndCount).toHaveBeenCalledWith({
         skip: 0, // (page 1 - 1) * limit 10
         take: 10,
+        relations: ['player'],
       });
 
       expect(result).toEqual({
@@ -282,6 +283,7 @@ describe('TransfersService', () => {
         skip: 5, // (page 2 - 1) * limit 5
         take: 5,
         order: { updatedAt: SortOrder.DESC },
+        relations: ['player'],
       });
 
       expect(result.pagination).toEqual({
@@ -364,6 +366,7 @@ describe('TransfersService', () => {
 
       expect(transferRepository.findOneOrFail).toHaveBeenCalledWith({
         where: { id: 1 },
+        relations: ['player'],
       });
       expect(result).toEqual(
         expect.objectContaining({
@@ -457,7 +460,7 @@ describe('TransfersService', () => {
       expect(transferRepository.save).toHaveBeenCalled();
       expect(result).toEqual(
         expect.objectContaining({
-          toClub: 'Manchester United',
+          otherClubName: 'Manchester United',
           transferFee: 75000000,
         }),
       );
@@ -533,7 +536,6 @@ describe('TransfersService', () => {
 
       expect(transferRepository.findOneOrFail).toHaveBeenCalledWith({
         where: { id: 1 },
-        relations: ['player'],
       });
       expect(transferRepository.remove).toHaveBeenCalledWith(pendingTransfer);
     });

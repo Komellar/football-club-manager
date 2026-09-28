@@ -25,6 +25,7 @@ import {
   type SponsorshipResponseDto,
   type SponsorshipListDto,
   type PaginatedSponsorshipResponseDto,
+  type SponsorshipPayment,
 } from '@repo/core';
 import {
   CreateSponsorship,
@@ -66,6 +67,13 @@ export class SponsorshipsController {
     @Param('id', ParseIntPipe) id: number,
   ): Promise<SponsorshipResponseDto> {
     return this.sponsorshipsService.findOne(id);
+  }
+
+  @Get(':id/payments')
+  async getPaymentSchedule(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<SponsorshipPayment[]> {
+    return this.sponsorshipsService.getPaymentSchedule(id);
   }
 
   @Patch(':id')

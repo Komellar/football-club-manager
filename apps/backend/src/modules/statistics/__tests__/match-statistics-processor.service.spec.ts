@@ -42,7 +42,7 @@ describe('MatchStatisticsProcessorService', () => {
   describe('processMatchEvents', () => {
     it('should process empty events array without errors', async () => {
       const matchState: MatchSimulationState = {
-        matchId: 1,
+        matchId: '00000000-0000-4000-8000-000000000001',
         homeTeam: {
           id: 1,
           name: 'Team A',
@@ -65,7 +65,7 @@ describe('MatchStatisticsProcessorService', () => {
       const events: MatchEvent[] = [
         {
           id: '1',
-          matchId: 1,
+          matchId: '00000000-0000-4000-8000-000000000001',
           type: MatchEventType.GOAL,
           minute: 10,
           timestamp: new Date(),
@@ -80,7 +80,7 @@ describe('MatchStatisticsProcessorService', () => {
         },
         {
           id: '2',
-          matchId: 1,
+          matchId: '00000000-0000-4000-8000-000000000001',
           type: MatchEventType.CARD_YELLOW,
           minute: 20,
           timestamp: new Date(),
@@ -96,7 +96,7 @@ describe('MatchStatisticsProcessorService', () => {
       ];
 
       const matchState: MatchSimulationState = {
-        matchId: 1,
+        matchId: '00000000-0000-4000-8000-000000000001',
         homeTeam: {
           id: 1,
           name: 'Team A',
@@ -160,7 +160,7 @@ describe('MatchStatisticsProcessorService', () => {
       const events: MatchEvent[] = [
         {
           id: '1',
-          matchId: 1,
+          matchId: '00000000-0000-4000-8000-000000000001',
           type: MatchEventType.GOAL,
           minute: 10,
           timestamp: new Date(),
@@ -175,7 +175,7 @@ describe('MatchStatisticsProcessorService', () => {
         },
         {
           id: '2',
-          matchId: 1,
+          matchId: '00000000-0000-4000-8000-000000000001',
           type: MatchEventType.GOAL,
           minute: 30,
           timestamp: new Date(),
@@ -191,7 +191,7 @@ describe('MatchStatisticsProcessorService', () => {
       ];
 
       const matchState: MatchSimulationState = {
-        matchId: 1,
+        matchId: '00000000-0000-4000-8000-000000000001',
         homeTeam: {
           id: 1,
           name: 'Team A',
@@ -264,7 +264,7 @@ describe('MatchStatisticsProcessorService', () => {
       const events: MatchEvent[] = [
         {
           id: '1',
-          matchId: 1,
+          matchId: '00000000-0000-4000-8000-000000000001',
           type: MatchEventType.GOAL,
           minute: 10,
           timestamp: new Date(),
@@ -279,7 +279,7 @@ describe('MatchStatisticsProcessorService', () => {
         },
         {
           id: '2',
-          matchId: 1,
+          matchId: '00000000-0000-4000-8000-000000000001',
           type: MatchEventType.GOAL,
           minute: 20,
           timestamp: new Date(),
@@ -295,7 +295,7 @@ describe('MatchStatisticsProcessorService', () => {
       ];
 
       const matchState: MatchSimulationState = {
-        matchId: 1,
+        matchId: '00000000-0000-4000-8000-000000000001',
         homeTeam: {
           id: 1,
           name: 'Team A',
@@ -333,7 +333,7 @@ describe('MatchStatisticsProcessorService', () => {
       const events: MatchEvent[] = [
         {
           id: '1',
-          matchId: 1,
+          matchId: '00000000-0000-4000-8000-000000000001',
           type: MatchEventType.MATCH_START,
           minute: 0,
           timestamp: new Date(),
@@ -342,7 +342,7 @@ describe('MatchStatisticsProcessorService', () => {
         },
         {
           id: '2',
-          matchId: 1,
+          matchId: '00000000-0000-4000-8000-000000000001',
           type: MatchEventType.CORNER,
           minute: 10,
           timestamp: new Date(),
@@ -352,7 +352,7 @@ describe('MatchStatisticsProcessorService', () => {
       ];
 
       const matchState: MatchSimulationState = {
-        matchId: 1,
+        matchId: '00000000-0000-4000-8000-000000000001',
         homeTeam: {
           id: 1,
           name: 'Team A',
@@ -385,7 +385,7 @@ describe('MatchStatisticsProcessorService', () => {
       const events: MatchEvent[] = [
         {
           id: '1',
-          matchId: 1,
+          matchId: '00000000-0000-4000-8000-000000000001',
           type: MatchEventType.CARD_RED,
           minute: 45,
           timestamp: new Date(),
@@ -401,7 +401,7 @@ describe('MatchStatisticsProcessorService', () => {
       ];
 
       const matchState: MatchSimulationState = {
-        matchId: 1,
+        matchId: '00000000-0000-4000-8000-000000000001',
         homeTeam: {
           id: 1,
           name: 'Team A',
@@ -442,7 +442,7 @@ describe('MatchStatisticsProcessorService', () => {
       const events: MatchEvent[] = [
         {
           id: '1',
-          matchId: 1,
+          matchId: '00000000-0000-4000-8000-000000000001',
           type: MatchEventType.GOAL,
           minute: 10,
           timestamp: new Date(),
@@ -457,7 +457,7 @@ describe('MatchStatisticsProcessorService', () => {
         },
         {
           id: '2',
-          matchId: 1,
+          matchId: '00000000-0000-4000-8000-000000000001',
           type: MatchEventType.GOAL,
           minute: 20,
           timestamp: new Date(),
@@ -473,7 +473,7 @@ describe('MatchStatisticsProcessorService', () => {
       ];
 
       const matchState: MatchSimulationState = {
-        matchId: 1,
+        matchId: '00000000-0000-4000-8000-000000000001',
         homeTeam: {
           id: 1,
           name: 'Team A',
@@ -531,7 +531,7 @@ describe('MatchStatisticsProcessorService', () => {
       const events: MatchEvent[] = [
         {
           id: '1',
-          matchId: 1,
+          matchId: '00000000-0000-4000-8000-000000000001',
           type: MatchEventType.GOAL,
           minute: 10,
           timestamp: new Date(),
@@ -552,7 +552,7 @@ describe('MatchStatisticsProcessorService', () => {
         },
         {
           id: '2',
-          matchId: 1,
+          matchId: '00000000-0000-4000-8000-000000000001',
           type: MatchEventType.GOAL,
           minute: 30,
           timestamp: new Date(),
@@ -574,7 +574,7 @@ describe('MatchStatisticsProcessorService', () => {
       ];
 
       const matchState: MatchSimulationState = {
-        matchId: 1,
+        matchId: '00000000-0000-4000-8000-000000000001',
         homeTeam: {
           id: 1,
           name: 'Team A',
@@ -643,7 +643,7 @@ describe('MatchStatisticsProcessorService', () => {
       const events: MatchEvent[] = [
         {
           id: '1',
-          matchId: 1,
+          matchId: '00000000-0000-4000-8000-000000000001',
           type: MatchEventType.SHOT_ON_TARGET,
           minute: 10,
           timestamp: new Date(),
@@ -652,7 +652,7 @@ describe('MatchStatisticsProcessorService', () => {
         },
         {
           id: '2',
-          matchId: 1,
+          matchId: '00000000-0000-4000-8000-000000000001',
           type: MatchEventType.SHOT_ON_TARGET,
           minute: 20,
           timestamp: new Date(),
@@ -662,7 +662,7 @@ describe('MatchStatisticsProcessorService', () => {
       ];
 
       const matchState: MatchSimulationState = {
-        matchId: 1,
+        matchId: '00000000-0000-4000-8000-000000000001',
         homeTeam: {
           id: 1,
           name: 'Team A',

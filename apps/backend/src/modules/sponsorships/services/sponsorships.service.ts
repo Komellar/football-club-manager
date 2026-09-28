@@ -11,6 +11,8 @@ import type {
   PaginatedSponsorshipResponseDto,
 } from '@repo/core';
 import { ListQueryBuilder } from '@/shared/query/list-query-builder';
+import { buildSponsorshipPaymentSchedule } from './sponsorship-financial.service';
+import type { SponsorshipPayment } from '@repo/core';
 
 @Injectable()
 export class SponsorshipsService {
@@ -68,6 +70,13 @@ export class SponsorshipsService {
       where: { id },
     });
     return this.mapToResponseDto(sponsorship);
+  }
+
+  async getPaymentSchedule(id: number): Promise<SponsorshipPayment[]> {
+    const sponsorship = await this.sponsorshipRepository.findOneOrFail({
+      where: { id },
+    });
+    return buildSponsorshipPaymentSchedule(sponsorship);
   }
 
   async update(

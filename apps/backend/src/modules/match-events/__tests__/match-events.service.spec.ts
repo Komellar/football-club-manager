@@ -1,35 +1,38 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { Logger } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { MatchEventType, PlayerPosition, type StartMatch } from '@repo/core';
 import { MatchEventsService } from '../services/match-events.service';
 import { MatchSimulationEngineService } from '../services/match-simulation-engine.service';
 import { MatchStatisticsProcessorService } from '../../statistics/services/match-statistics-processor.service';
-import { MatchEventType, PlayerPosition, StartMatch } from '@repo/core';
-import { Server } from 'socket.io';
+import {
+  MATCH_INTERNAL_ENDED,
+  MATCH_INTERNAL_EVENT,
+  MATCH_SIMULATION_CONFIG,
+} from '../constants/match-simulation.constants';
 
-// Mock uuid module
-jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mocked-uuid-v4'),
-}));
+jest.mock('uuid', () => ({ v4: jest.fn(() => 'mocked-event-uuid') }));
 
-describe('MatchEventsService (RxJS)', () => {
+const matchData: StartMatch = {
+  homeTeam: {
+    id: 1,
+    name: 'Home Team',
+    players: Array.from({ length: 11 }, (_, index) => ({
+      id: index + 1,
+      name: `Player ${index + 1}`,
+      position: PlayerPosition.FORWARD,
+    })),
+  },
+  awayTeam: { id: 2, name: 'Away Team' },
+};
+
+describe('MatchEventsService', () => {
   let service: MatchEventsService;
   let simulationEngine: MatchSimulationEngineService;
   let statisticsProcessor: MatchStatisticsProcessorService;
-  let mockServer: Partial<Server>;
-  let logSpy: jest.SpyInstance;
+  let eventEmitter: EventEmitter2;
 
   beforeEach(async () => {
-    // Setup logger spies BEFORE creating the module
-    logSpy = jest.spyOn(Logger.prototype, 'log').mockImplementation(() => {});
-    jest.spyOn(Logger.prototype, 'error').mockImplementation(() => {});
-    jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => {});
-
-    // Create mock server
-    mockServer = {
-      to: jest.fn().mockReturnThis(),
-      emit: jest.fn(),
-    };
-
+    jest.useFakeTimers();
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         MatchEventsService,
@@ -40,228 +43,97 @@ describe('MatchEventsService (RxJS)', () => {
             processMatchEvents: jest.fn().mockResolvedValue(undefined),
           },
         },
+        { provide: EventEmitter2, useValue: { emit: jest.fn() } },
       ],
     }).compile();
 
-    service = module.get<MatchEventsService>(MatchEventsService);
-    simulationEngine = module.get<MatchSimulationEngineService>(
-      MatchSimulationEngineService,
-    );
-    statisticsProcessor = module.get<MatchStatisticsProcessorService>(
-      MatchStatisticsProcessorService,
-    );
-
-    service.setServer(mockServer as Server);
+    service = module.get(MatchEventsService);
+    simulationEngine = module.get(MatchSimulationEngineService);
+    statisticsProcessor = module.get(MatchStatisticsProcessorService);
+    eventEmitter = module.get(EventEmitter2);
   });
 
   afterEach(() => {
-    // Clean up any active matches to prevent memory leaks
     service.onModuleDestroy();
+    jest.useRealTimers();
     jest.restoreAllMocks();
   });
 
-  describe('Client Subscription Management', () => {
-    it('should subscribe a client to a match', () => {
-      const clientId = 'client-1';
-      const matchId = 1;
-
-      service.subscribeToMatch(clientId, matchId);
-
-      expect(Logger.prototype.log).toHaveBeenCalledWith(
-        `Client ${clientId} subscribed to match ${matchId}`,
-      );
-    });
-
-    it('should unsubscribe a client from a match', () => {
-      const clientId = 'client-1';
-      const matchId = 1;
-
-      service.subscribeToMatch(clientId, matchId);
-      service.unsubscribeFromMatch(clientId, matchId);
-
-      expect(logSpy).toHaveBeenCalledWith(
-        `Client ${clientId} unsubscribed from match ${matchId}`,
-      );
-    });
-
-    it('should handle client disconnect and clean up subscriptions', () => {
-      const clientId = 'client-1';
-      const matchId = 1;
-
-      service.subscribeToMatch(clientId, matchId);
-      service.handleClientDisconnect(clientId);
-
-      expect(logSpy).toHaveBeenCalledWith(
-        `Cleaning up subscriptions for disconnected client ${clientId}`,
-      );
-    });
+  it('subscribes clients to the single active match', () => {
+    expect(service.subscribeToMatch('client-1')).toBeNull();
+    const matchId = service.startMatchSimulation(matchData);
+    expect(service.subscribeToMatch('client-1')).toBe(matchId);
+    expect(service.getActiveMatchId()).toBe(matchId);
+    expect(service.isMatchActive()).toBe(true);
   });
 
-  describe('Match Simulation with RxJS', () => {
-    const createMockMatchData = (): StartMatch => ({
-      matchId: 1,
-      homeTeam: {
-        id: 1,
-        name: 'Home Team',
-        players: [
-          {
-            id: 1,
-            name: 'Player 1',
-            position: PlayerPosition.FORWARD,
-            jerseyNumber: 10,
-          },
-          {
-            id: 2,
-            name: 'Player 2',
-            position: PlayerPosition.MIDFIELDER,
-            jerseyNumber: 8,
-          },
-        ],
-      },
-      awayTeam: {
-        id: 2,
-        name: 'Away Team',
-      },
-    });
-
-    it('should start a match simulation and create RxJS stream', () => {
-      const matchData = createMockMatchData();
-
-      service.startMatchSimulation(matchData);
-
-      expect(service.isMatchActive(matchData.matchId)).toBe(true);
-      expect(mockServer.to).toHaveBeenCalledWith(`match:${matchData.matchId}`);
-      expect(mockServer.emit).toHaveBeenCalledWith(
-        'matchEvent',
-        expect.objectContaining({
-          type: MatchEventType.MATCH_START,
-          matchId: matchData.matchId,
-        }),
-      );
-    });
-
-    it('should throw error if match is already active', () => {
-      const matchData = createMockMatchData();
-
-      service.startMatchSimulation(matchData);
-
-      expect(() => service.startMatchSimulation(matchData)).toThrow(
-        `Match ${matchData.matchId} is already running`,
-      );
-    });
-
-    it('should clean up RxJS subscriptions on module destroy', () => {
-      const matchData = createMockMatchData();
-
-      service.startMatchSimulation(matchData);
-      expect(service.isMatchActive(matchData.matchId)).toBe(true);
-
-      // Call lifecycle hook
-      service.onModuleDestroy();
-
-      expect(service.isMatchActive(matchData.matchId)).toBe(false);
-    });
+  it('generates a match ID and emits a start event', () => {
+    const matchId = service.startMatchSimulation(matchData);
+    expect(matchId).toMatch(/^[0-9a-f-]{36}$/);
+    expect(eventEmitter.emit).toHaveBeenCalledWith(
+      MATCH_INTERNAL_EVENT,
+      expect.objectContaining({
+        type: MatchEventType.MATCH_START,
+        matchId,
+      }),
+    );
   });
 
-  describe('Event Stream Processing', () => {
-    it('should process match events through reactive streams', (done) => {
-      const matchData: StartMatch = {
-        matchId: 1,
-        homeTeam: {
-          id: 1,
-          name: 'Home Team',
-          players: [
-            {
-              id: 1,
-              name: 'Player 1',
-              position: PlayerPosition.FORWARD,
-              jerseyNumber: 10,
-            },
-          ],
-        },
-        awayTeam: {
-          id: 2,
-          name: 'Away Team',
-        },
-      };
+  it('rejects a second match until the active match is cleared', () => {
+    service.startMatchSimulation(matchData);
+    expect(() => service.startMatchSimulation(matchData)).toThrow(
+      'A match is already running',
+    );
+    service.onModuleDestroy();
+    expect(service.isMatchActive()).toBe(false);
+  });
 
-      // Mock event generation to always generate a goal
-      jest.spyOn(simulationEngine, 'shouldGenerateEvent').mockReturnValue(true);
-      jest.spyOn(simulationEngine, 'generateRandomEvent').mockReturnValue({
+  it('emits generated events on simulation ticks', async () => {
+    const matchId = service.startMatchSimulation(matchData);
+    jest.spyOn(simulationEngine, 'shouldGenerateEvent').mockReturnValue(true);
+    jest
+      .spyOn(simulationEngine, 'generateRandomEvent')
+      .mockImplementation((state) => ({
         id: 'event-1',
-        matchId: 1,
+        matchId: state.matchId,
         type: MatchEventType.GOAL,
-        minute: 10,
+        minute: state.currentMinute,
         timestamp: new Date(),
-        teamId: 1,
-        teamName: 'Home Team',
-        player: {
-          id: 1,
-          name: 'Player 1',
-          position: PlayerPosition.FORWARD,
-        },
-      });
+        teamId: state.homeTeam.id,
+        teamName: state.homeTeam.name,
+        player: state.homeTeam.players[0],
+      }));
 
-      service.startMatchSimulation(matchData);
+    await jest.advanceTimersByTimeAsync(
+      MATCH_SIMULATION_CONFIG.TICK_INTERVAL_MS,
+    );
 
-      // Wait for a tick to process
-      setTimeout(() => {
-        expect(mockServer.emit).toHaveBeenCalledWith(
-          'matchEvent',
-          expect.objectContaining({
-            type: MatchEventType.GOAL,
-            minute: 10,
-          }),
-        );
-
-        // Clean up
-        service.onModuleDestroy();
-        done();
-      }, 1100); // Wait for at least one interval tick
-    }, 3000);
+    expect(eventEmitter.emit).toHaveBeenCalledWith(
+      MATCH_INTERNAL_EVENT,
+      expect.objectContaining({
+        type: MatchEventType.GOAL,
+        matchId,
+        minute: MATCH_SIMULATION_CONFIG.MINUTES_PER_TICK,
+      }),
+    );
   });
 
-  describe('Match End and Statistics Processing', () => {
-    it('should process statistics when match ends', async () => {
-      const matchData: StartMatch = {
-        matchId: 1,
-        homeTeam: {
-          id: 1,
-          name: 'Home Team',
-          players: [
-            {
-              id: 1,
-              name: 'Player 1',
-              position: PlayerPosition.FORWARD,
-              jerseyNumber: 10,
-            },
-          ],
-        },
-        awayTeam: {
-          id: 2,
-          name: 'Away Team',
-        },
-      };
+  it('emits the result and processes statistics when the match ends', async () => {
+    const matchId = service.startMatchSimulation(matchData);
+    jest.spyOn(simulationEngine, 'isMatchEnded').mockReturnValue(true);
 
-      // Mock match to end immediately
-      jest.spyOn(simulationEngine, 'isMatchEnded').mockReturnValue(true);
+    await jest.advanceTimersByTimeAsync(
+      MATCH_SIMULATION_CONFIG.TICK_INTERVAL_MS,
+    );
 
-      service.startMatchSimulation(matchData);
-
-      // Wait for match to end
-      await new Promise((resolve) => setTimeout(resolve, 1100));
-
-      expect(statisticsProcessor.processMatchEvents).toHaveBeenCalled();
-      expect(mockServer.emit).toHaveBeenCalledWith(
-        'matchEnded',
-        expect.objectContaining({
-          matchId: matchData.matchId,
-        }),
-      );
-      expect(service.isMatchActive(matchData.matchId)).toBe(false);
-
-      // Clean up
-      service.onModuleDestroy();
-    }, 3000);
+    expect(eventEmitter.emit).toHaveBeenCalledWith(
+      MATCH_INTERNAL_ENDED,
+      expect.objectContaining({ matchId, score: { home: 0, away: 0 } }),
+    );
+    expect(statisticsProcessor.processMatchEvents).toHaveBeenCalledWith(
+      expect.objectContaining({ matchId }),
+      expect.any(String),
+    );
+    expect(service.isMatchActive()).toBe(false);
   });
 });

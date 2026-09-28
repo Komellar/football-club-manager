@@ -70,17 +70,17 @@ class MatchEventsSocketService {
       map(() => true),
       tap(() => {
         this.reconnectAttempts = 0;
-      })
+      }),
     );
 
     const disconnect$ = fromEvent(this.socket, "disconnect").pipe(
-      map(() => false)
+      map(() => false),
     );
 
     this.connectionStatus$ = merge(connect$, disconnect$).pipe(
       tap((isConnected) => store.dispatch(setConnectionStatus(isConnected))),
       takeUntil(this.destroy$),
-      share()
+      share(),
     );
 
     this.matchEvents$ = fromEvent<MatchEvent>(this.socket, "matchEvent").pipe(
@@ -92,13 +92,13 @@ class MatchEventsSocketService {
         }
       }),
       takeUntil(this.destroy$),
-      share()
+      share(),
     );
 
     fromEvent(this.socket, "matchEnded")
       .pipe(
         tap(() => store.dispatch(endMatch())),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
       .subscribe();
 
@@ -128,7 +128,7 @@ class MatchEventsSocketService {
       }),
       tap((errorMessage) => store.dispatch(setError(errorMessage))),
       takeUntil(this.destroy$),
-      share()
+      share(),
     );
 
     fromEvent(this.socket, "connect_error")
@@ -139,12 +139,12 @@ class MatchEventsSocketService {
           if (this.reconnectAttempts >= this.MAX_RECONNECT_ATTEMPTS) {
             store.dispatch(
               setError(
-                "Failed to connect to match events server. Please try again."
-              )
+                "Failed to connect to match events server. Please try again.",
+              ),
             );
           }
         }),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
       .subscribe();
 
@@ -163,7 +163,7 @@ class MatchEventsSocketService {
 
   getMatchEventsByType$(eventType: MatchEventType): Observable<MatchEvent> {
     return this.getMatchEvents$().pipe(
-      filter((event) => event.type === eventType)
+      filter((event) => event.type === eventType),
     );
   }
 
@@ -181,31 +181,37 @@ class MatchEventsSocketService {
     return this.errors$;
   }
 
-  subscribeToMatch(matchId: number) {
+  subscribeToMatch(): Promise<void> {
     if (!this.socket?.connected) {
-      console.error("Socket not connected");
-      store.dispatch(setError("Not connected to server"));
-      return;
+      return Promise.reject(new Error("Not connected to server"));
     }
 
-    const data: SubscribeToMatch = { matchId };
-
-    this.socket.emit(
-      MatchEventsSocketMessage.SUBSCRIBE_TO_MATCH,
-      data,
-      (response?: { success: boolean; message: string }) => {
-        if (!response?.success) {
-          const errorMessage = response?.message || "Unknown error";
-          store.dispatch(setError(errorMessage));
-        }
-      }
-    );
+    const data: SubscribeToMatch = {};
+    return new Promise((resolve, reject) => {
+      this.socket!.timeout(5000).emit(
+        MatchEventsSocketMessage.SUBSCRIBE_TO_MATCH,
+        data,
+        (
+          error: Error | null,
+          response?: { success: boolean; message?: string },
+        ) => {
+          if (error || !response?.success) {
+            reject(
+              error ??
+                new Error(response?.message || "Could not subscribe to match"),
+            );
+            return;
+          }
+          resolve();
+        },
+      );
+    });
   }
 
-  unsubscribeFromMatch(matchId: number) {
+  unsubscribeFromMatch() {
     if (!this.socket?.connected) return;
 
-    const data: UnsubscribeFromMatch = { matchId };
+    const data: UnsubscribeFromMatch = {};
     this.socket.emit(
       MatchEventsSocketMessage.UNSUBSCRIBE_FROM_MATCH,
       data,
@@ -214,36 +220,44 @@ class MatchEventsSocketService {
           const errorMessage = response?.message || "Unknown error";
           store.dispatch(setError(errorMessage));
         }
-      }
+      },
     );
   }
 
-  startMatch(matchData: StartMatch) {
+  startMatch(matchData: StartMatch): Promise<string> {
     if (!this.socket?.connected) {
-      store.dispatch(setError("Not connected to server"));
-      return;
+      return Promise.reject(new Error("Not connected to server"));
     }
 
-    this.socket.emit(
-      MatchEventsSocketMessage.START_MATCH,
-      matchData,
-      (response?: { success: boolean; message: string }) => {
-        if (!response?.success) {
-          const errorMessage = response?.message || "Unknown error";
-          store.dispatch(setError(errorMessage));
-        }
-      }
-    );
+    return new Promise((resolve, reject) => {
+      this.socket!.timeout(5000).emit(
+        MatchEventsSocketMessage.START_MATCH,
+        matchData,
+        (
+          error: Error | null,
+          response?: { success: boolean; matchId?: string; message?: string },
+        ) => {
+          if (error || !response?.success || !response.matchId) {
+            reject(
+              error ?? new Error(response?.message || "Could not start match"),
+            );
+            return;
+          }
 
-    store.dispatch(
-      startMatch({
-        ...matchData,
-        score: { home: 0, away: 0 },
-        currentMinute: 0,
-        events: [],
-        startTime: new Date(),
-      })
-    );
+          store.dispatch(
+            startMatch({
+              ...matchData,
+              matchId: response.matchId,
+              score: { home: 0, away: 0 },
+              currentMinute: 0,
+              events: [],
+              startTime: new Date(),
+            }),
+          );
+          resolve(response.matchId);
+        },
+      );
+    });
   }
 
   disconnect() {

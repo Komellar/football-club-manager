@@ -500,6 +500,7 @@
     "description": "Resumen del rendimiento y actividades del club",
     "contractOverview": "Resumen de Contratos",
     "financialOverview": "Resumen Financiero",
+    "sponsorshipProjectionNote": "Los ingresos por patrocinio siguen el calendario de pagos previsto; no se registran los cobros reales.",
     "contractsByType": "Contratos por Tipo",
     "contractDistribution": "Distribución de contratos activos",
     "noActiveContracts": "Sin contratos activos",
@@ -682,6 +683,9 @@
     "notes": "Notas",
     "basicInformation": "Información Básica",
     "financialInformation": "Información Financiera",
+    "paymentSchedule": "Calendario de pagos",
+    "paymentScheduleNote": "Pagos previstos según las condiciones del acuerdo; no se registran los cobros reales.",
+    "noScheduledPayments": "No hay pagos programados para este acuerdo.",
     "daysRemaining": "Días Restantes",
     "sections": {
       "basicInfo": "Información Básica",

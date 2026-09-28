@@ -117,14 +117,6 @@ export class Sponsorship {
   }
 
   get monthlyValue(): number {
-    switch (this.paymentFrequency) {
-      case PaymentFrequency.MONTHLY:
-        return this.annualValue / 12;
-      case PaymentFrequency.QUARTERLY:
-        return this.annualValue / 4;
-      case PaymentFrequency.ANNUALLY:
-      default:
-        return this.annualValue / 12;
-    }
+    return this.annualValue / 12;
   }
 }

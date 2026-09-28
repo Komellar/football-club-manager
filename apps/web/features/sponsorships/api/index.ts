@@ -1,6 +1,7 @@
 export {
   getSponsorships,
   getSponsorshipById,
+  getSponsorshipPaymentSchedule,
   createSponsorship,
   updateSponsorship,
   deleteSponsorship,

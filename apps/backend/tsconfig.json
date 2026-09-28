@@ -11,6 +11,7 @@
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
+    "types": ["node", "jest", "multer"],
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": true,

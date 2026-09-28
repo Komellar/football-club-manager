@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ContractFinancialService } from '../../contracts/services/contractFinancial.service';
 import { TransferFinancialService } from '../../transfers/services/transferFinancial.service';
+import { SponsorshipFinancialService } from '../../sponsorships/services/sponsorship-financial.service';
 import {
   Finances,
   FinancialSummary,
@@ -14,6 +15,7 @@ export class FinanceService {
   constructor(
     private readonly contractFinancialService: ContractFinancialService,
     private readonly transferFinancialService: TransferFinancialService,
+    private readonly sponsorshipFinancialService: SponsorshipFinancialService,
   ) {}
 
   /**
@@ -46,6 +48,7 @@ export class FinanceService {
     const monthlyData: MonthlyFinanceData[] = [];
     const totals: MonthlyTotals = {
       totalTransferIncome: 0,
+      totalSponsorshipIncome: 0,
       totalWages: 0,
       totalSignOnFees: 0,
       totalContractAgentFees: 0,
@@ -53,11 +56,14 @@ export class FinanceService {
       totalTransferAgentFees: 0,
     };
 
-    const currentDate = new Date(startDate);
+    const currentDate = new Date(
+      Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth(), 1),
+    );
 
     while (currentDate <= endDate) {
       const { monthStart, effectiveEnd } = this.getMonthDateRange(
         currentDate,
+        startDate,
         endDate,
       );
 
@@ -72,7 +78,7 @@ export class FinanceService {
       this.accumulateTotals(totals, monthFinances);
 
       // Move to next month
-      currentDate.setMonth(currentDate.getMonth() + 1);
+      currentDate.setUTCMonth(currentDate.getUTCMonth() + 1);
     }
 
     return { monthlyData, totals };
@@ -83,17 +89,21 @@ export class FinanceService {
    */
   private getMonthDateRange(
     currentDate: Date,
+    startDate: Date,
     endDate: Date,
   ): { monthStart: Date; effectiveEnd: Date } {
-    const monthStart = new Date(currentDate);
+    const monthStart =
+      currentDate < startDate ? startDate : new Date(currentDate);
     const monthEnd = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth() + 1,
-      0,
-      23,
-      59,
-      59,
-      999,
+      Date.UTC(
+        currentDate.getUTCFullYear(),
+        currentDate.getUTCMonth() + 1,
+        0,
+        23,
+        59,
+        59,
+        999,
+      ),
     );
 
     // Don't go beyond the end date
@@ -103,7 +113,7 @@ export class FinanceService {
   }
 
   /**
-   * Fetch financial data from contracts and transfers for a given period
+   * Fetch financial data for a given period
    */
   private async fetchMonthFinances(
     monthStart: Date,
@@ -127,11 +137,18 @@ export class FinanceService {
       effectiveEnd,
     );
 
+    const monthSponsorshipIncome =
+      await this.sponsorshipFinancialService.calculateScheduledIncome(
+        monthStart,
+        effectiveEnd,
+      );
+
     return {
       monthWages,
       monthSignOnFees,
       monthContractAgentFees,
       monthTransferIncome,
+      monthSponsorshipIncome,
       monthTransferExpenses,
       monthTransferAgentFees,
     };
@@ -144,7 +161,8 @@ export class FinanceService {
     currentDate: Date,
     finances: MonthlyFinances,
   ): MonthlyFinanceData {
-    const income = finances.monthTransferIncome; // TODO: + sponsorships, tickets
+    const income =
+      finances.monthTransferIncome + finances.monthSponsorshipIncome;
     const expenses =
       finances.monthWages +
       finances.monthSignOnFees +
@@ -153,7 +171,7 @@ export class FinanceService {
       finances.monthTransferAgentFees;
 
     return {
-      month: `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`,
+      month: `${currentDate.getUTCFullYear()}-${String(currentDate.getUTCMonth() + 1).padStart(2, '0')}`,
       income,
       expenses,
     };
@@ -167,6 +185,7 @@ export class FinanceService {
     finances: MonthlyFinances,
   ): void {
     totals.totalTransferIncome += finances.monthTransferIncome;
+    totals.totalSponsorshipIncome += finances.monthSponsorshipIncome;
     totals.totalWages += finances.monthWages;
     totals.totalSignOnFees += finances.monthSignOnFees;
     totals.totalContractAgentFees += finances.monthContractAgentFees;
@@ -182,7 +201,8 @@ export class FinanceService {
     startDate: Date,
     endDate: Date,
   ): Finances {
-    const totalIncome = totals.totalTransferIncome; // TODO: + sponsorships, tickets
+    const totalIncome =
+      totals.totalTransferIncome + totals.totalSponsorshipIncome;
     const totalExpenses =
       totals.totalWages +
       totals.totalTransferExpenses +
@@ -201,7 +221,7 @@ export class FinanceService {
       breakdown: {
         income: {
           transfers: totals.totalTransferIncome,
-          sponsorships: 0, // TODO
+          sponsorships: totals.totalSponsorshipIncome,
           ticketSales: 0, // TODO
         },
         expenses: {
