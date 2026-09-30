@@ -785,7 +785,8 @@
       "interrupted": "Interrumpido",
       "cancelled": "Cancelado"
     },
-    "report": "Ver informe del partido"
+    "report": "Ver informe del partido",
+    "invalidTicketPrice": "Introduce un precio entre 0 y 10.000 con un máximo de dos decimales."
   },
   "MatchHistory": {
     "title": "Historial de partidos",
@@ -835,5 +836,31 @@
     "saved": "Estadio guardado. Costes operativos por partido: {cost}.",
     "invalid": "Revisa el nombre, la capacidad, el porcentaje y los importes. Usa como máximo dos decimales para el dinero.",
     "retry": "Recargar configuración"
+  },
+  "Ticketing": {
+    "title": "Previsión de entradas",
+    "recordedTitle": "Asistencia e ingresos del partido",
+    "kickoffTitle": "Asistencia al inicio",
+    "price": "Precio de entrada para este partido (€)",
+    "inherit": "Déjalo vacío para usar el precio del estadio. Introduce 0 para entrada gratuita.",
+    "invalidPrice": "Introduce un precio entre 0 y 10.000 con un máximo de dos decimales.",
+    "loading": "Cargando previsión…",
+    "loadError": "No se pudo cargar la configuración del estadio.",
+    "retry": "Reintentar",
+    "capacity": "Capacidad: {count, number}",
+    "effectivePrice": "Precio de entrada: {price}",
+    "expectedAttendance": "Asistencia prevista",
+    "attendance": "Asistencia simulada",
+    "expectedRevenue": "Ingresos previstos",
+    "revenue": "Ingresos por entradas",
+    "costs": "Costes operativos",
+    "expectedProfit": "Beneficio operativo previsto",
+    "profit": "Beneficio operativo",
+    "forecastHelp": "Los precios más altos reducen la demanda. La asistencia puede variar hasta un 10% sin superar la capacidad. La configuración y el precio se fijan al inicio del partido.",
+    "snapshotHelp": "Guardado al inicio. Los cambios posteriores del estadio o del precio no modifican este partido.",
+    "maintenanceHelp": "El beneficio operativo excluye el mantenimiento mensual.",
+    "setup": "Configura un estadio para prever ingresos y simular la asistencia.",
+    "settings": "Configuración del estadio",
+    "noSnapshot": "No se registró asistencia del estadio para este partido."
   }
 }

@@ -7,6 +7,7 @@ import {
   getStatRows,
 } from "@/features/match-events/utils/calculate-match-stats";
 import { getEventIcon } from "@/features/match-events/utils";
+import { FixtureTicketing } from "@/features/stadium/fixture-ticketing";
 
 export function MatchReport({ fixture }: { fixture: FixtureDto }) {
   const t = useTranslations("MatchHistory");
@@ -32,6 +33,7 @@ export function MatchReport({ fixture }: { fixture: FixtureDto }) {
         <p>{t("fullTime")}</p>
         <p className="text-sm text-muted-foreground">{t("snapshot")}</p>
       </section>
+      <FixtureTicketing matchday={fixture.matchday} completed />
       <div className="grid gap-6 lg:grid-cols-2">
         <section className="rounded-xl border p-6">
           <h2 className="text-xl font-semibold mb-4">{t("lineup")}</h2>

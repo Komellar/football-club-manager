@@ -3,7 +3,13 @@ import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { FixtureDto, MatchEventPlayer, PlayerPosition } from "@repo/core";
+import {
+  FixtureDto,
+  MatchEventPlayer,
+  PlayerPosition,
+  TicketPriceSchema,
+} from "@repo/core";
+import { FixtureTicketing } from "@/features/stadium/fixture-ticketing";
 import { Button } from "@/components/ui/button";
 import { FixtureFields } from "@/features/fixtures/fixture-fields";
 import {
@@ -28,6 +34,7 @@ export default function FixturePage() {
   const [kickoff, setKickoff] = useState("");
   const [competition, setCompetition] = useState("");
   const [lineup, setLineup] = useState<MatchEventPlayer[]>([]);
+  const [ticketPrice, setTicketPrice] = useState("");
   const { isConnected, isMatchActive } = useAppSelector((s) => s.matchEvents);
   const editable =
     fixture?.status === "scheduled" || fixture?.status === "interrupted";
@@ -43,6 +50,7 @@ export default function FixturePage() {
       setKickoff(localDateTime(f.kickoffAt));
       setCompetition(f.competition);
       setLineup(f.lineup);
+      setTicketPrice(f.ticketPrice === null ? "" : String(f.ticketPrice));
     } catch (e) {
       setError(fixtureError(e));
     }
@@ -56,11 +64,15 @@ export default function FixturePage() {
     setError("");
     setNotice("");
     try {
+      const price = ticketPrice.trim() === "" ? null : Number(ticketPrice);
+      const checkedPrice = TicketPriceSchema.nullable().safeParse(price);
+      if (!checkedPrice.success) throw new Error(t("invalidTicketPrice"));
       const saved = await fixturesApi.update(id, {
         opponentName: opponent,
         kickoffAt: new Date(kickoff).toISOString(),
         competition,
         lineupIds: lineup.map((p) => p.id),
+        ticketPrice: checkedPrice.data,
       });
       setFixture(saved);
       setLineup(saved.lineup);
@@ -122,6 +134,12 @@ export default function FixturePage() {
               <LineupSelector
                 selected={lineup}
                 onChange={setLineup}
+                disabled={busy}
+              />
+              <FixtureTicketing
+                editable
+                price={ticketPrice}
+                onPriceChange={setTicketPrice}
                 disabled={busy}
               />
               <div className="flex flex-wrap gap-3">
@@ -200,6 +218,10 @@ export default function FixturePage() {
                   <li key={p.id}>{p.name}</li>
                 ))}
               </ul>
+              <FixtureTicketing
+                matchday={fixture.matchday}
+                completed={fixture.status === "completed"}
+              />
             </>
           )}
         </>

@@ -9,6 +9,7 @@ import type {
   FixtureStatus,
   MatchEventPlayer,
   MatchSimulationState,
+  MatchdaySnapshot,
 } from '@repo/core';
 
 @Entity('fixtures')
@@ -25,6 +26,19 @@ export class Fixture {
   result: MatchSimulationState | null;
   @Column({ name: 'completed_at', type: 'timestamptz', nullable: true })
   completedAt: Date | null;
+  @Column({
+    name: 'ticket_price',
+    type: 'numeric',
+    precision: 12,
+    scale: 2,
+    nullable: true,
+    transformer: {
+      to: (value: number | null) => value,
+      from: (value: string | null) => (value === null ? null : Number(value)),
+    },
+  })
+  ticketPrice: number | null;
+  @Column({ type: 'jsonb', nullable: true }) matchday: MatchdaySnapshot | null;
   @CreateDateColumn({ name: 'created_at' }) createdAt: Date;
   @UpdateDateColumn({ name: 'updated_at' }) updatedAt: Date;
 }

@@ -790,7 +790,8 @@
       "interrupted": "Interrupted",
       "cancelled": "Cancelled"
     },
-    "report": "View match report"
+    "report": "View match report",
+    "invalidTicketPrice": "Enter a ticket price between 0 and 10,000 with at most two decimal places."
   },
   "MatchHistory": {
     "title": "Match History",
@@ -840,5 +841,31 @@
     "saved": "Stadium saved. Operating costs per match: {cost}.",
     "invalid": "Check the stadium name, capacity, percentage, and amounts. Use at most two decimal places for money.",
     "retry": "Reload settings"
+  },
+  "Ticketing": {
+    "title": "Ticketing forecast",
+    "recordedTitle": "Matchday attendance and income",
+    "kickoffTitle": "Attendance at kickoff",
+    "price": "Ticket price override (€)",
+    "inherit": "Leave blank to use the stadium default. Enter 0 for free admission.",
+    "invalidPrice": "Enter a ticket price between 0 and 10,000 with at most two decimal places.",
+    "loading": "Loading ticketing forecast…",
+    "loadError": "Could not load stadium settings.",
+    "retry": "Retry",
+    "capacity": "Capacity: {count, number}",
+    "effectivePrice": "Ticket price: {price}",
+    "expectedAttendance": "Expected attendance",
+    "attendance": "Simulated attendance",
+    "expectedRevenue": "Expected ticket income",
+    "revenue": "Ticket income",
+    "costs": "Operating costs",
+    "expectedProfit": "Expected operating profit",
+    "profit": "Operating profit",
+    "forecastHelp": "Higher prices reduce demand. Simulated attendance can vary by up to 10% and never exceeds capacity. Stadium settings and pricing are fixed at kickoff.",
+    "snapshotHelp": "Saved at kickoff. Later stadium or ticket-price changes do not change this match.",
+    "maintenanceHelp": "Operating profit excludes monthly maintenance.",
+    "setup": "Configure a stadium to preview ticket income and simulate attendance.",
+    "settings": "Stadium settings",
+    "noSnapshot": "No stadium attendance was recorded for this match."
   }
 }

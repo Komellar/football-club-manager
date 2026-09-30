@@ -2,6 +2,7 @@ import { Repository } from 'typeorm';
 import { Fixture } from '@/shared/entities/fixture.entity';
 import { FixturesService } from '../services/fixtures.service';
 import { LineupService } from '../services/lineup.service';
+import { StadiumService } from '../../stadium/stadium.service';
 import {
   MatchHistoryQuerySchema,
   UpdateFixtureSchema,
@@ -23,9 +24,11 @@ describe('FixturesService', () => {
     manager: { transaction: jest.fn() },
   };
   const lineups = { resolve: jest.fn() };
+  const stadium = { get: jest.fn() };
   const service = new FixturesService(
     repo as unknown as Repository<Fixture>,
     lineups as unknown as LineupService,
+    stadium as unknown as StadiumService,
   );
   beforeEach(() => {
     jest.resetAllMocks();
@@ -34,6 +37,7 @@ describe('FixturesService', () => {
     );
     repo.save.mockImplementation((f: Fixture) => Promise.resolve(f));
     lineups.resolve.mockResolvedValue([{ id: 1 }]);
+    stadium.get.mockResolvedValue(null);
   });
   it('marks unfinished matches as interrupted on restart', async () => {
     await service.onModuleInit();
@@ -73,6 +77,34 @@ describe('FixturesService', () => {
     lineups.resolve.mockRejectedValue(new Error('Inactive player'));
     await expect(service.claim('fixture')).rejects.toThrow('Inactive player');
     expect(repo.save).not.toHaveBeenCalled();
+  });
+  it('snapshots the current stadium and ticket override when claiming a fixture', async () => {
+    const settings = {
+      name: 'Original Ground',
+      capacity: 10000,
+      defaultTicketPrice: 20,
+      expectedOccupancy: 60,
+      monthlyMaintenance: 1000,
+      securityCost: 200,
+      staffingCost: 300,
+      cleaningCost: 100,
+      utilitiesCost: 50,
+    };
+    stadium.get.mockResolvedValue(settings);
+    repo.findOneOrFail.mockResolvedValue({
+      status: 'scheduled',
+      lineup: [{ id: 1 }],
+      ticketPrice: 40,
+    });
+    const claimed = await service.claim('fixture');
+    expect(claimed.matchday).toMatchObject({
+      stadium: settings,
+      ticketPrice: 40,
+      expectedAttendance: 4000,
+      operatingCosts: 650,
+    });
+    expect(claimed.matchday!.attendance).toBeGreaterThanOrEqual(3600);
+    expect(claimed.matchday!.attendance).toBeLessThanOrEqual(4400);
   });
   it('rejects an edit if kickoff claimed the fixture first', async () => {
     repo.findOneByOrFail.mockResolvedValue({ id: 'fixture' });

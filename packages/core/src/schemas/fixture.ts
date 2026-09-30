@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { TicketPriceSchema } from "./stadium";
+import type { MatchdaySnapshot } from "../types/matchday";
 import type {
   MatchEventPlayer,
   MatchSimulationState,
@@ -15,6 +17,7 @@ export const CreateFixtureSchema = z.object({
   opponentName: z.string().trim().min(2).max(100),
   competition: z.string().trim().min(1).max(100).default("Friendly"),
   kickoffAt: z.iso.datetime({ offset: true }),
+  ticketPrice: TicketPriceSchema.nullable().optional(),
 });
 export const UpdateFixtureSchema = CreateFixtureSchema.partial().extend({
   competition: z.string().trim().min(1).max(100).optional(),
@@ -54,4 +57,6 @@ export interface FixtureDto {
   lineup: MatchEventPlayer[];
   result: MatchSimulationState | null;
   completedAt: string | null;
+  ticketPrice: number | null;
+  matchday: MatchdaySnapshot | null;
 }

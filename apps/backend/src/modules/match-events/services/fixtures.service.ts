@@ -14,9 +14,11 @@ import {
   MatchHistoryQuery,
   MatchHistoryPage,
   MatchHistoryItem,
+  simulateMatchday,
 } from '@repo/core';
 import { Fixture } from '@/shared/entities/fixture.entity';
 import { LineupService } from './lineup.service';
+import { StadiumService } from '../../stadium/stadium.service';
 
 const editable = ['scheduled', 'interrupted'];
 
@@ -25,6 +27,7 @@ export class FixturesService implements OnModuleInit {
   constructor(
     @InjectRepository(Fixture) private readonly fixtures: Repository<Fixture>,
     private readonly lineups: LineupService,
+    private readonly stadium: StadiumService,
   ) {}
 
   async onModuleInit() {
@@ -106,6 +109,8 @@ export class FixturesService implements OnModuleInit {
           lineup: [],
           result: null,
           completedAt: null,
+          ticketPrice: data.ticketPrice ?? null,
+          matchday: null,
         }),
       ),
     );
@@ -159,6 +164,13 @@ export class FixturesService implements OnModuleInit {
         fixture.lineup.map((p) => p.id),
       );
       fixture.status = 'in_progress';
+      const stadium = await this.stadium.get();
+      fixture.matchday = stadium
+        ? simulateMatchday(
+            stadium,
+            fixture.ticketPrice ?? stadium.defaultTicketPrice,
+          )
+        : null;
       return repo.save(fixture);
     });
   }
@@ -196,6 +208,8 @@ export class FixturesService implements OnModuleInit {
       lineup: f.lineup,
       result: f.result,
       completedAt: f.completedAt?.toISOString() ?? null,
+      ticketPrice: f.ticketPrice ?? null,
+      matchday: f.matchday ?? null,
     };
   }
 }

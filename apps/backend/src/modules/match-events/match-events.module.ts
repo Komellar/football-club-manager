@@ -14,6 +14,7 @@ import { Fixture } from '@/shared/entities/fixture.entity';
 import { FixturesService } from './services/fixtures.service';
 import { FixturesController } from './controllers/fixtures.controller';
 import { MatchHistoryController } from './controllers/match-history.controller';
+import { StadiumModule } from '../stadium/stadium.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { MatchHistoryController } from './controllers/match-history.controller';
     TypeOrmModule.forFeature([Player, Fixture]),
     JwtModule,
     ConfigModule,
+    StadiumModule,
   ],
   controllers: [LineupController, FixturesController, MatchHistoryController],
   providers: [

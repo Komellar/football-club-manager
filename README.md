@@ -92,6 +92,10 @@ A comprehensive football club management system built with modern web technologi
 
 ## Fixtures and match history
 
+Configure **Stadium** with the club ground's capacity, default ticket price, expected occupancy, monthly maintenance, and per-match security, staffing, cleaning, and utilities costs. Amounts use EUR. Apply `CreateStadium1790726400000` and `AddFixtureTicketing1790812800000` before starting the updated backend.
+
+On a fixture, leave the ticket price blank to inherit the stadium default, or enter an override (including zero for free admission). The forecast uses `capacity × occupancy × (reference + default price) / (reference + fixture price)`, rounded and capped at capacity; `reference = max(1, default price)`. At kickoff, simulated attendance varies by up to 10% around that forecast. The fixture saves the stadium, pricing, attendance, and operating costs together, and completed reports retain those figures after settings change. Monthly maintenance is excluded from match operating profit. Ticketing figures are not yet included in the finance overview.
+
 Open **Fixtures** to schedule a home match with an opponent, competition, and kickoff time. Select eleven active players with exactly one goalkeeper, then save the lineup or choose **Save and start match**. Kickoff times use your browser's local timezone and are stored in UTC.
 
 Completed matches appear in **Match History**, with opponent search, win/draw/loss filters, and a saved report containing the final score, starting XI, statistics, and event timeline. Reports keep the player names and positions recorded at kickoff. Completed fixtures cannot be edited or replayed.

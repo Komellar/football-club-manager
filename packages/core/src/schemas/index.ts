@@ -9,3 +9,4 @@ export * from "./finance";
 export * from "./sponsorship";
 export * from "./fixture";
 export * from "./stadium";
+export * from "../types/matchday";
