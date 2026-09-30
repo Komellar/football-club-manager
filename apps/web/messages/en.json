@@ -26,7 +26,8 @@
     "navigation": "Navigation",
     "details": "Details",
     "sponsorshipEdit": "Edit Sponsorship",
-    "fixtures": "Fixtures"
+    "fixtures": "Fixtures",
+    "matchHistory": "Match History"
   },
   "Auth": {
     "login": "Login",
@@ -787,6 +788,36 @@
       "completed": "Completed",
       "interrupted": "Interrupted",
       "cancelled": "Cancelled"
-    }
+    },
+    "report": "View match report"
+  },
+  "MatchHistory": {
+    "title": "Match History",
+    "description": "Review completed matches and the lineup and events saved at full time.",
+    "fixtures": "Fixtures",
+    "search": "Search opponent",
+    "result": "Result",
+    "all": "All results",
+    "win": "Win",
+    "draw": "Draw",
+    "loss": "Loss",
+    "filter": "Apply filters",
+    "loading": "Loading match history…",
+    "retry": "Retry",
+    "count": "{count, plural, =0 {No completed matches} one {# completed match} other {# completed matches}}",
+    "empty": "No completed matches match these filters.",
+    "versus": "My Club vs {opponent}",
+    "pagination": "Match history pages",
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {page} of {total}",
+    "back": "Back to match history",
+    "fullTime": "Full time",
+    "snapshot": "Lineup and events recorded for this match.",
+    "lineup": "Starting XI",
+    "statistics": "Match statistics",
+    "statistic": "Statistic",
+    "timeline": "Match timeline",
+    "assist": "Assist: {name}"
   }
 }

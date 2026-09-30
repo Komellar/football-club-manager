@@ -2,8 +2,19 @@ import { Repository } from 'typeorm';
 import { Fixture } from '@/shared/entities/fixture.entity';
 import { FixturesService } from '../services/fixtures.service';
 import { LineupService } from '../services/lineup.service';
+import {
+  MatchHistoryQuerySchema,
+  UpdateFixtureSchema,
+  type MatchSimulationState,
+} from '@repo/core';
 
 describe('FixturesService', () => {
+  it('does not reset competition when saving only a lineup', () => {
+    expect(UpdateFixtureSchema.parse({ lineupIds: [1, 2] })).toEqual({
+      lineupIds: [1, 2],
+    });
+    expect(UpdateFixtureSchema.parse({})).toEqual({});
+  });
   const repo = {
     update: jest.fn(),
     findOneByOrFail: jest.fn(),
@@ -69,5 +80,60 @@ describe('FixturesService', () => {
     await expect(
       service.update('fixture', { opponentName: 'Changed' }),
     ).rejects.toThrow('Only scheduled');
+  });
+
+  it('returns the archived lineup and event data without resolving current players', async () => {
+    const result = {
+      matchId: 'archived-match',
+      homeTeam: { players: [{ id: 1, name: 'Name at kickoff' }] },
+      events: [{ id: 'archived-event' }],
+    };
+    repo.findOneByOrFail.mockResolvedValue({
+      id: 'fixture',
+      status: 'completed',
+      kickoffAt: new Date('2026-10-01T18:00:00Z'),
+      completedAt: new Date('2026-10-01T20:00:00Z'),
+      result,
+    });
+    expect((await service.report('fixture')).result).toEqual(result);
+    expect(repo.findOneByOrFail).toHaveBeenCalledWith({
+      id: 'fixture',
+      status: 'completed',
+    });
+    expect(lineups.resolve).not.toHaveBeenCalled();
+  });
+
+  it('rejects a report without a completed result', async () => {
+    repo.findOneByOrFail.mockResolvedValue({ result: null });
+    await expect(service.report('fixture')).rejects.toThrow(
+      'No completed match report',
+    );
+  });
+
+  it('accepts a retry after the same match result was already saved', async () => {
+    repo.update.mockResolvedValue({ affected: 0 });
+    repo.findOneByOrFail.mockResolvedValue({
+      status: 'completed',
+      result: { matchId: 'same-match' },
+    });
+    await expect(
+      service.complete('fixture', {
+        matchId: 'same-match',
+      } as MatchSimulationState),
+    ).resolves.toBeUndefined();
+    await expect(
+      service.complete('fixture', {
+        matchId: 'different-match',
+      } as MatchSimulationState),
+    ).rejects.toThrow('no longer in progress');
+  });
+
+  it.each([
+    { page: 0 },
+    { limit: 101 },
+    { outcome: 'unknown' },
+    { page: 'abc' },
+  ])('rejects invalid history filters %j', (query) => {
+    expect(MatchHistoryQuerySchema.safeParse(query).success).toBe(false);
   });
 });

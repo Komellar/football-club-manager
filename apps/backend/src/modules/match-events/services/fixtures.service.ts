@@ -1,4 +1,9 @@
-import { ConflictException, Injectable, OnModuleInit } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+  OnModuleInit,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import {
@@ -6,6 +11,9 @@ import {
   FixtureDto,
   MatchSimulationState,
   UpdateFixtureDto,
+  MatchHistoryQuery,
+  MatchHistoryPage,
+  MatchHistoryItem,
 } from '@repo/core';
 import { Fixture } from '@/shared/entities/fixture.entity';
 import { LineupService } from './lineup.service';
@@ -29,12 +37,63 @@ export class FixturesService implements OnModuleInit {
 
   async list(): Promise<FixtureDto[]> {
     return (
-      await this.fixtures.find({ order: { kickoffAt: 'ASC', id: 'ASC' } })
+      await this.fixtures.find({
+        where: {
+          status: In(['scheduled', 'interrupted', 'in_progress', 'cancelled']),
+        },
+        order: { kickoffAt: 'ASC', id: 'ASC' },
+      })
     ).map((f) => this.view(f));
   }
 
   async find(id: string): Promise<FixtureDto> {
     return this.view(await this.fixtures.findOneByOrFail({ id }));
+  }
+
+  async report(id: string): Promise<FixtureDto> {
+    const fixture = await this.fixtures.findOneByOrFail({
+      id,
+      status: 'completed',
+    });
+    if (!fixture.result)
+      throw new NotFoundException('No completed match report is available');
+    return this.view(fixture);
+  }
+
+  async history(query: MatchHistoryQuery): Promise<MatchHistoryPage> {
+    const builder = this.fixtures
+      .createQueryBuilder('f')
+      .where('f.status = :status', { status: 'completed' })
+      .andWhere('f.result IS NOT NULL');
+    if (query.search)
+      builder.andWhere('f.opponentName ILIKE :search', {
+        search: `%${query.search.replace(/[\\%_]/g, '\\$&')}%`,
+      });
+    if (query.outcome) {
+      const operator = { win: '>', draw: '=', loss: '<' }[query.outcome];
+      builder.andWhere(
+        `(f.result->'score'->>'home')::int ${operator} (f.result->'score'->>'away')::int`,
+      );
+    }
+    const total = await builder.getCount();
+    const rows = await builder
+      .select('f.id', 'id')
+      .addSelect('f.opponentName', 'opponentName')
+      .addSelect('f.competition', 'competition')
+      .addSelect('f.kickoffAt', 'kickoffAt')
+      .addSelect('f.completedAt', 'completedAt')
+      .addSelect("f.result->'score'", 'score')
+      .orderBy('f.completedAt', 'DESC')
+      .addOrderBy('f.id', 'DESC')
+      .offset((query.page - 1) * query.limit)
+      .limit(query.limit)
+      .getRawMany<MatchHistoryItem>();
+    return {
+      data: rows,
+      total,
+      page: query.page,
+      totalPages: Math.ceil(total / query.limit),
+    };
   }
 
   async create(data: CreateFixtureDto): Promise<FixtureDto> {

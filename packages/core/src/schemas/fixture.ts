@@ -17,12 +17,34 @@ export const CreateFixtureSchema = z.object({
   kickoffAt: z.iso.datetime({ offset: true }),
 });
 export const UpdateFixtureSchema = CreateFixtureSchema.partial().extend({
+  competition: z.string().trim().min(1).max(100).optional(),
   lineupIds: z.array(z.number().int().positive()).max(11).optional(),
 });
 export const StartFixtureSchema = z.object({ fixtureId: z.uuid() });
 export type CreateFixtureDto = z.infer<typeof CreateFixtureSchema>;
 export type UpdateFixtureDto = z.infer<typeof UpdateFixtureSchema>;
 export type FixtureStatus = z.infer<typeof FixtureStatusSchema>;
+export const MatchHistoryQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+  search: z.string().trim().max(100).optional(),
+  outcome: z.enum(["win", "draw", "loss"]).optional(),
+});
+export type MatchHistoryQuery = z.infer<typeof MatchHistoryQuerySchema>;
+export interface MatchHistoryItem {
+  id: string;
+  opponentName: string;
+  competition: string;
+  kickoffAt: string;
+  completedAt: string;
+  score: { home: number; away: number };
+}
+export interface MatchHistoryPage {
+  data: MatchHistoryItem[];
+  total: number;
+  page: number;
+  totalPages: number;
+}
 export interface FixtureDto {
   id: string;
   opponentName: string;

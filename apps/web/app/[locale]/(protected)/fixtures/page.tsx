@@ -10,6 +10,7 @@ import { fixturesApi, fixtureError } from "@/features/fixtures/api";
 
 export default function FixturesPage() {
   const t = useTranslations("Fixtures");
+  const history = useTranslations("MatchHistory");
   const locale = useLocale();
   const router = useRouter();
   const [fixtures, setFixtures] = useState<FixtureDto[]>([]);
@@ -36,6 +37,12 @@ export default function FixturesPage() {
   return (
     <div className="container mx-auto py-8 space-y-6">
       <h1 className="text-3xl font-bold">{t("title")}</h1>
+      <Link
+        href={`/${locale}/match-history`}
+        className="inline-block underline"
+      >
+        {history("title")}
+      </Link>
       <p className="text-muted-foreground">{t("description")}</p>
       {error && (
         <p role="alert" className="text-destructive">

@@ -187,9 +187,13 @@ export default function FixturePage() {
                 </Link>
               )}
               {fixture.result && (
-                <p className="text-3xl font-bold">
-                  {fixture.result.score.home} – {fixture.result.score.away}
-                </p>
+                <Link
+                  className="underline"
+                  href={`/${locale}/match-history/${fixture.id}`}
+                >
+                  {t("report")} · {fixture.result.score.home} –{" "}
+                  {fixture.result.score.away}
+                </Link>
               )}
               <ul>
                 {fixture.lineup.map((p) => (

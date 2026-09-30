@@ -25,7 +25,8 @@
     "edit": "Editar",
     "navigation": "Navegación",
     "sponsorshipEdit": "Editar Patrocinio",
-    "fixtures": "Calendario"
+    "fixtures": "Calendario",
+    "matchHistory": "Historial de partidos"
   },
   "Auth": {
     "login": "Iniciar Sesión",
@@ -782,6 +783,36 @@
       "completed": "Finalizado",
       "interrupted": "Interrumpido",
       "cancelled": "Cancelado"
-    }
+    },
+    "report": "Ver informe del partido"
+  },
+  "MatchHistory": {
+    "title": "Historial de partidos",
+    "description": "Consulta los partidos finalizados, las alineaciones y los eventos guardados.",
+    "fixtures": "Calendario",
+    "search": "Buscar rival",
+    "result": "Resultado",
+    "all": "Todos los resultados",
+    "win": "Victoria",
+    "draw": "Empate",
+    "loss": "Derrota",
+    "filter": "Aplicar filtros",
+    "loading": "Cargando historial…",
+    "retry": "Reintentar",
+    "count": "{count, plural, =0 {Sin partidos finalizados} one {# partido finalizado} other {# partidos finalizados}}",
+    "empty": "No hay partidos finalizados que coincidan con los filtros.",
+    "versus": "Mi Club vs {opponent}",
+    "pagination": "Páginas del historial",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "page": "Página {page} de {total}",
+    "back": "Volver al historial",
+    "fullTime": "Final del partido",
+    "snapshot": "Alineación y eventos registrados para este partido.",
+    "lineup": "Once inicial",
+    "statistics": "Estadísticas del partido",
+    "statistic": "Estadística",
+    "timeline": "Cronología del partido",
+    "assist": "Asistencia: {name}"
   }
 }

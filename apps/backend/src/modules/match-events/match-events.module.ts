@@ -13,6 +13,7 @@ import { LineupController } from './controllers/lineup.controller';
 import { Fixture } from '@/shared/entities/fixture.entity';
 import { FixturesService } from './services/fixtures.service';
 import { FixturesController } from './controllers/fixtures.controller';
+import { MatchHistoryController } from './controllers/match-history.controller';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import { FixturesController } from './controllers/fixtures.controller';
     JwtModule,
     ConfigModule,
   ],
-  controllers: [LineupController, FixturesController],
+  controllers: [LineupController, FixturesController, MatchHistoryController],
   providers: [
     MatchEventsGateway,
     LineupService,

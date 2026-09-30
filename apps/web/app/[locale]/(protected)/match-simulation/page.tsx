@@ -17,7 +17,9 @@ export default function MatchSimulationPage() {
   const t = useTranslations("MatchEvents");
   const f = useTranslations("Fixtures");
   const locale = useLocale();
-  const { activeMatch, error } = useAppSelector((s) => s.matchEvents);
+  const { activeMatch, isMatchActive, error } = useAppSelector(
+    (s) => s.matchEvents,
+  );
   useEffect(() => {
     matchEventsSocket.connect();
     void matchEventsSocket.subscribeToMatch().catch(() => {});
@@ -36,6 +38,13 @@ export default function MatchSimulationPage() {
         </p>
       )}
       <ConnectionStatus />
+      {activeMatch?.fixtureId && !isMatchActive && (
+        <Button asChild variant="outline">
+          <Link href={`/${locale}/match-history/${activeMatch.fixtureId}`}>
+            {f("report")}
+          </Link>
+        </Button>
+      )}
       {activeMatch ? (
         <>
           <MatchScoreBoard />

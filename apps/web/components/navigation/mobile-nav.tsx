@@ -24,6 +24,7 @@ const navigationItems = [
   { href: "/sponsorships", key: "sponsorships" },
   { href: "/match-simulation", key: "matchSimulation" },
   { href: "/fixtures", key: "fixtures" },
+  { href: "/match-history", key: "matchHistory" },
 ];
 
 export function MobileNav() {

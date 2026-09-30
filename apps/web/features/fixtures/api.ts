@@ -4,9 +4,15 @@ import type {
   CreateFixtureDto,
   UpdateFixtureDto,
   FixtureDto,
+  MatchHistoryQuery,
+  MatchHistoryPage,
 } from "@repo/core";
 
 export const fixturesApi = {
+  history: async (params: Partial<MatchHistoryQuery>) =>
+    (await apiClient.get<MatchHistoryPage>("/match-history", { params })).data,
+  report: async (id: string) =>
+    (await apiClient.get<FixtureDto>(`/match-history/${id}`)).data,
   list: async () => (await apiClient.get<FixtureDto[]>("/fixtures")).data,
   get: async (id: string) =>
     (await apiClient.get<FixtureDto>(`/fixtures/${id}`)).data,
