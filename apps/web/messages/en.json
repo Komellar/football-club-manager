@@ -529,7 +529,8 @@
       "monthlyCommitmentDescription": "Total monthly salaries",
       "averageSalaryDescription": "Average salary per player",
       "totalContractsDescription": "{ count } expiring within a year"
-    }
+    },
+    "matchdayFinanceNote": "Ticket income and matchday costs come from completed simulations and are counted on the completion date. Maintenance accrues daily from the date it is configured."
   },
   "Footer": {
     "companyName": "Football Club Manager",
@@ -646,7 +647,8 @@
     "stadiumMaintenance": "Stadium Maintenance",
     "totalIncomeAmount": "total income",
     "totalExpensesAmount": "total expenses",
-    "noDataAvailable": "No data available"
+    "noDataAvailable": "No data available",
+    "matchdayCosts": "Matchday Costs"
   },
   "Sponsorships": {
     "title": "Sponsorships",
@@ -834,7 +836,7 @@
     "staffingCost": "Staffing per match (€)",
     "cleaningCost": "Cleaning per match (€)",
     "utilitiesCost": "Utilities per match (€)",
-    "costHelp": "Matchday costs are separate from monthly maintenance. Financial reporting will be connected in the next stage.",
+    "costHelp": "Matchday costs are separate from monthly maintenance. Maintenance changes apply from today (UTC) and are prorated by calendar day; earlier dates keep their previous rate.",
     "loading": "Loading stadium…",
     "save": "Save stadium",
     "saving": "Saving…",

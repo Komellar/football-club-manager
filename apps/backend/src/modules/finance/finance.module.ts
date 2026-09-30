@@ -6,6 +6,10 @@ import { FinanceService } from './services/finance.service';
 import { ContractsModule } from '../contracts/contracts.module';
 import { TransfersModule } from '../transfers/transfers.module';
 import { SponsorshipsModule } from '../sponsorships/sponsorships.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Fixture } from '@/shared/entities/fixture.entity';
+import { StadiumMaintenanceRate } from '@/shared/entities/stadium-maintenance-rate.entity';
+import { StadiumFinancialService } from './services/stadium-financial.service';
 
 @Module({
   imports: [
@@ -14,9 +18,10 @@ import { SponsorshipsModule } from '../sponsorships/sponsorships.module';
     ContractsModule,
     TransfersModule,
     SponsorshipsModule,
+    TypeOrmModule.forFeature([Fixture, StadiumMaintenanceRate]),
   ],
   controllers: [FinanceController],
-  providers: [FinanceService],
+  providers: [FinanceService, StadiumFinancialService],
   exports: [FinanceService],
 })
 export class FinanceModule {}

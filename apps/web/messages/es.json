@@ -524,7 +524,8 @@
       "monthlyCommitmentDescription": "Salarios mensuales totales",
       "averageSalaryDescription": "Salario promedio por jugador",
       "totalContractsDescription": "{ count } venciendo en un año"
-    }
+    },
+    "matchdayFinanceNote": "Los ingresos por entradas y los costes se contabilizan cuando termina la simulación. El mantenimiento se devenga diariamente desde la fecha de configuración."
   },
   "Footer": {
     "companyName": "Administrador de Club de Fútbol",
@@ -641,7 +642,8 @@
     "stadiumMaintenance": "Mantenimiento del Estadio",
     "totalIncomeAmount": "ingresos totales",
     "totalExpensesAmount": "gastos totales",
-    "noDataAvailable": "No hay datos disponibles"
+    "noDataAvailable": "No hay datos disponibles",
+    "matchdayCosts": "Costes del Partido"
   },
   "Sponsorships": {
     "title": "Patrocinios",
@@ -829,7 +831,7 @@
     "staffingCost": "Personal por partido (€)",
     "cleaningCost": "Limpieza por partido (€)",
     "utilitiesCost": "Suministros por partido (€)",
-    "costHelp": "Los costes del partido son independientes del mantenimiento mensual. Los informes financieros se conectarán en la siguiente fase.",
+    "costHelp": "Los costes del partido son independientes del mantenimiento mensual. Los cambios se aplican desde hoy (UTC), prorrateados por día; las fechas anteriores conservan su tarifa.",
     "loading": "Cargando estadio…",
     "save": "Guardar estadio",
     "saving": "Guardando…",

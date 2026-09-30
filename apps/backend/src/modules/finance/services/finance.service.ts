@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ContractFinancialService } from '../../contracts/services/contractFinancial.service';
 import { TransferFinancialService } from '../../transfers/services/transferFinancial.service';
 import { SponsorshipFinancialService } from '../../sponsorships/services/sponsorship-financial.service';
+import { StadiumFinancialService } from './stadium-financial.service';
 import {
   Finances,
   FinancialSummary,
@@ -16,6 +17,7 @@ export class FinanceService {
     private readonly contractFinancialService: ContractFinancialService,
     private readonly transferFinancialService: TransferFinancialService,
     private readonly sponsorshipFinancialService: SponsorshipFinancialService,
+    private readonly stadiumFinancialService: StadiumFinancialService,
   ) {}
 
   /**
@@ -47,6 +49,9 @@ export class FinanceService {
   ): Promise<{ monthlyData: MonthlyFinanceData[]; totals: MonthlyTotals }> {
     const monthlyData: MonthlyFinanceData[] = [];
     const totals: MonthlyTotals = {
+      totalTicketSales: 0,
+      totalMatchdayCosts: 0,
+      totalStadiumMaintenance: 0,
       totalTransferIncome: 0,
       totalSponsorshipIncome: 0,
       totalWages: 0,
@@ -143,7 +148,14 @@ export class FinanceService {
         effectiveEnd,
       );
 
+    const stadium = await this.stadiumFinancialService.calculatePeriod(
+      monthStart,
+      effectiveEnd,
+    );
     return {
+      monthTicketSales: stadium.ticketSales,
+      monthMatchdayCosts: stadium.matchdayCosts,
+      monthStadiumMaintenance: stadium.stadiumMaintenance,
       monthWages,
       monthSignOnFees,
       monthContractAgentFees,
@@ -162,13 +174,17 @@ export class FinanceService {
     finances: MonthlyFinances,
   ): MonthlyFinanceData {
     const income =
-      finances.monthTransferIncome + finances.monthSponsorshipIncome;
+      finances.monthTransferIncome +
+      finances.monthSponsorshipIncome +
+      finances.monthTicketSales;
     const expenses =
       finances.monthWages +
       finances.monthSignOnFees +
       finances.monthContractAgentFees +
       finances.monthTransferExpenses +
-      finances.monthTransferAgentFees;
+      finances.monthTransferAgentFees +
+      finances.monthMatchdayCosts +
+      finances.monthStadiumMaintenance;
 
     return {
       month: `${currentDate.getUTCFullYear()}-${String(currentDate.getUTCMonth() + 1).padStart(2, '0')}`,
@@ -184,6 +200,9 @@ export class FinanceService {
     totals: MonthlyTotals,
     finances: MonthlyFinances,
   ): void {
+    totals.totalTicketSales += finances.monthTicketSales;
+    totals.totalMatchdayCosts += finances.monthMatchdayCosts;
+    totals.totalStadiumMaintenance += finances.monthStadiumMaintenance;
     totals.totalTransferIncome += finances.monthTransferIncome;
     totals.totalSponsorshipIncome += finances.monthSponsorshipIncome;
     totals.totalWages += finances.monthWages;
@@ -202,13 +221,17 @@ export class FinanceService {
     endDate: Date,
   ): Finances {
     const totalIncome =
-      totals.totalTransferIncome + totals.totalSponsorshipIncome;
+      totals.totalTransferIncome +
+      totals.totalSponsorshipIncome +
+      totals.totalTicketSales;
     const totalExpenses =
       totals.totalWages +
       totals.totalTransferExpenses +
       totals.totalContractAgentFees +
       totals.totalTransferAgentFees +
-      totals.totalSignOnFees;
+      totals.totalSignOnFees +
+      totals.totalMatchdayCosts +
+      totals.totalStadiumMaintenance;
 
     return {
       totalIncome,
@@ -222,14 +245,15 @@ export class FinanceService {
         income: {
           transfers: totals.totalTransferIncome,
           sponsorships: totals.totalSponsorshipIncome,
-          ticketSales: 0, // TODO
+          ticketSales: totals.totalTicketSales,
         },
         expenses: {
           wages: totals.totalWages,
           transferFees: totals.totalTransferExpenses,
           agentFees:
             totals.totalContractAgentFees + totals.totalTransferAgentFees,
-          stadiumMaintenance: 0, // TODO
+          stadiumMaintenance: totals.totalStadiumMaintenance,
+          matchdayCosts: totals.totalMatchdayCosts,
         },
       },
     };

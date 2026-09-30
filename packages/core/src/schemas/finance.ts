@@ -12,13 +12,14 @@ export const FinancesSchema = z.object({
     income: z.object({
       transfers: z.number(),
       sponsorships: z.number().optional(), // Future
-      ticketSales: z.number().optional(), // Future
+      ticketSales: z.number().optional(),
     }),
     expenses: z.object({
       wages: z.number(),
       transferFees: z.number(),
       agentFees: z.number(),
-      stadiumMaintenance: z.number().optional(), // Future
+      stadiumMaintenance: z.number().optional(),
+      matchdayCosts: z.number().optional(),
     }),
   }),
 });

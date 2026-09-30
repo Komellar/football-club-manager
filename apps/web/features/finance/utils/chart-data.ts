@@ -9,14 +9,14 @@ export const prepareIncomeData = (data: FinancialSummary) => {
       transfers,
       sponsorships: sponsorships || 0,
       ticketSales: ticketSales || 0,
-    }).filter(([, value]) => value && value > 0)
+    }).filter(([, value]) => value && value > 0),
   );
 };
 
 export const prepareExpenseData = (
-  data: FinancialSummary
+  data: FinancialSummary,
 ): Record<string, number> => {
-  const { wages, transferFees, agentFees, stadiumMaintenance } =
+  const { wages, transferFees, agentFees, stadiumMaintenance, matchdayCosts } =
     data.summary.breakdown.expenses;
 
   return Object.fromEntries(
@@ -25,7 +25,8 @@ export const prepareExpenseData = (
       transferFees,
       agentFees,
       stadiumMaintenance: stadiumMaintenance || 0,
-    }).filter(([, value]) => value && value > 0)
+      matchdayCosts: matchdayCosts || 0,
+    }).filter(([, value]) => value && value > 0),
   );
 };
 

@@ -11,6 +11,9 @@ export interface SponsorshipPayment {
 }
 
 export interface MonthlyTotals {
+  totalTicketSales: number;
+  totalMatchdayCosts: number;
+  totalStadiumMaintenance: number;
   totalTransferIncome: number;
   totalSponsorshipIncome: number;
   totalWages: number;
@@ -21,6 +24,9 @@ export interface MonthlyTotals {
 }
 
 export interface MonthlyFinances {
+  monthTicketSales: number;
+  monthMatchdayCosts: number;
+  monthStadiumMaintenance: number;
   monthWages: number;
   monthSignOnFees: number;
   monthContractAgentFees: number;

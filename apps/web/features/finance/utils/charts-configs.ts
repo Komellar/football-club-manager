@@ -12,6 +12,8 @@ export const overviewChartConfig = {
 } satisfies ChartConfig;
 
 export const expenseBreakdownChartConfig = {
+  stadiumMaintenance: { label: "Stadium Maintenance", color: "var(--chart-4)" },
+  matchdayCosts: { label: "Matchday Costs", color: "var(--chart-5)" },
   wages: {
     label: "Wages",
     color: "var(--chart-1)",
