@@ -27,7 +27,8 @@
     "details": "Details",
     "sponsorshipEdit": "Edit Sponsorship",
     "fixtures": "Fixtures",
-    "matchHistory": "Match History"
+    "matchHistory": "Match History",
+    "stadium": "Stadium"
   },
   "Auth": {
     "login": "Login",
@@ -819,5 +820,25 @@
     "statistic": "Statistic",
     "timeline": "Match timeline",
     "assist": "Assist: {name}"
+  },
+  "Stadium": {
+    "title": "Stadium settings",
+    "description": "Configure your club ground and defaults for home match ticketing. Amounts are in EUR.",
+    "name": "Stadium name",
+    "capacity": "Capacity",
+    "defaultTicketPrice": "Default ticket price (€)",
+    "expectedOccupancy": "Expected occupancy (%)",
+    "monthlyMaintenance": "Monthly maintenance (€)",
+    "securityCost": "Security per match (€)",
+    "staffingCost": "Staffing per match (€)",
+    "cleaningCost": "Cleaning per match (€)",
+    "utilitiesCost": "Utilities per match (€)",
+    "costHelp": "Matchday costs are separate from monthly maintenance. Financial reporting will be connected in the next stage.",
+    "loading": "Loading stadium…",
+    "save": "Save stadium",
+    "saving": "Saving…",
+    "saved": "Stadium saved. Operating costs per match: {cost}.",
+    "invalid": "Check the stadium name, capacity, percentage, and amounts. Use at most two decimal places for money.",
+    "retry": "Reload settings"
   }
 }

@@ -8,3 +8,4 @@ export * from "./match-event";
 export * from "./finance";
 export * from "./sponsorship";
 export * from "./fixture";
+export * from "./stadium";

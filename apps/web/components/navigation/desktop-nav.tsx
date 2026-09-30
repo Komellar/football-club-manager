@@ -59,6 +59,12 @@ export async function DesktopNav({ className }: StaticNavProps) {
       >
         {t("matchHistory")}
       </Link>
+      <Link
+        href={`/${locale}/stadium`}
+        className="text-sm font-medium text-muted-foreground hover:text-foreground"
+      >
+        {t("stadium")}
+      </Link>
     </nav>
   );
 }

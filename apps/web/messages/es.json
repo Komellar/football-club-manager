@@ -26,7 +26,8 @@
     "navigation": "Navegación",
     "sponsorshipEdit": "Editar Patrocinio",
     "fixtures": "Calendario",
-    "matchHistory": "Historial de partidos"
+    "matchHistory": "Historial de partidos",
+    "stadium": "Estadio"
   },
   "Auth": {
     "login": "Iniciar Sesión",
@@ -814,5 +815,25 @@
     "statistic": "Estadística",
     "timeline": "Cronología del partido",
     "assist": "Asistencia: {name}"
+  },
+  "Stadium": {
+    "title": "Configuración del estadio",
+    "description": "Configura el estadio del club y los valores para las entradas de los partidos en casa. Los importes están en EUR.",
+    "name": "Nombre del estadio",
+    "capacity": "Capacidad",
+    "defaultTicketPrice": "Precio de entrada por defecto (€)",
+    "expectedOccupancy": "Ocupación prevista (%)",
+    "monthlyMaintenance": "Mantenimiento mensual (€)",
+    "securityCost": "Seguridad por partido (€)",
+    "staffingCost": "Personal por partido (€)",
+    "cleaningCost": "Limpieza por partido (€)",
+    "utilitiesCost": "Suministros por partido (€)",
+    "costHelp": "Los costes del partido son independientes del mantenimiento mensual. Los informes financieros se conectarán en la siguiente fase.",
+    "loading": "Cargando estadio…",
+    "save": "Guardar estadio",
+    "saving": "Guardando…",
+    "saved": "Estadio guardado. Costes operativos por partido: {cost}.",
+    "invalid": "Revisa el nombre, la capacidad, el porcentaje y los importes. Usa como máximo dos decimales para el dinero.",
+    "retry": "Recargar configuración"
   }
 }

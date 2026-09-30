@@ -14,6 +14,7 @@ import { ContractsModule } from './modules/contracts/contracts.module';
 import { MatchEventsModule } from './modules/match-events/match-events.module';
 import { FinanceModule } from './modules/finance/finance.module';
 import { SponsorshipsModule } from './modules/sponsorships/sponsorships.module';
+import { StadiumModule } from './modules/stadium/stadium.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { SponsorshipsModule } from './modules/sponsorships/sponsorships.module';
     MatchEventsModule,
     FinanceModule,
     SponsorshipsModule,
+    StadiumModule,
   ],
   controllers: [AppController],
   providers: [AppService],

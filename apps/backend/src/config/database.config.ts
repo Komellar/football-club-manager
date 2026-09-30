@@ -6,6 +6,7 @@ import { PlayerStatistics } from '../shared/entities/player-statistics.entity';
 import { Transfer } from '../shared/entities/transfer.entity';
 import { Sponsorship } from '../shared/entities/sponsorship.entity';
 import { Fixture } from '../shared/entities/fixture.entity';
+import { Stadium } from '../shared/entities/stadium.entity';
 
 export const getDatabaseConfig = (
   configService: ConfigService,
@@ -24,6 +25,7 @@ export const getDatabaseConfig = (
     Contract,
     Sponsorship,
     Fixture,
+    Stadium,
   ],
   migrations: [__dirname + '/../database/migrations/*{.ts,.js}'],
   synchronize: false,
