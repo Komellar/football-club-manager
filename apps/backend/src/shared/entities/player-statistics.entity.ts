@@ -6,16 +6,23 @@ import {
   JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  Index,
 } from 'typeorm';
 import { Player } from './player.entity';
 
 @Entity('player_statistics')
+@Index('player_statistics_match_player_idx', ['matchId', 'playerId'], {
+  unique: true,
+})
 export class PlayerStatistics {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column({ type: 'int', name: 'player_id' })
   playerId: number;
+
+  @Column({ type: 'uuid', name: 'match_id', nullable: true })
+  matchId?: string | null;
 
   @ManyToOne(() => Player, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'player_id' })

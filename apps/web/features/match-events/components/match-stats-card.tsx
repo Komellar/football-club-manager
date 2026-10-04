@@ -7,6 +7,7 @@ import { useMemo } from "react";
 import {
   calculateMatchStats,
   getStatRows,
+  getStatShare,
 } from "../utils/calculate-match-stats";
 import { Progress } from "@/components/ui/progress";
 
@@ -44,12 +45,12 @@ export const MatchStatsCard = () => {
                 className="flex justify-between items-center w-[80%] mx-auto"
               >
                 <Progress
-                  value={(stat.home / (stat.home + stat.away)) * 100}
+                  value={getStatShare(stat.home, stat.away)}
                   className="w-[50%] rotate-180 h-2 rounded-[2px]"
                 />
                 <div className="w-1" />
                 <Progress
-                  value={(stat.away / (stat.home + stat.away)) * 100}
+                  value={getStatShare(stat.away, stat.home)}
                   className="w-[50%] h-2 rounded-[2px] bg-blue-100 [&>div]:bg-secondary"
                 />
               </div>

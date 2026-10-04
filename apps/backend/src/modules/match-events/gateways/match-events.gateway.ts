@@ -8,7 +8,7 @@ import {
   OnGatewayDisconnect,
   WsException,
 } from '@nestjs/websockets';
-import { Logger, UseFilters } from '@nestjs/common';
+import { Logger, UseFilters, OnModuleDestroy } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Server, Socket } from 'socket.io';
 import { MatchEventsService } from '../services/match-events.service';
@@ -23,6 +23,8 @@ import {
   MatchEventsSocketMessage,
   MatchEvent,
   MatchEnded,
+  MatchSimulationState,
+  AuthTokenPayloadSchema,
 } from '@repo/core';
 import { WsValidationPipe } from '../../../shared/pipes/ws-validation.pipe';
 import { WsExceptionFilter } from '../../../shared/filters/ws-exception.filter';
@@ -30,6 +32,7 @@ import {
   ACTIVE_MATCH_ROOM,
   MATCH_INTERNAL_EVENT,
   MATCH_INTERNAL_ENDED,
+  MATCH_INTERNAL_STATE,
 } from '../constants/match-simulation.constants';
 
 /**
@@ -48,12 +51,16 @@ import {
 })
 @UseFilters(new WsExceptionFilter())
 export class MatchEventsGateway
-  implements OnGatewayConnection, OnGatewayDisconnect
+  implements OnGatewayConnection, OnGatewayDisconnect, OnModuleDestroy
 {
   @WebSocketServer()
   server!: Server;
 
   private readonly logger = new Logger(MatchEventsGateway.name);
+  private readonly expiryTimers = new Map<
+    string,
+    ReturnType<typeof setTimeout>
+  >();
 
   constructor(
     private readonly matchEventsService: MatchEventsService,
@@ -66,12 +73,19 @@ export class MatchEventsGateway
   }
 
   handleDisconnect(client: Socket) {
+    clearTimeout(this.expiryTimers.get(client.id));
+    this.expiryTimers.delete(client.id);
     this.logger.log(`Client disconnected: ${client.id}`);
     try {
       this.matchEventsService.handleClientDisconnect(client.id);
     } catch (error) {
       this.logger.error(`Error handling disconnect for ${client.id}:`, error);
     }
+  }
+
+  onModuleDestroy() {
+    for (const timer of this.expiryTimers.values()) clearTimeout(timer);
+    this.expiryTimers.clear();
   }
 
   @SubscribeMessage(MatchEventsSocketMessage.SUBSCRIBE_TO_MATCH)
@@ -128,12 +142,28 @@ export class MatchEventsGateway
       .map((part) => part.trim())
       .find((part) => part.startsWith('auth_token='))
       ?.slice('auth_token='.length);
-    const token = client.handshake.auth?.token || cookie;
+    const handshakeToken: unknown = client.handshake.auth?.token;
+    const token = typeof handshakeToken === 'string' ? handshakeToken : cookie;
     try {
       if (!token) throw new Error('Missing token');
-      await this.jwt.verifyAsync(token, {
-        secret: this.config.get<string>('JWT_SECRET'),
-      });
+      const payload = await this.jwt.verifyAsync<Record<string, unknown>>(
+        token,
+        {
+          secret: this.config.get<string>('JWT_SECRET'),
+        },
+      );
+      AuthTokenPayloadSchema.parse(payload);
+      clearTimeout(this.expiryTimers.get(client.id));
+      this.expiryTimers.delete(client.id);
+      if (typeof payload.exp === 'number') {
+        this.expiryTimers.set(
+          client.id,
+          setTimeout(
+            () => client.disconnect(true),
+            Math.max(0, payload.exp * 1000 - Date.now()),
+          ),
+        );
+      }
     } catch {
       throw new WsException('Please sign in to access matches');
     }
@@ -147,5 +177,10 @@ export class MatchEventsGateway
   @OnEvent(MATCH_INTERNAL_ENDED)
   onMatchEnded(payload: MatchEnded) {
     this.server.to(ACTIVE_MATCH_ROOM).emit('matchEnded', payload);
+  }
+
+  @OnEvent(MATCH_INTERNAL_STATE)
+  onMatchState(state: MatchSimulationState) {
+    this.server.to(ACTIVE_MATCH_ROOM).emit('matchState', state);
   }
 }

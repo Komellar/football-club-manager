@@ -58,7 +58,7 @@ export function MatchEventList() {
                   (event.type === MatchEventType.MATCH_START ||
                     event.type === MatchEventType.HALF_TIME ||
                     event.type === MatchEventType.MATCH_END) &&
-                    "justify-center bg-purple-100"
+                    "justify-center bg-purple-100",
                 )}
               >
                 <div className="flex items-center justify-center w-12 h-12">
@@ -73,7 +73,7 @@ export function MatchEventList() {
                       {t(`eventTypes.${event.type}`)}
                     </Badge>
                     <span className="text-sm font-semibold">
-                      {event.minute}'
+                      {event.minute}&apos;
                     </span>
                   </div>
                   {event.player && (
@@ -85,6 +85,16 @@ export function MatchEventList() {
                         </span>
                       )}
                     </div>
+                  )}
+                  {event.relatedPlayer && (
+                    <p className="text-sm text-muted-foreground">
+                      {t("assist", { name: event.relatedPlayer.name })}
+                    </p>
+                  )}
+                  {event.penaltyOutcome && (
+                    <p className="text-sm text-muted-foreground">
+                      {t(`penaltyOutcomes.${event.penaltyOutcome}`)}
+                    </p>
                   )}
                 </div>
               </div>

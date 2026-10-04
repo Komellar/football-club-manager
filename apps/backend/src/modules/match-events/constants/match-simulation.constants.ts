@@ -3,12 +3,25 @@ export const MATCH_SIMULATION_CONFIG = {
   MINUTES_PER_TICK: 3, // 3 in-game minutes per tick
   HALF_TIME_MINUTE: 45,
   FULL_TIME_MINUTE: 90,
-  HOME_ADVANTAGE_PROBABILITY: 0.6, // 60% chance for home team
-  EVENT_GENERATION_PROBABILITY: 1, // 100% chance to generate event per tick
+  HOME_ADVANTAGE_MULTIPLIER: 1.08,
+  FOUL_PROBABILITY: 0.25,
+  YELLOW_GIVEN_FOUL: 0.16,
+  RED_GIVEN_FOUL: 0.004,
+  PENALTY_GIVEN_FOUL: 0.015,
+  CHANCE_PROBABILITY: 0.33,
+  GOAL_GIVEN_SHOT: 0.12,
+  SAVED_GIVEN_NON_GOAL: 0.35,
+  OFFSIDE_GIVEN_CHANCE: 0.05,
+  CORNER_GIVEN_MISS: 0.4,
+  PENALTY_GOAL_PROBABILITY: 0.76,
+  PENALTY_SAVE_PROBABILITY: 0.14,
+  ASSIST_PROBABILITY: 0.8,
 } as const;
 
 export const ACTIVE_MATCH_ROOM = 'active-match';
 export const MATCH_INTERNAL_EVENT = 'match.internal.event';
 export const MATCH_INTERNAL_ENDED = 'match.internal.ended';
+export const MATCH_INTERNAL_STATE = 'match.internal.state';
+export const MATCH_ENGINE_VERSION = '2.0';
 export const OPPONENT_PLAYER_ID_OFFSET = 1000;
 export const MAX_JERSEY_NUMBER = 99;

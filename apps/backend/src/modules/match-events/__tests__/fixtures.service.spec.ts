@@ -3,6 +3,9 @@ import { Fixture } from '@/shared/entities/fixture.entity';
 import { FixturesService } from '../services/fixtures.service';
 import { LineupService } from '../services/lineup.service';
 import { StadiumService } from '../../stadium/stadium.service';
+import { MatchStatisticsProcessorService } from '../../statistics/services/match-statistics-processor.service';
+import { PlayerStatistics } from '@/shared/entities/player-statistics.entity';
+import { matchState } from './match-test-data';
 import {
   MatchHistoryQuerySchema,
   UpdateFixtureSchema,
@@ -25,19 +28,28 @@ describe('FixturesService', () => {
   };
   const lineups = { resolve: jest.fn() };
   const stadium = { get: jest.fn() };
+  const statistics = new MatchStatisticsProcessorService();
+  const statisticsRepo = { create: jest.fn(), save: jest.fn() };
   const service = new FixturesService(
     repo as unknown as Repository<Fixture>,
     lineups as unknown as LineupService,
     stadium as unknown as StadiumService,
+    statistics,
   );
   beforeEach(() => {
     jest.resetAllMocks();
     repo.manager.transaction.mockImplementation(
-      (fn: (manager: unknown) => unknown) => fn({ getRepository: () => repo }),
+      (fn: (manager: unknown) => unknown) =>
+        fn({
+          getRepository: (entity: unknown) =>
+            entity === PlayerStatistics ? statisticsRepo : repo,
+        }),
     );
     repo.save.mockImplementation((f: Fixture) => Promise.resolve(f));
     lineups.resolve.mockResolvedValue([{ id: 1 }]);
     stadium.get.mockResolvedValue(null);
+    statisticsRepo.create.mockImplementation((row: unknown) => row);
+    statisticsRepo.save.mockResolvedValue([]);
   });
   it('marks unfinished matches as interrupted on restart', async () => {
     await service.onModuleInit();
@@ -143,8 +155,7 @@ describe('FixturesService', () => {
   });
 
   it('accepts a retry after the same match result was already saved', async () => {
-    repo.update.mockResolvedValue({ affected: 0 });
-    repo.findOneByOrFail.mockResolvedValue({
+    repo.findOneOrFail.mockResolvedValue({
       status: 'completed',
       result: { matchId: 'same-match' },
     });
@@ -158,6 +169,59 @@ describe('FixturesService', () => {
         matchId: 'different-match',
       } as MatchSimulationState),
     ).rejects.toThrow('no longer in progress');
+    expect(statisticsRepo.save).not.toHaveBeenCalled();
+  });
+
+  it('saves every player row and the result in the same transaction', async () => {
+    const state = matchState();
+    repo.findOneOrFail.mockResolvedValue({
+      id: state.fixtureId,
+      status: 'in_progress',
+    });
+    await service.complete(state.fixtureId!, state);
+    expect(repo.manager.transaction).toHaveBeenCalledTimes(1);
+    expect(repo.findOneOrFail).toHaveBeenCalledWith({
+      where: { id: state.fixtureId },
+      lock: { mode: 'pessimistic_write' },
+    });
+    const rows = statisticsRepo.save.mock.calls[0][0] as PlayerStatistics[];
+    expect(rows).toHaveLength(11);
+    expect(
+      rows.every(
+        (row) => row.matchId === state.matchId && row.season === '2025-2026',
+      ),
+    ).toBe(true);
+    expect(repo.save).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: 'completed',
+        result: state,
+        completedAt: expect.any(Date),
+      }),
+    );
+    expect(statisticsRepo.save.mock.invocationCallOrder[0]).toBeLessThan(
+      repo.save.mock.invocationCallOrder[0],
+    );
+    await service.complete(state.fixtureId!, state);
+    expect(statisticsRepo.save).toHaveBeenCalledTimes(1);
+  });
+
+  it('propagates statistics failures without marking the fixture completed', async () => {
+    const state = matchState();
+    repo.findOneOrFail.mockResolvedValue({ status: 'in_progress' });
+    statisticsRepo.save.mockRejectedValue(new Error('Statistics unavailable'));
+    await expect(service.complete(state.fixtureId!, state)).rejects.toThrow(
+      'Statistics unavailable',
+    );
+    expect(repo.save).not.toHaveBeenCalled();
+  });
+
+  it('propagates a result write failure so the transaction rolls back', async () => {
+    const state = matchState();
+    repo.findOneOrFail.mockResolvedValue({ status: 'in_progress' });
+    repo.save.mockRejectedValue(new Error('Result unavailable'));
+    await expect(service.complete(state.fixtureId!, state)).rejects.toThrow(
+      'Result unavailable',
+    );
   });
 
   it.each([

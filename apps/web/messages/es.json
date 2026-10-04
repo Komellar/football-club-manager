@@ -612,6 +612,21 @@
       "match_start": "Partido iniciado",
       "half_time": "Medio Tiempo",
       "match_end": "Tiempo Completo"
+    },
+    "phases": {
+      "first_half": "Primera parte",
+      "half_time": "Descanso",
+      "second_half": "Segunda parte",
+      "saving": "Guardando el resultado…",
+      "completed": "Final del partido",
+      "interrupted": "Partido interrumpido"
+    },
+    "possession": "Posesión (%)",
+    "assist": "Asistencia: {name}",
+    "penaltyOutcomes": {
+      "scored": "Penalti marcado",
+      "saved": "Penalti detenido",
+      "missed": "Penalti fallado"
     }
   },
   "Finance": {
@@ -788,7 +803,18 @@
       "cancelled": "Cancelado"
     },
     "report": "Ver informe del partido",
-    "invalidTicketPrice": "Introduce un precio entre 0 y 10.000 con un máximo de dos decimales."
+    "invalidTicketPrice": "Introduce un precio entre 0 y 10.000 con un máximo de dos decimales.",
+    "simulation": {
+      "title": "Preparación del partido",
+      "help": "La fuerza va de 0,5 (más débil) a 1,5 (más fuerte). Un planteamiento ofensivo crea más ocasiones y deja más espacio en defensa.",
+      "homeStrength": "Fuerza de nuestro equipo",
+      "opponentStrength": "Fuerza del rival",
+      "homeTactic": "Nuestro planteamiento",
+      "opponentTactic": "Planteamiento rival",
+      "defensive": "Defensivo",
+      "balanced": "Equilibrado",
+      "attacking": "Ofensivo"
+    }
   },
   "MatchHistory": {
     "title": "Historial de partidos",

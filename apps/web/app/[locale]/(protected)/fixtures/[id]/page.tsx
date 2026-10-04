@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -8,10 +8,13 @@ import {
   MatchEventPlayer,
   PlayerPosition,
   TicketPriceSchema,
+  MatchSettingsSchema,
+  type MatchSettings,
 } from "@repo/core";
 import { FixtureTicketing } from "@/features/stadium/fixture-ticketing";
 import { Button } from "@/components/ui/button";
 import { FixtureFields } from "@/features/fixtures/fixture-fields";
+import { SimulationSettings } from "@/features/fixtures/simulation-settings";
 import {
   fixturesApi,
   fixtureError,
@@ -35,13 +38,16 @@ export default function FixturePage() {
   const [competition, setCompetition] = useState("");
   const [lineup, setLineup] = useState<MatchEventPlayer[]>([]);
   const [ticketPrice, setTicketPrice] = useState("");
+  const [simulationSettings, setSimulationSettings] = useState<MatchSettings>(
+    () => MatchSettingsSchema.parse({}),
+  );
   const { isConnected, isMatchActive } = useAppSelector((s) => s.matchEvents);
   const editable =
     fixture?.status === "scheduled" || fixture?.status === "interrupted";
   const ready =
     lineup.length === 11 &&
     lineup.filter((p) => p.position === PlayerPosition.GOALKEEPER).length === 1;
-  async function load() {
+  const load = useCallback(async () => {
     setError("");
     try {
       const f = await fixturesApi.get(id);
@@ -51,14 +57,17 @@ export default function FixturePage() {
       setCompetition(f.competition);
       setLineup(f.lineup);
       setTicketPrice(f.ticketPrice === null ? "" : String(f.ticketPrice));
+      setSimulationSettings(
+        f.simulationSettings ?? MatchSettingsSchema.parse({}),
+      );
     } catch (e) {
       setError(fixtureError(e));
     }
-  }
+  }, [id]);
   useEffect(() => {
     void load();
     matchEventsSocket.connect();
-  }, [id]);
+  }, [load]);
   async function save(start = false) {
     setBusy(true);
     setError("");
@@ -73,6 +82,7 @@ export default function FixturePage() {
         competition,
         lineupIds: lineup.map((p) => p.id),
         ticketPrice: checkedPrice.data,
+        simulationSettings: MatchSettingsSchema.parse(simulationSettings),
       });
       setFixture(saved);
       setLineup(saved.lineup);
@@ -134,6 +144,11 @@ export default function FixturePage() {
               <LineupSelector
                 selected={lineup}
                 onChange={setLineup}
+                disabled={busy}
+              />
+              <SimulationSettings
+                value={simulationSettings}
+                onChange={setSimulationSettings}
                 disabled={busy}
               />
               <FixtureTicketing

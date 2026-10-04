@@ -617,6 +617,21 @@
       "match_start": "Match started",
       "half_time": "Half Time",
       "match_end": "Full Time"
+    },
+    "phases": {
+      "first_half": "First half",
+      "half_time": "Half-time",
+      "second_half": "Second half",
+      "saving": "Saving match result…",
+      "completed": "Full-time",
+      "interrupted": "Match interrupted"
+    },
+    "possession": "Possession (%)",
+    "assist": "Assist: {name}",
+    "penaltyOutcomes": {
+      "scored": "Penalty scored",
+      "saved": "Penalty saved",
+      "missed": "Penalty missed"
     }
   },
   "Finance": {
@@ -793,7 +808,18 @@
       "cancelled": "Cancelled"
     },
     "report": "View match report",
-    "invalidTicketPrice": "Enter a ticket price between 0 and 10,000 with at most two decimal places."
+    "invalidTicketPrice": "Enter a ticket price between 0 and 10,000 with at most two decimal places.",
+    "simulation": {
+      "title": "Match setup",
+      "help": "Strength ranges from 0.5 (weaker) to 1.5 (stronger). An attacking approach creates more chances and leaves more space in defence.",
+      "homeStrength": "Our team strength",
+      "opponentStrength": "Opponent strength",
+      "homeTactic": "Our approach",
+      "opponentTactic": "Opponent approach",
+      "defensive": "Defensive",
+      "balanced": "Balanced",
+      "attacking": "Attacking"
+    }
   },
   "MatchHistory": {
     "title": "Match History",

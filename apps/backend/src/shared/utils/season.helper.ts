@@ -5,8 +5,8 @@
  * @returns Season string in format "YYYY-YYYY"
  */
 export function getCurrentSeason(date: Date = new Date()): string {
-  const year = date.getFullYear();
-  const month = date.getMonth();
+  const year = date.getUTCFullYear();
+  const month = date.getUTCMonth();
 
   if (month >= 7) {
     return `${year}-${year + 1}`;

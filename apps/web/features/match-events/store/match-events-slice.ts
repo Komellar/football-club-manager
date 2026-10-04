@@ -1,12 +1,8 @@
 "use client";
 
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import {
-  MatchEvent,
-  MatchEventType,
-  type MatchSimulationState,
-  type MatchEnded,
-} from "@repo/core";
+import { MatchEventType } from "@repo/core";
+import type { MatchEvent, MatchSimulationState, MatchEnded } from "@repo/core";
 
 export interface MatchEventsState {
   activeMatch: MatchSimulationState | null;
@@ -36,7 +32,17 @@ const matchEventsSlice = createSlice({
     },
     startMatch: (state, action: PayloadAction<MatchSimulationState>) => {
       state.activeMatch = action.payload;
-      state.isMatchActive = true;
+      state.isMatchActive = !["completed", "interrupted"].includes(
+        action.payload.phase ?? "first_half",
+      );
+      state.error = null;
+    },
+    restoreCompletedMatch: (
+      state,
+      action: PayloadAction<MatchSimulationState>,
+    ) => {
+      state.activeMatch = action.payload;
+      state.isMatchActive = false;
       state.error = null;
     },
     addMatchEvent: (state, action: PayloadAction<MatchEvent>) => {
@@ -61,13 +67,19 @@ const matchEventsSlice = createSlice({
       }
     },
     endMatch: (state, action: PayloadAction<MatchEnded | undefined>) => {
-      if (
-        action.payload &&
-        state.activeMatch?.matchId === action.payload.matchId
-      ) {
-        state.activeMatch.score = action.payload.score;
-        state.activeMatch.events = action.payload.events;
+      if (!action.payload) {
+        state.activeMatch = null;
+        state.isMatchActive = false;
+        return;
       }
+      if (state.activeMatch?.matchId !== action.payload.matchId) return;
+      state.activeMatch.score = action.payload.score;
+      state.activeMatch.events = action.payload.events;
+      state.activeMatch.phase = action.payload.phase ?? "completed";
+      state.activeMatch.currentMinute = action.payload.events.reduce(
+        (minute, event) => Math.max(minute, event.minute),
+        state.activeMatch.currentMinute,
+      );
       state.isMatchActive = false;
     },
     clearMatch: (state) => {
@@ -84,6 +96,7 @@ const matchEventsSlice = createSlice({
 export const {
   setConnectionStatus,
   startMatch,
+  restoreCompletedMatch,
   addMatchEvent,
   endMatch,
   clearMatch,

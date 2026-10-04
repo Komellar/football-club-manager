@@ -8,12 +8,19 @@ export function MatchScoreBoard() {
   const t = useTranslations("MatchEvents");
 
   const { activeMatch, isMatchActive } = useAppSelector(
-    (state) => state.matchEvents
+    (state) => state.matchEvents,
   );
 
   if (!activeMatch) {
     return null;
   }
+  const phase =
+    activeMatch.phase ??
+    (isMatchActive
+      ? "first_half"
+      : activeMatch.currentMinute >= 90
+        ? "completed"
+        : "interrupted");
 
   return (
     <Card>
@@ -53,17 +60,13 @@ export function MatchScoreBoard() {
                 </span>
               )}
               <span className="text-lg font-semibold">
-                {activeMatch.currentMinute}' {isMatchActive ? "⚽" : ""}
+                {activeMatch.currentMinute}&apos; {isMatchActive ? "⚽" : ""}
               </span>
             </div>
           </div>
 
           <div className="text-center text-sm text-muted-foreground">
-            {isMatchActive
-              ? t("matchInProgress")
-              : activeMatch.currentMinute === 90
-                ? t("matchEnded")
-                : t("matchNotStarted")}
+            {t(`phases.${phase}`)}
           </div>
         </div>
       </CardContent>

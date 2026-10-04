@@ -19,6 +19,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brv -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
+    "simulate:calibrate": "ts-node -r tsconfig-paths/register scripts/calibrate-matches.ts",
     "migration:create": "npx ts-node -P ./tsconfig.json -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:create ./src/database/migrations/",
     "migration:generate": "npx ts-node -P ./tsconfig.json -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:generate -d ./src/config/typeorm.config.ts ./src/database/migrations/",
     "migration:run": "npx ts-node -P ./tsconfig.json -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:run -d ./src/config/typeorm.config.ts",
@@ -95,7 +96,7 @@
     "rootDir": "src",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
+      "^.+\\.ts$": "ts-jest"
     },
     "collectCoverageFrom": [
       "**/*.(t|j)s"
@@ -106,7 +107,7 @@
       "^@/shared/(.*)$": "<rootDir>/shared/$1",
       "^@/core/(.*)$": "<rootDir>/core/$1",
       "^@/modules/(.*)$": "<rootDir>/modules/$1",
-      "^@repo/core$": "<rootDir>/../../../packages/core"
+      "^@repo/core$": "<rootDir>/../../../packages/core/index.ts"
     }
   }
 }

@@ -87,14 +87,21 @@ export function MatchReport({ fixture }: { fixture: FixtureDto }) {
               <div>
                 <p className="font-medium">
                   {eventText(`eventTypes.${event.type}`)}{" "}
-                  <span className="font-normal text-muted-foreground">
-                    · {event.teamName}
-                  </span>
+                  {event.teamName && (
+                    <span className="font-normal text-muted-foreground">
+                      · {event.teamName}
+                    </span>
+                  )}
                 </p>
                 {event.player && <p className="text-sm">{event.player.name}</p>}
                 {event.relatedPlayer && (
                   <p className="text-sm text-muted-foreground">
                     {t("assist", { name: event.relatedPlayer.name })}
+                  </p>
+                )}
+                {event.penaltyOutcome && (
+                  <p className="text-sm text-muted-foreground">
+                    {eventText(`penaltyOutcomes.${event.penaltyOutcome}`)}
                   </p>
                 )}
               </div>

@@ -4,11 +4,19 @@ import { io, Socket } from "socket.io-client";
 import type {
   MatchEvent,
   MatchSimulationState,
-  MatchEnded,
   SubscribeToMatch,
   UnsubscribeFromMatch,
 } from "@repo/core";
-import { MatchEventsSocketMessage, MatchEventType } from "@repo/core";
+import {
+  MatchEventsSocketMessage,
+  MatchEventType,
+  MatchEventSchema,
+  MatchEndedSchema,
+  MatchSimulationStateSchema,
+} from "@repo/core";
+import { fixturesApi } from "@/features/fixtures/api";
+import { recoverCompletedMatch } from "../utils/recover-match";
+import { validateMatchMessages } from "../utils/validate-match-messages";
 import { store } from "@/store";
 import {
   setConnectionStatus,
@@ -16,6 +24,8 @@ import {
   addMatchEvent,
   endMatch,
   setError,
+  clearMatch,
+  restoreCompletedMatch,
 } from "../store/match-events-slice";
 import {
   fromEvent,
@@ -85,7 +95,10 @@ class MatchEventsSocketService {
       share(),
     );
 
-    this.matchEvents$ = fromEvent<MatchEvent>(this.socket, "matchEvent").pipe(
+    const invalidMessage = () =>
+      store.dispatch(setError("Received invalid match data"));
+    this.matchEvents$ = fromEvent<unknown>(this.socket, "matchEvent").pipe(
+      validateMatchMessages(MatchEventSchema, invalidMessage),
       tap((event) => {
         store.dispatch(addMatchEvent(event));
         const currentState = store.getState();
@@ -97,15 +110,17 @@ class MatchEventsSocketService {
       share(),
     );
 
-    fromEvent<MatchSimulationState>(this.socket, "matchState")
+    fromEvent<unknown>(this.socket, "matchState")
       .pipe(
+        validateMatchMessages(MatchSimulationStateSchema, invalidMessage),
         tap((state) => store.dispatch(startMatch(state))),
         takeUntil(this.destroy$),
       )
       .subscribe();
 
-    fromEvent<MatchEnded>(this.socket, "matchEnded")
+    fromEvent<unknown>(this.socket, "matchEnded")
       .pipe(
+        validateMatchMessages(MatchEndedSchema, invalidMessage),
         tap((result) => store.dispatch(endMatch(result))),
         takeUntil(this.destroy$),
       )
@@ -200,7 +215,7 @@ class MatchEventsSocketService {
       this.socket!.timeout(5000).emit(
         MatchEventsSocketMessage.SUBSCRIBE_TO_MATCH,
         data,
-        (
+        async (
           error: Error | null,
           response?: {
             success: boolean;
@@ -215,12 +230,36 @@ class MatchEventsSocketService {
             );
             return;
           }
-          if (response.state) store.dispatch(startMatch(response.state));
-          else store.dispatch(endMatch());
-          resolve();
+          try {
+            if (response.state)
+              store.dispatch(
+                startMatch(MatchSimulationStateSchema.parse(response.state)),
+              );
+            else await this.recoverSavedMatch();
+            resolve();
+          } catch (recoveryError) {
+            reject(recoveryError);
+          }
         },
       );
     });
+  }
+
+  private async recoverSavedMatch(): Promise<void> {
+    const previous = store.getState().matchEvents.activeMatch;
+    const socket = this.socket;
+    store.dispatch(clearMatch());
+    if (!previous?.fixtureId) return;
+
+    const recovered = await recoverCompletedMatch(previous, fixturesApi.get);
+    // A newer match or a logout may arrive while the HTTP request is running.
+    if (
+      this.socket !== socket ||
+      !socket?.connected ||
+      store.getState().matchEvents.activeMatch
+    )
+      return;
+    if (recovered) store.dispatch(restoreCompletedMatch(recovered));
   }
 
   unsubscribeFromMatch() {
@@ -269,8 +308,14 @@ class MatchEventsSocketService {
             return;
           }
 
-          store.dispatch(startMatch(response.state));
-          resolve(response.matchId);
+          try {
+            store.dispatch(
+              startMatch(MatchSimulationStateSchema.parse(response.state)),
+            );
+            resolve(response.matchId);
+          } catch (validationError) {
+            reject(validationError);
+          }
         },
       );
     });

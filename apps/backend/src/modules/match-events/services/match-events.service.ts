@@ -12,10 +12,10 @@ import {
   MATCH_SIMULATION_CONFIG,
   MATCH_INTERNAL_EVENT,
   MATCH_INTERNAL_ENDED,
+  MATCH_INTERNAL_STATE,
+  MATCH_ENGINE_VERSION,
 } from '../constants/match-simulation.constants';
 import { MatchSimulationEngineService } from './match-simulation-engine.service';
-import { MatchStatisticsProcessorService } from '../../statistics/services/match-statistics-processor.service';
-import { getCurrentSeason } from '@/shared/utils/season.helper';
 import { randomUUID } from 'crypto';
 import { FixturesService } from './fixtures.service';
 
@@ -34,7 +34,6 @@ export class MatchEventsService implements OnModuleDestroy {
 
   constructor(
     private readonly simulationEngine: MatchSimulationEngineService,
-    private readonly matchStatisticsProcessor: MatchStatisticsProcessorService,
     private readonly eventEmitter: EventEmitter2,
     private readonly fixtures: FixturesService,
   ) {}
@@ -72,7 +71,11 @@ export class MatchEventsService implements OnModuleDestroy {
 
   getActiveMatch(): MatchSimulationState | null {
     if (!this.activeMatch) return null;
-    const { destroy$, subscription, ...state } = this.activeMatch;
+    const {
+      destroy$: _destroy,
+      subscription: _subscription,
+      ...state
+    } = this.activeMatch;
     return state;
   }
 
@@ -86,8 +89,19 @@ export class MatchEventsService implements OnModuleDestroy {
       claimed = true;
       this.startMatchSimulation({
         fixtureId: fixture.id,
-        homeTeam: { id: 1, name: 'My Club', players: fixture.lineup },
-        awayTeam: { id: 2, name: fixture.opponentName },
+        homeTeam: {
+          id: 1,
+          name: 'My Club',
+          players: fixture.lineup,
+          strength: fixture.simulationSettings?.homeStrength,
+          tactic: fixture.simulationSettings?.homeTactic,
+        },
+        awayTeam: {
+          id: 2,
+          name: fixture.opponentName,
+          strength: fixture.simulationSettings?.opponentStrength,
+          tactic: fixture.simulationSettings?.opponentTactic,
+        },
       });
       return this.getActiveMatch()!;
     } catch (error) {
@@ -109,6 +123,11 @@ export class MatchEventsService implements OnModuleDestroy {
 
     const matchState: ExtendedMatchSimulationState = {
       ...data,
+      awayTeam: {
+        ...data.awayTeam,
+        players:
+          data.awayTeam.players ?? this.simulationEngine.createOpponentSquad(),
+      },
       matchId,
       score: { home: 0, away: 0 },
       currentMinute: 0,
@@ -116,6 +135,10 @@ export class MatchEventsService implements OnModuleDestroy {
       subscription: null,
       events: [],
       startTime: new Date(),
+      seed: data.seed ?? randomUUID(),
+      engineVersion: MATCH_ENGINE_VERSION,
+      phase: 'first_half',
+      possession: { home: 0, away: 0 },
     };
 
     this.activeMatch = matchState;
@@ -139,27 +162,39 @@ export class MatchEventsService implements OnModuleDestroy {
   }
 
   private simulateMatchTick(): void {
-    if (!this.activeMatch) return;
-
-    this.simulationEngine.advanceTime(this.activeMatch);
-
-    if (this.simulationEngine.isHalfTime(this.activeMatch.currentMinute)) {
-      this.createAndBroadcastMatchStateTimeEvent(
-        this.activeMatch,
-        MatchEventType.HALF_TIME,
-      );
+    if (!this.activeMatch || this.activeMatch.phase === 'saving') return;
+    if (this.activeMatch.phase === 'half_time')
+      this.activeMatch.phase = 'second_half';
+    for (
+      let minute = 0;
+      minute < MATCH_SIMULATION_CONFIG.MINUTES_PER_TICK;
+      minute++
+    ) {
+      const state = this.activeMatch;
+      this.simulationEngine.advanceTime(state);
+      for (const event of this.simulationEngine.generateRandomEvents(state)) {
+        state.events.push(event);
+        this.emitMatchEvent(event);
+      }
+      if (this.simulationEngine.isMatchEnded(state.currentMinute)) {
+        void this.endMatch();
+        return;
+      }
+      if (this.simulationEngine.isHalfTime(state.currentMinute)) {
+        state.phase = 'half_time';
+        this.createAndBroadcastMatchStateTimeEvent(
+          state,
+          MatchEventType.HALF_TIME,
+        );
+        break;
+      }
     }
+    this.emitMatchState();
+  }
 
-    if (this.simulationEngine.isMatchEnded(this.activeMatch.currentMinute)) {
-      void this.endMatch();
-      return;
-    }
-
-    if (this.simulationEngine.shouldGenerateEvent()) {
-      const event = this.simulationEngine.generateRandomEvent(this.activeMatch);
-      this.activeMatch.events.push(event);
-      this.emitMatchEvent(event);
-    }
+  private emitMatchState(): void {
+    const state = this.getActiveMatch();
+    if (state) this.eventEmitter.emit(MATCH_INTERNAL_STATE, state);
   }
 
   private emitMatchEvent(event: MatchEvent) {
@@ -170,6 +205,7 @@ export class MatchEventsService implements OnModuleDestroy {
     if (!this.activeMatch) return;
 
     const matchState = this.activeMatch;
+    matchState.phase = 'saving';
 
     matchState.destroy$.next();
     matchState.destroy$.complete();
@@ -186,12 +222,13 @@ export class MatchEventsService implements OnModuleDestroy {
       );
     }
 
+    this.emitMatchState();
     if (matchState.fixtureId) {
       try {
-        await this.fixtures.complete(
-          matchState.fixtureId,
-          this.getActiveMatch()!,
-        );
+        await this.fixtures.complete(matchState.fixtureId, {
+          ...this.getActiveMatch()!,
+          phase: 'completed',
+        });
       } catch (error) {
         this.logger.error(
           'Could not save match result; retrying in five seconds',
@@ -200,6 +237,7 @@ export class MatchEventsService implements OnModuleDestroy {
         this.completionRetry = setTimeout(() => {
           void this.endMatch();
         }, 5000);
+        this.emitMatchState();
         return;
       }
     }
@@ -208,24 +246,14 @@ export class MatchEventsService implements OnModuleDestroy {
       matchId: matchState.matchId,
       score: matchState.score,
       events: matchState.events,
+      phase: 'completed',
     };
+    matchState.phase = 'completed';
+    this.emitMatchState();
 
     this.eventEmitter.emit(MATCH_INTERNAL_ENDED as string, matchEnded);
 
     this.activeMatch = null;
-
-    try {
-      const currentSeason = getCurrentSeason();
-      await this.matchStatisticsProcessor.processMatchEvents(
-        matchState,
-        currentSeason,
-      );
-    } catch (error) {
-      this.logger.error(
-        `Failed to update player statistics for match ${matchState.matchId}`,
-        error,
-      );
-    }
 
     this.logger.log(`Match ${matchState.matchId} ended and cleaned up`);
   }

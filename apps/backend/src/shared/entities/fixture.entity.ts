@@ -10,6 +10,7 @@ import type {
   MatchEventPlayer,
   MatchSimulationState,
   MatchdaySnapshot,
+  MatchSettings,
 } from '@repo/core';
 
 @Entity('fixtures')
@@ -39,6 +40,8 @@ export class Fixture {
   })
   ticketPrice: number | null;
   @Column({ type: 'jsonb', nullable: true }) matchday: MatchdaySnapshot | null;
+  @Column({ type: 'jsonb', name: 'simulation_settings', nullable: true })
+  simulationSettings: MatchSettings | null;
   @CreateDateColumn({ name: 'created_at' }) createdAt: Date;
   @UpdateDateColumn({ name: 'updated_at' }) updatedAt: Date;
 }

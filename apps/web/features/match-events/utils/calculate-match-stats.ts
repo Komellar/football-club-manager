@@ -1,4 +1,5 @@
-import { MatchEventType, MatchSimulationState } from "@repo/core";
+import { MatchEventType, getPlayerDismissalMinute } from "@repo/core";
+import type { MatchSimulationState } from "@repo/core";
 
 export interface MatchStats {
   goals: { home: number; away: number };
@@ -9,10 +10,11 @@ export interface MatchStats {
   yellowCards: { home: number; away: number };
   redCards: { home: number; away: number };
   offsides: { home: number; away: number };
+  possession?: { home: number; away: number };
 }
 
 export function calculateMatchStats(
-  activeMatch: MatchSimulationState | null
+  activeMatch: MatchSimulationState | null,
 ): MatchStats | null {
   if (!activeMatch) return null;
 
@@ -22,12 +24,35 @@ export function calculateMatchStats(
 
   const homeGoalCount = countEvents(
     MatchEventType.GOAL,
-    activeMatch.homeTeam.id
+    activeMatch.homeTeam.id,
   );
   const awayGoalCount = countEvents(
     MatchEventType.GOAL,
-    activeMatch.awayTeam.id
+    activeMatch.awayTeam.id,
   );
+  const dismissals = (teamId: number) =>
+    new Set(
+      activeMatch.events
+        .filter(
+          (event) =>
+            event.teamId === teamId &&
+            event.player &&
+            getPlayerDismissalMinute(
+              activeMatch.events,
+              teamId,
+              event.player.id,
+            ) !== undefined,
+        )
+        .map((event) => event.player!.id),
+    ).size;
+  const possessions = activeMatch.possession;
+  const totalPossessions = possessions
+    ? possessions.home + possessions.away
+    : 0;
+  const homePossession =
+    possessions && totalPossessions > 0
+      ? Math.round((possessions.home * 100) / totalPossessions)
+      : 50;
 
   return {
     goals: {
@@ -45,11 +70,11 @@ export function calculateMatchStats(
     shotsOffTarget: {
       home: countEvents(
         MatchEventType.SHOT_OFF_TARGET,
-        activeMatch.homeTeam.id
+        activeMatch.homeTeam.id,
       ),
       away: countEvents(
         MatchEventType.SHOT_OFF_TARGET,
-        activeMatch.awayTeam.id
+        activeMatch.awayTeam.id,
       ),
     },
     corners: {
@@ -65,17 +90,23 @@ export function calculateMatchStats(
       away: countEvents(MatchEventType.CARD_YELLOW, activeMatch.awayTeam.id),
     },
     redCards: {
-      home: countEvents(MatchEventType.CARD_RED, activeMatch.homeTeam.id),
-      away: countEvents(MatchEventType.CARD_RED, activeMatch.awayTeam.id),
+      home: dismissals(activeMatch.homeTeam.id),
+      away: dismissals(activeMatch.awayTeam.id),
     },
     offsides: {
       home: countEvents(MatchEventType.OFFSIDE, activeMatch.homeTeam.id),
       away: countEvents(MatchEventType.OFFSIDE, activeMatch.awayTeam.id),
     },
+    ...(possessions
+      ? { possession: { home: homePossession, away: 100 - homePossession } }
+      : {}),
   };
 }
 
 export const getStatRows = (stats: MatchStats, t: (key: string) => string) => [
+  ...(stats.possession
+    ? [{ label: t("possession"), ...stats.possession }]
+    : []),
   {
     label: t("eventTypes.goal"),
     home: stats.goals.home,
@@ -117,3 +148,6 @@ export const getStatRows = (stats: MatchStats, t: (key: string) => string) => [
     away: stats.offsides.away,
   },
 ];
+
+export const getStatShare = (value: number, opponentValue: number): number =>
+  value + opponentValue > 0 ? (value * 100) / (value + opponentValue) : 0;

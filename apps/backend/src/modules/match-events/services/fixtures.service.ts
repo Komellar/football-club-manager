@@ -15,9 +15,13 @@ import {
   MatchHistoryPage,
   MatchHistoryItem,
   simulateMatchday,
+  MatchSettingsSchema,
 } from '@repo/core';
 import { Fixture } from '@/shared/entities/fixture.entity';
 import { LineupService } from './lineup.service';
+import { MatchStatisticsProcessorService } from '../../statistics/services/match-statistics-processor.service';
+import { PlayerStatistics } from '@/shared/entities/player-statistics.entity';
+import { getCurrentSeason } from '@/shared/utils/season.helper';
 import { StadiumService } from '../../stadium/stadium.service';
 
 const editable = ['scheduled', 'interrupted'];
@@ -28,6 +32,7 @@ export class FixturesService implements OnModuleInit {
     @InjectRepository(Fixture) private readonly fixtures: Repository<Fixture>,
     private readonly lineups: LineupService,
     private readonly stadium: StadiumService,
+    private readonly statistics: MatchStatisticsProcessorService,
   ) {}
 
   async onModuleInit() {
@@ -111,6 +116,8 @@ export class FixturesService implements OnModuleInit {
           completedAt: null,
           ticketPrice: data.ticketPrice ?? null,
           matchday: null,
+          simulationSettings:
+            data.simulationSettings ?? MatchSettingsSchema.parse({}),
         }),
       ),
     );
@@ -183,19 +190,35 @@ export class FixturesService implements OnModuleInit {
   }
 
   async complete(id: string, state: MatchSimulationState): Promise<void> {
-    const updated = await this.fixtures.update(
-      { id, status: 'in_progress' },
-      { status: 'completed', result: state, completedAt: new Date() },
-    );
-    if (!updated.affected) {
-      const saved = await this.fixtures.findOneByOrFail({ id });
+    await this.fixtures.manager.transaction(async (manager) => {
+      const fixtures = manager.getRepository(Fixture);
+      const fixture = await fixtures.findOneOrFail({
+        where: { id },
+        lock: { mode: 'pessimistic_write' },
+      });
       if (
-        saved.status === 'completed' &&
-        saved.result?.matchId === state.matchId
+        fixture.status === 'completed' &&
+        fixture.result?.matchId === state.matchId
       )
         return;
-      throw new ConflictException('Fixture is no longer in progress');
-    }
+      if (fixture.status !== 'in_progress')
+        throw new ConflictException('Fixture is no longer in progress');
+
+      const statistics = manager.getRepository(PlayerStatistics);
+      const rows = this.statistics.calculateMatchStatistics(
+        state,
+        getCurrentSeason(new Date(state.startTime)),
+      );
+      await statistics.save(
+        rows.map((row) =>
+          statistics.create({ ...row, matchId: state.matchId }),
+        ),
+      );
+      fixture.status = 'completed';
+      fixture.result = state;
+      fixture.completedAt = new Date();
+      await fixtures.save(fixture);
+    });
   }
 
   private view(f: Fixture): FixtureDto {
@@ -210,6 +233,7 @@ export class FixturesService implements OnModuleInit {
       completedAt: f.completedAt?.toISOString() ?? null,
       ticketPrice: f.ticketPrice ?? null,
       matchday: f.matchday ?? null,
+      simulationSettings: f.simulationSettings ?? MatchSettingsSchema.parse({}),
     };
   }
 }

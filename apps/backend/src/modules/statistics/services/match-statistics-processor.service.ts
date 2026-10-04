@@ -1,190 +1,105 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { PlayerStatisticsService } from './player-statistics.service';
+import { Injectable } from '@nestjs/common';
 import {
   CreatePlayerStatisticsDto,
   MatchEvent,
   MatchEventType,
   MatchSimulationState,
   PlayerPosition,
+  getPlayerDismissalMinute,
 } from '@repo/core';
 
-/**
- * Statistics calculated from match events for a single player
- */
+/** Calculates rows without writing them; fixture completion owns the transaction. */
 @Injectable()
 export class MatchStatisticsProcessorService {
-  private readonly logger = new Logger(MatchStatisticsProcessorService.name);
-
-  constructor(
-    private readonly playerStatisticsService: PlayerStatisticsService,
-  ) {}
-
-  async processMatchEvents(
+  calculateMatchStatistics(
     matchState: MatchSimulationState,
     season: string,
-  ): Promise<void> {
-    try {
-      const myClubEvents = matchState.events.filter(
-        (event) => event.teamId === matchState.homeTeam.id,
-      );
-      const opponentClubEvents = matchState.events.filter(
-        (event) => event.teamId === matchState.awayTeam.id,
-      );
-
-      const playerEventMap = this.groupEventsByPlayer(myClubEvents);
-      const playerAssistMap = this.groupAssistsByPlayer(myClubEvents);
-
-      const allHomePlayerIds = new Set<number>(
-        matchState.homeTeam.players.map((player) => player.id),
-      );
-
-      // Create a map of player IDs to their positions from the match squad data
-      const playerPositionMap = new Map<number, PlayerPosition>(
-        matchState.homeTeam.players.map((p) => [p.id, p.position]),
-      );
-
-      const savesMade = this.countEventsByType(
-        opponentClubEvents,
-        MatchEventType.SHOT_ON_TARGET,
-      );
-
-      // Update statistics for each player
-      const updatePromises = Array.from(allHomePlayerIds).map((playerId) => {
-        const playerEvents = playerEventMap.get(playerId) || [];
-        const assists = playerAssistMap.get(playerId) || 0;
-        const playerPosition = playerPositionMap.get(playerId);
-        const isGoalkeeper = playerPosition === PlayerPosition.GOALKEEPER;
-
-        return this.updatePlayerStatistics(
-          playerId,
-          playerEvents,
-          assists,
-          isGoalkeeper ? matchState.score.away : 0,
-          isGoalkeeper ? savesMade : 0,
-          season,
-        );
-      });
-
-      await Promise.allSettled(updatePromises);
-    } catch (error) {
-      this.logger.error('Failed to process match events', error);
-      throw error;
-    }
-  }
-
-  private groupEventsByPlayer(events: MatchEvent[]): Map<number, MatchEvent[]> {
-    const playerEventMap = new Map<number, MatchEvent[]>();
-
-    for (const event of events) {
-      if (event.player?.id) {
-        const playerId = event.player.id;
-        if (!playerEventMap.has(playerId)) {
-          playerEventMap.set(playerId, []);
-        }
-        playerEventMap.get(playerId)!.push(event);
-      }
-    }
-
-    return playerEventMap;
-  }
-
-  private groupAssistsByPlayer(events: MatchEvent[]): Map<number, number> {
-    const assistMap = new Map<number, number>();
-
-    for (const event of events) {
-      if (event.type === MatchEventType.GOAL && event.relatedPlayer) {
-        const { id: assistId } = event.relatedPlayer;
-        assistMap.set(assistId, (assistMap.get(assistId) || 0) + 1);
-      }
-    }
-
-    return assistMap;
-  }
-
-  private async updatePlayerStatistics(
-    playerId: number,
-    events: MatchEvent[],
-    assists: number,
-    goalsConceded: number,
-    savesMade: number,
-    season: string,
-  ): Promise<void> {
-    const stats = this.calculateStatisticsFromEvents(
-      events,
-      assists,
-      goalsConceded,
-      savesMade,
+  ): CreatePlayerStatisticsDto[] {
+    const homeEvents = matchState.events.filter(
+      (event) => event.teamId === matchState.homeTeam.id,
+    );
+    const awayEvents = matchState.events.filter(
+      (event) => event.teamId === matchState.awayTeam.id,
     );
 
-    try {
-      await this.playerStatisticsService.create({
-        playerId,
+    return matchState.homeTeam.players.map((player) => {
+      const dismissalMinute = getPlayerDismissalMinute(
+        homeEvents,
+        matchState.homeTeam.id,
+        player.id,
+      );
+      const minutesPlayed = Math.min(
+        matchState.currentMinute,
+        dismissalMinute ?? matchState.currentMinute,
+      );
+      const playerEvents = homeEvents.filter(
+        (event) =>
+          event.player?.id === player.id && event.minute <= minutesPlayed,
+      );
+      const goalkeeperEvents = awayEvents.filter(
+        (event) =>
+          dismissalMinute === undefined || event.minute < dismissalMinute,
+      );
+      const isGoalkeeper = player.position === PlayerPosition.GOALKEEPER;
+      const keeperEvents = goalkeeperEvents.filter((event) =>
+        event.goalkeeper ? event.goalkeeper.id === player.id : isGoalkeeper,
+      );
+      const stats = {
+        minutesPlayed,
+        goals: this.countEvents(playerEvents, MatchEventType.GOAL),
+        assists: homeEvents.filter(
+          (event) =>
+            event.type === MatchEventType.GOAL &&
+            event.relatedPlayer?.id === player.id &&
+            event.player?.id !== player.id &&
+            event.minute <= minutesPlayed,
+        ).length,
+        yellowCards: Math.min(
+          2,
+          this.countEvents(playerEvents, MatchEventType.CARD_YELLOW),
+        ),
+        redCards: dismissalMinute === undefined ? 0 : 1,
+        savesMade: this.countEvents(
+          keeperEvents,
+          MatchEventType.SHOT_ON_TARGET,
+        ),
+        goalsConceded: this.countEvents(keeperEvents, MatchEventType.GOAL),
+        fouls: this.countEvents(playerEvents, MatchEventType.FOUL),
+        shotsOffTarget: this.countEvents(
+          playerEvents,
+          MatchEventType.SHOT_OFF_TARGET,
+        ),
+        shotsOnTarget:
+          this.countEvents(playerEvents, MatchEventType.SHOT_ON_TARGET) +
+          this.countEvents(playerEvents, MatchEventType.GOAL),
+      };
+      return {
+        playerId: player.id,
         season,
         ...stats,
-      });
-    } catch (error) {
-      this.logger.error(
-        `Failed to update statistics for player ${playerId}`,
-        error,
-      );
-    }
+        rating: this.calculateRating(stats),
+      };
+    });
   }
 
-  private calculateStatisticsFromEvents(
-    events: MatchEvent[],
-    assists: number,
-    goalsConceded: number,
-    savesMade: number,
-  ): Omit<CreatePlayerStatisticsDto, 'playerId' | 'season'> {
-    const stats = {
-      minutesPlayed: 90,
-      goals: this.countEventsByType(events, MatchEventType.GOAL),
-      assists,
-      savesMade,
-      goalsConceded,
-      fouls: this.countEventsByType(events, MatchEventType.FOUL),
-      yellowCards: this.countEventsByType(events, MatchEventType.CARD_YELLOW),
-      redCards:
-        this.countEventsByType(events, MatchEventType.CARD_YELLOW) === 2
-          ? 1
-          : this.countEventsByType(events, MatchEventType.CARD_RED),
-      shotsOffTarget: this.countEventsByType(
-        events,
-        MatchEventType.SHOT_OFF_TARGET,
-      ),
-      shotsOnTarget:
-        this.countEventsByType(events, MatchEventType.SHOT_ON_TARGET) +
-        this.countEventsByType(events, MatchEventType.GOAL),
-    };
-
-    return {
-      ...stats,
-      rating: this.calculateRating(stats),
-    };
-  }
-
-  private countEventsByType(
-    events: MatchEvent[],
-    eventType: MatchEventType,
-  ): number {
-    return events.filter((event) => event.type === eventType).length;
+  private countEvents(events: MatchEvent[], type: MatchEventType): number {
+    return events.filter((event) => event.type === type).length;
   }
 
   private calculateRating(
     stats: Omit<CreatePlayerStatisticsDto, 'playerId' | 'season'>,
   ): number {
-    let rating = 6.0; // Base rating
-    rating +=
-      stats.goals * 1.0 +
+    const rating =
+      6 +
+      stats.goals +
       stats.assists * 0.5 +
       stats.shotsOnTarget * 0.2 +
       stats.shotsOffTarget * 0.1 +
       stats.savesMade * 0.2 -
       stats.fouls * 0.1 -
       stats.yellowCards * 0.5 -
-      stats.redCards * 2.0 -
+      stats.redCards * 2 -
       stats.goalsConceded * 0.3;
-
-    return Math.min(Math.max(rating, 1.0), 10.0);
+    return Math.round(Math.min(Math.max(rating, 1), 10) * 10) / 10;
   }
 }
