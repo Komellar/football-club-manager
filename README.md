@@ -102,7 +102,13 @@ Open **Fixtures** to schedule a home match with an opponent, competition, and ki
 
 Completed matches appear in **Match History**, with opponent search, win/draw/loss filters, and a saved report containing the final score, starting XI, statistics, and event timeline. Reports keep the player names and positions recorded at kickoff. Completed fixtures cannot be edited or replayed.
 
-The simulator supports one match at a time on one backend process. Reconnecting browsers recover the current match state. If the server restarts during a match, its fixture becomes **Interrupted** and can be started again; completed results remain in PostgreSQL. Matches played before fixture persistence was added cannot be recovered from the old in-memory simulator.
+The simulator supports one match at a time on one backend process. Reconnecting browsers recover the current match state, or the saved final report if their match finished while disconnected. If the server restarts during a match, its fixture becomes **Interrupted** and can be started again; completed results remain in PostgreSQL. Matches played before fixture persistence was added cannot be recovered from the old in-memory simulator.
+
+Apply `LinkMatchPlayerStatistics1790899200000` before starting the updated backend. Completion saves the fixture result and all eleven starting players' statistics in one transaction, with one statistics row per match and player. Existing statistics remain available without a match link. A direct red or second yellow removes a player from later events and stops their recorded minutes at dismissal; opponents retain the same squad throughout the match.
+
+Apply `AddFixtureSimulationSettings1790899201000` for match setup. On the fixture, set each team's strength between 0.5 and 1.5 and select a defensive, balanced, or attacking approach. Player positions and the selected formation influence chances and possession. Plays link fouls, cards, shots, and penalty outcomes; the clock advances through explicit first-half, halftime, second-half, saving, and completed phases.
+
+Each new report records its simulation seed, engine version, teams, and settings. To check engine balancing without database writes, build shared schemas and run `pnpm --filter backend simulate:calibrate 5000 review`. Player performance now aggregates every appearance, and contract/transfer updates validate merged records and chronological transfer ownership. See [the review fixes and verification summary](docs/MATCH_SIMULATION_FIXES.md) for details and upgrade instructions.
 
 The `CreateFixtures1790553600000` migration creates the fixtures table. Run database migrations before starting an upgraded backend. Rebuild `@repo/core` after changing shared schemas (`pnpm --filter @repo/core build`).
 
