@@ -4,6 +4,11 @@
   "testEnvironment": "node",
   "testRegex": ".e2e-spec.ts$",
   "transform": {
-    "^.+\\.(t|j)s$": "ts-jest"
+    "^.+\\.ts$": "ts-jest"
+  },
+  "moduleNameMapper": {
+    "^@/shared/(.*)$": "<rootDir>/../src/shared/$1",
+    "^@/modules/(.*)$": "<rootDir>/../src/modules/$1",
+    "^@repo/core$": "<rootDir>/../../../packages/core/index.ts"
   }
 }

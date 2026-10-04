@@ -22,7 +22,7 @@ export default async function EditPlayerPage({
   let player;
   try {
     player = await getPlayerById(playerId);
-  } catch (error) {
+  } catch {
     notFound();
   }
 
