@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { Player } from './player.entity';
 import { TransferType, TransferStatus, TransferDirection } from '@repo/core';
+import { dateColumnTransformer } from '../utils/date-column.transformer';
 
 @Entity('transfers')
 export class Transfer {
@@ -33,7 +34,7 @@ export class Transfer {
     nullable: true,
     comment: 'The other club involved in the transfer (not the users club)',
   })
-  otherClubName?: string;
+  otherClubName?: string | null;
 
   @Column({
     type: 'enum',
@@ -59,7 +60,11 @@ export class Transfer {
   })
   transferStatus: TransferStatus;
 
-  @Column({ type: 'date', name: 'transfer_date' })
+  @Column({
+    type: 'date',
+    name: 'transfer_date',
+    transformer: dateColumnTransformer,
+  })
   transferDate: Date;
 
   @Column({
@@ -74,7 +79,7 @@ export class Transfer {
       from: (value: string | null) => (value ? parseFloat(value) : null),
     },
   })
-  transferFee?: number;
+  transferFee?: number | null;
 
   @Column({
     type: 'decimal',
@@ -88,16 +93,21 @@ export class Transfer {
       from: (value: string | null) => (value ? parseFloat(value) : null),
     },
   })
-  agentFee?: number;
+  agentFee?: number | null;
 
-  @Column({ type: 'date', nullable: true, name: 'loan_end_date' })
-  loanEndDate?: Date;
+  @Column({
+    type: 'date',
+    nullable: true,
+    name: 'loan_end_date',
+    transformer: dateColumnTransformer,
+  })
+  loanEndDate?: Date | null;
 
   @Column({ type: 'text', nullable: true })
-  notes?: string;
+  notes?: string | null;
 
   @Column({ type: 'varchar', length: 100, nullable: true, name: 'created_by' })
-  createdBy?: string;
+  createdBy?: string | null;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
@@ -113,8 +123,12 @@ export class Transfer {
     if (this.transferType !== TransferType.LOAN) return false;
     if (!this.loanEndDate) return false;
 
-    const now = new Date();
-    return now <= this.loanEndDate && this.isCompleted;
+    const today = new Date().toISOString().slice(0, 10);
+    return (
+      this.isCompleted &&
+      today >= new Date(this.transferDate).toISOString().slice(0, 10) &&
+      today <= new Date(this.loanEndDate).toISOString().slice(0, 10)
+    );
   }
 
   get transferDurationDays(): number | null {

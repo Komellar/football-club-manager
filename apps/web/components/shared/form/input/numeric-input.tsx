@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import {
   NumberFormatValues,
   NumericFormat,
@@ -38,19 +37,17 @@ const NumericInput = ({
       fixedDecimalScale={true}
       className={cn(className)}
       onValueChange={(values: NumberFormatValues) => {
-        isNaN(Number(values.floatValue))
-          ? onValueChange?.(null)
-          : onValueChange?.(Number(values.floatValue));
+        onValueChange?.(values.floatValue ?? null);
       }}
       {...props}
       onChange={undefined}
       isAllowed={(values) => {
         const { floatValue } = values;
 
-        if (floatValue) {
+        if (floatValue !== undefined) {
           return (
-            (!min || floatValue >= Number(min)) &&
-            (!max || floatValue <= Number(max))
+            (min == null || floatValue >= Number(min)) &&
+            (max == null || floatValue <= Number(max))
           );
         }
 

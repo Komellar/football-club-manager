@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Contract } from '@/shared/entities/contract.entity';
@@ -10,6 +10,7 @@ import {
   ContractResponseDto,
   FilterMode,
   type FilterOptions,
+  CreateContractSchema,
 } from '@repo/core';
 import { ListQueryBuilder } from '@/shared/query/list-query-builder';
 
@@ -21,7 +22,9 @@ export class ContractsService {
   ) {}
 
   async create(createContractDto: CreateContractDto): Promise<Contract> {
-    const contract = this.contractRepository.create(createContractDto);
+    const parsed = CreateContractSchema.safeParse(createContractDto);
+    if (!parsed.success) throw new BadRequestException(parsed.error.issues);
+    const contract = this.contractRepository.create(parsed.data);
     return await this.contractRepository.save(contract);
   }
 
@@ -64,20 +67,29 @@ export class ContractsService {
     id: number,
     updateContractDto: UpdateContractDto,
   ): Promise<Contract> {
-    const existingContract = await this.findOne(id);
-
-    if (updateContractDto.playerId !== existingContract.playerId) {
-      throw new NotFoundException(
-        'Cannot change the player associated with the contract',
+    await this.contractRepository.manager.transaction(async (manager) => {
+      const repository = manager.getRepository(Contract);
+      const contract = await repository.findOneOrFail({
+        where: { id },
+        lock: { mode: 'pessimistic_write' },
+      });
+      if (
+        updateContractDto.playerId !== undefined &&
+        updateContractDto.playerId !== contract.playerId
+      ) {
+        throw new BadRequestException(
+          'Cannot change the player associated with the contract',
+        );
+      }
+      const fields = Object.fromEntries(
+        Object.entries(updateContractDto).filter(
+          ([, value]) => value !== undefined,
+        ),
       );
-    }
-
-    const updatedContract = {
-      ...updateContractDto,
-      id,
-    };
-
-    await this.contractRepository.save(updatedContract);
+      const parsed = CreateContractSchema.safeParse({ ...contract, ...fields });
+      if (!parsed.success) throw new BadRequestException(parsed.error.issues);
+      await repository.save(Object.assign(contract, parsed.data));
+    });
     return await this.contractRepository.findOneOrFail({
       where: { id },
       relations: ['player'],

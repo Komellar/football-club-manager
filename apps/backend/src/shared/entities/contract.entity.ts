@@ -11,6 +11,7 @@ import {
 } from 'typeorm';
 import { ContractStatus, ContractType } from '@repo/core';
 import { Player } from './player.entity';
+import { dateColumnTransformer } from '../utils/date-column.transformer';
 
 @Entity('contracts')
 export class Contract {
@@ -35,10 +36,18 @@ export class Contract {
   })
   status: ContractStatus;
 
-  @Column({ type: 'date', name: 'start_date' })
+  @Column({
+    type: 'date',
+    name: 'start_date',
+    transformer: dateColumnTransformer,
+  })
   startDate: Date;
 
-  @Column({ type: 'date', name: 'end_date' })
+  @Column({
+    type: 'date',
+    name: 'end_date',
+    transformer: dateColumnTransformer,
+  })
   endDate: Date;
 
   @Column({

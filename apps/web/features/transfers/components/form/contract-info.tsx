@@ -55,7 +55,7 @@ export function ContractInfo() {
                     variant={"outline"}
                     className={cn(
                       "w-full pl-3 text-left font-normal",
-                      !field.value && "text-muted-foreground"
+                      !field.value && "text-muted-foreground",
                     )}
                   >
                     {field.value ? (
@@ -72,7 +72,7 @@ export function ContractInfo() {
                   mode="single"
                   selected={field.value ? new Date(field.value) : undefined}
                   onSelect={field.onChange}
-                  defaultMonth={field.value}
+                  defaultMonth={field.value ?? undefined}
                   captionLayout="dropdown"
                   endMonth={loanMaxEndDate}
                   startMonth={new Date("2020-01")}

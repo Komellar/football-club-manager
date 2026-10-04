@@ -13,7 +13,7 @@ export class ContractExpiryService {
 
   async findExpiringContracts(days: number): Promise<Contract[]> {
     const futureDate = new Date();
-    futureDate.setDate(futureDate.getDate() + days);
+    futureDate.setUTCDate(futureDate.getUTCDate() + days);
 
     return await this.contractRepository
       .createQueryBuilder('contract')
@@ -29,13 +29,13 @@ export class ContractExpiryService {
 
   async getRecentlyExpiredContracts(days: number): Promise<Contract[]> {
     const pastDate = new Date();
-    pastDate.setDate(pastDate.getDate() - days);
+    pastDate.setUTCDate(pastDate.getUTCDate() - days);
 
     return await this.contractRepository
       .createQueryBuilder('contract')
       .leftJoinAndSelect('contract.player', 'player')
       .where('contract.status = :status', {
-        status: ContractStatus.TERMINATED,
+        status: ContractStatus.EXPIRED,
       })
       .andWhere('contract.endDate BETWEEN :pastDate AND :currentDate', {
         pastDate,

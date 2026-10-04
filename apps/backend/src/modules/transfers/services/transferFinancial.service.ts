@@ -38,7 +38,6 @@ export class TransferFinancialService {
       const agentFee = Number(transfer.agentFee || 0);
 
       if (transfer.transferDirection === TransferDirection.OUTGOING) {
-        console.log('outgoing transfer fee:', fee);
         transferIncome += fee;
       } else if (transfer.transferDirection === TransferDirection.INCOMING) {
         transferExpenses += fee;

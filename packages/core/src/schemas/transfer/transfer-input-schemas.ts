@@ -13,6 +13,7 @@ export const CreateTransferSchema = z.object({
     .trim()
     .min(3, "Other club name is required")
     .max(100, "Other club name must be less than 100 characters")
+    .nullable()
     .optional(),
 
   transferDirection: z.enum(TransferDirection),
@@ -25,25 +26,28 @@ export const CreateTransferSchema = z.object({
 
   transferFee: z
     .number()
-    .positive("Transfer fee must be positive")
+    .min(0, "Transfer fee cannot be negative")
     .max(500000000, "Transfer fee cannot exceed 500 million")
+    .nullable()
     .optional(),
 
   agentFee: z
     .number()
-    .positive("Agent fee must be positive")
+    .min(0, "Agent fee cannot be negative")
     .max(50000000, "Agent fee cannot exceed 50 million")
+    .nullable()
     .optional(),
 
-  loanEndDate: z.coerce.date<Date>("Invalid date").optional(),
+  loanEndDate: z.coerce.date<Date>("Invalid date").nullable().optional(),
 
   notes: z
     .string()
     .trim()
     .max(1000, "Notes must be less than 1000 characters")
+    .nullable()
     .optional(),
 
-  createdBy: z.string().trim().optional(),
+  createdBy: z.string().trim().nullable().optional(),
 });
 
 export const CreateTransferValidationSchema = CreateTransferSchema.superRefine(
@@ -61,6 +65,14 @@ export const CreateTransferValidationSchema = CreateTransferSchema.superRefine(
       ctx.addIssue({
         code: "custom",
         message: "Only loan transfers can have an end date",
+        path: ["loanEndDate"],
+      });
+    }
+
+    if (data.loanEndDate && data.loanEndDate <= data.transferDate) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Loan end date must be after the transfer date",
         path: ["loanEndDate"],
       });
     }
@@ -116,7 +128,20 @@ export const CreateTransferValidationSchema = CreateTransferSchema.superRefine(
         path: ["transferDirection"],
       });
     }
-  });
+    if (
+      [TransferType.RELEASE, TransferType.RETIREMENT].includes(
+        data.transferType,
+      ) &&
+      data.transferDirection !== TransferDirection.OUTGOING
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Releases and retirements must be outgoing transfers",
+        path: ["transferDirection"],
+      });
+    }
+  },
+);
 
 export const UpdateTransferSchema = CreateTransferSchema.partial().omit({
   playerId: true,

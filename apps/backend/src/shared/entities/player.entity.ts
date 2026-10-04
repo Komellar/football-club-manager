@@ -12,6 +12,7 @@ import { PlayerPosition } from '@repo/core';
 import { Transfer } from './transfer.entity';
 import { Contract } from './contract.entity';
 import { PlayerStatistics } from './player-statistics.entity';
+import { dateColumnTransformer } from '../utils/date-column.transformer';
 
 @Entity('players')
 export class Player {
@@ -28,7 +29,11 @@ export class Player {
   })
   position: PlayerPosition;
 
-  @Column({ type: 'date', name: 'date_of_birth' })
+  @Column({
+    type: 'date',
+    name: 'date_of_birth',
+    transformer: dateColumnTransformer,
+  })
   dateOfBirth: Date;
 
   @Column({ type: 'varchar', length: 50 })

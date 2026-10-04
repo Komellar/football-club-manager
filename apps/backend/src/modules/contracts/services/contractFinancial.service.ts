@@ -79,7 +79,7 @@ export class ContractFinancialService {
 
   private async findExpiringContracts(days: number): Promise<Contract[]> {
     const futureDate = new Date();
-    futureDate.setDate(futureDate.getDate() + days);
+    futureDate.setUTCDate(futureDate.getUTCDate() + days);
 
     return await this.contractRepository
       .createQueryBuilder('contract')
@@ -202,12 +202,12 @@ export class ContractFinancialService {
 
     if (end <= start) return 0;
 
-    const yearsDiff = end.getFullYear() - start.getFullYear();
-    const monthsDiff = end.getMonth() - start.getMonth();
+    const yearsDiff = end.getUTCFullYear() - start.getUTCFullYear();
+    const monthsDiff = end.getUTCMonth() - start.getUTCMonth();
     const baseMonths = yearsDiff * 12 + monthsDiff;
 
     // If there are any days beyond the start day, count as an additional month
-    if (end.getDate() > start.getDate()) {
+    if (end.getUTCDate() > start.getUTCDate()) {
       return baseMonths + 1;
     }
 
@@ -235,22 +235,23 @@ export class ContractFinancialService {
     let totalContractAgentFees = 0;
 
     for (const contract of contracts) {
+      const contractStart = new Date(contract.startDate);
+      const contractEnd = new Date(contract.endDate);
       const overlapStart =
-        contract.startDate > startDate ? contract.startDate : startDate;
-      const overlapEnd =
-        contract.endDate < endDate ? contract.endDate : endDate;
+        contractStart > startDate ? contractStart : startDate;
+      const overlapEnd = contractEnd < endDate ? contractEnd : endDate;
 
       if (overlapStart <= overlapEnd) {
         const months =
-          (overlapEnd.getFullYear() - overlapStart.getFullYear()) * 12 +
-          (overlapEnd.getMonth() - overlapStart.getMonth()) +
-          (overlapEnd.getDate() - overlapStart.getDate() >= 0 ? 1 : 0);
+          (overlapEnd.getUTCFullYear() - overlapStart.getUTCFullYear()) * 12 +
+          (overlapEnd.getUTCMonth() - overlapStart.getUTCMonth()) +
+          (overlapEnd.getUTCDate() - overlapStart.getUTCDate() >= 0 ? 1 : 0);
 
         const duration = Math.max(0, months);
         totalWages += contract.salary * duration;
       }
 
-      if (contract.startDate >= startDate && contract.startDate <= endDate) {
+      if (contractStart >= startDate && contractStart <= endDate) {
         totalSignOnFees += Number(contract.signOnFee || 0);
         totalContractAgentFees += Number(contract.agentFee || 0);
       }

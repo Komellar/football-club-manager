@@ -5,10 +5,9 @@ import { Transfer } from '@/shared/entities/transfer.entity';
 import { Player } from '@/shared/entities/player.entity';
 import {
   TransferStatus,
-  TransferType,
-  TransferDirection,
   FilterMode,
   SortOrder,
+  CreateTransferValidationSchema,
 } from '@repo/core';
 import type {
   CreateTransferDto,
@@ -20,6 +19,7 @@ import type {
   FilterOptions,
 } from '@repo/core';
 import { ListQueryBuilder } from '@/shared/query/list-query-builder';
+import { getTransferOwnership } from './transfer-lifecycle';
 
 @Injectable()
 export class TransfersService {
@@ -33,35 +33,18 @@ export class TransfersService {
   async create(
     createTransferDto: CreateTransferDto,
   ): Promise<TransferResponseDto> {
-    // This will throw EntityNotFoundError if player doesn't exist
-    await this.playerRepository.findOneOrFail({
-      where: { id: createTransferDto.playerId },
-    });
-
-    // Check for conflicting active transfers
-    if (createTransferDto.transferStatus === TransferStatus.COMPLETED) {
-      const activeTransfer = await this.transferRepository.findOne({
-        where: {
-          playerId: createTransferDto.playerId,
-          transferStatus: TransferStatus.COMPLETED,
-        },
-        order: { transferDate: SortOrder.DESC },
+    const data = this.validate(createTransferDto);
+    return this.transferRepository.manager.transaction(async (manager) => {
+      await manager.getRepository(Player).findOneOrFail({
+        where: { id: data.playerId },
+        lock: { mode: 'pessimistic_write' },
       });
-
-      if (
-        activeTransfer &&
-        createTransferDto.transferType !== TransferType.LOAN_RETURN
-      ) {
-        throw new BadRequestException(
-          'Player already has an active transfer. Complete or cancel the existing transfer first.',
-        );
-      }
-    }
-
-    const transfer = this.transferRepository.create(createTransferDto);
-    const savedTransfer = await this.transferRepository.save(transfer);
-
-    return this.mapToResponseDto(savedTransfer);
+      const repository = manager.getRepository(Transfer);
+      await this.validateLifecycle(repository, data);
+      return this.mapToResponseDto(
+        await repository.save(repository.create(data)),
+      );
+    });
   }
 
   async findAll(
@@ -110,22 +93,11 @@ export class TransfersService {
       order: { transferDate: SortOrder.DESC },
     });
 
-    const currentTransfer = transfers.find(
-      (t) =>
-        t.transferStatus === TransferStatus.COMPLETED &&
-        (t.transferType !== TransferType.LOAN || t.isActiveLoan),
-    );
-
     const careerTransfersValue = transfers
-      .filter((t) => t.transferFee)
+      .filter((t) => t.isCompleted && t.transferFee)
       .reduce((sum, t) => sum + (t.transferFee || 0), 0);
 
-    // Get current club based on the most recent transfer direction
-    const currentClub = currentTransfer
-      ? currentTransfer.transferDirection === TransferDirection.INCOMING
-        ? 'My Club'
-        : currentTransfer.otherClubName || 'Free Agent'
-      : undefined;
+    const { currentClub } = getTransferOwnership(transfers, new Date());
 
     return {
       playerId,
@@ -141,35 +113,69 @@ export class TransfersService {
     id: number,
     updateTransferDto: UpdateTransferDto,
   ): Promise<TransferResponseDto> {
-    const transfer = await this.transferRepository.findOneOrFail({
+    const existing = await this.transferRepository.findOneOrFail({
       where: { id },
     });
-
-    if (
-      transfer.transferStatus === TransferStatus.COMPLETED &&
-      updateTransferDto.transferStatus !== TransferStatus.COMPLETED
-    ) {
-      throw new BadRequestException(
-        'Cannot change status of completed transfer',
+    return this.transferRepository.manager.transaction(async (manager) => {
+      await manager.getRepository(Player).findOneOrFail({
+        where: { id: existing.playerId },
+        lock: { mode: 'pessimistic_write' },
+      });
+      const repository = manager.getRepository(Transfer);
+      const transfer = await repository.findOneOrFail({
+        where: { id },
+        lock: { mode: 'pessimistic_write' },
+      });
+      if (
+        transfer.isCompleted &&
+        updateTransferDto.transferStatus !== undefined &&
+        updateTransferDto.transferStatus !== TransferStatus.COMPLETED
+      ) {
+        throw new BadRequestException(
+          'Cannot change status of completed transfer',
+        );
+      }
+      const fields = Object.fromEntries(
+        Object.entries(updateTransferDto).filter(
+          ([, value]) => value !== undefined,
+        ),
       );
-    }
-
-    Object.assign(transfer, updateTransferDto);
-    const updatedTransfer = await this.transferRepository.save(transfer);
-
-    return this.mapToResponseDto(updatedTransfer);
+      const data = this.validate({ ...transfer, ...fields });
+      const lifecycleFields = [
+        'transferType',
+        'transferDirection',
+        'transferDate',
+        'loanEndDate',
+        'otherClubName',
+        'transferStatus',
+      ];
+      if (lifecycleFields.some((field) => Object.hasOwn(fields, field)))
+        await this.validateLifecycle(repository, data, id);
+      return this.mapToResponseDto(
+        await repository.save(Object.assign(transfer, data)),
+      );
+    });
   }
 
   async remove(id: number): Promise<void> {
-    const transfer = await this.transferRepository.findOneOrFail({
+    const existing = await this.transferRepository.findOneOrFail({
       where: { id },
     });
-
-    if (transfer.transferStatus === TransferStatus.COMPLETED) {
-      throw new BadRequestException('Cannot delete completed transfers');
-    }
-
-    await this.transferRepository.remove(transfer);
+    await this.transferRepository.manager.transaction(async (manager) => {
+      await manager.getRepository(Player).findOneOrFail({
+        where: { id: existing.playerId },
+        lock: { mode: 'pessimistic_write' },
+      });
+      const repository = manager.getRepository(Transfer);
+      const transfer = await repository.findOneOrFail({
+        where: { id },
+        lock: { mode: 'pessimistic_write' },
+      });
+      if (transfer.isCompleted) {
+        throw new BadRequestException('Cannot delete completed transfers');
+      }
+      await repository.remove(transfer);
+    });
   }
 
   private mapToResponseDto(transfer: Transfer): TransferResponseDto {
@@ -213,21 +219,51 @@ export class TransfersService {
             age: player.age,
           }
         : undefined,
-      otherClubName,
+      otherClubName: otherClubName ?? undefined,
       transferDirection,
       transferType,
       transferStatus,
       transferDate,
-      transferFee,
-      agentFee,
-      loanEndDate,
-      notes,
-      createdBy,
+      transferFee: transferFee ?? undefined,
+      agentFee: agentFee ?? undefined,
+      loanEndDate: loanEndDate ?? undefined,
+      notes: notes ?? undefined,
+      createdBy: createdBy ?? undefined,
       createdAt,
       updatedAt,
       isCompleted: transfer.isCompleted,
       isActiveLoan: transfer.isActiveLoan,
       transferDurationDays: transfer.transferDurationDays ?? undefined,
     };
+  }
+
+  private validate(data: unknown): CreateTransferDto {
+    const parsed = CreateTransferValidationSchema.safeParse(data);
+    if (!parsed.success) throw new BadRequestException(parsed.error.issues);
+    return parsed.data;
+  }
+
+  private async validateLifecycle(
+    repository: Repository<Transfer>,
+    data: CreateTransferDto,
+    id?: number,
+  ) {
+    if (data.transferStatus !== TransferStatus.COMPLETED) return;
+    const history = await repository.find({
+      where: {
+        playerId: data.playerId,
+        transferStatus: TransferStatus.COMPLETED,
+      },
+    });
+    try {
+      getTransferOwnership([
+        ...history.filter((transfer) => transfer.id !== id),
+        { ...data, id },
+      ]);
+    } catch (error) {
+      throw new BadRequestException(
+        error instanceof Error ? error.message : 'Invalid transfer lifecycle',
+      );
+    }
   }
 }

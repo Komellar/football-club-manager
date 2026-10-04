@@ -117,6 +117,7 @@ describe('TransfersService', () => {
       findAndCount: jest.fn(),
       remove: jest.fn(),
       createQueryBuilder: jest.fn().mockReturnValue(queryBuilder),
+      manager: { transaction: jest.fn() },
     };
 
     const mockPlayerRepository = {
@@ -124,6 +125,14 @@ describe('TransfersService', () => {
       findOneOrFail: jest.fn(),
       exists: jest.fn(),
     };
+    mockTransferRepository.find.mockResolvedValue([]);
+    mockTransferRepository.manager.transaction.mockImplementation(
+      async (callback: (manager: unknown) => unknown) =>
+        await callback({
+          getRepository: (entity: unknown) =>
+            entity === Player ? mockPlayerRepository : mockTransferRepository,
+        }),
+    );
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -155,6 +164,7 @@ describe('TransfersService', () => {
 
       expect(playerRepository.findOneOrFail).toHaveBeenCalledWith({
         where: { id: mockCreateTransferDto.playerId },
+        lock: { mode: 'pessimistic_write' },
       });
       expect(transferRepository.create).toHaveBeenCalledWith(
         mockCreateTransferDto,
@@ -181,6 +191,7 @@ describe('TransfersService', () => {
 
       expect(playerRepository.findOneOrFail).toHaveBeenCalledWith({
         where: { id: mockCreateTransferDto.playerId },
+        lock: { mode: 'pessimistic_write' },
       });
       expect(transferRepository.create).not.toHaveBeenCalled();
     });
@@ -193,12 +204,10 @@ describe('TransfersService', () => {
       };
 
       playerRepository.exists.mockResolvedValue(true);
-      transferRepository.findOne.mockResolvedValue(mockTransfer); // Active transfer exists
+      transferRepository.find.mockResolvedValue([mockTransfer]);
 
       await expect(service.create(completedTransferDto)).rejects.toThrow(
-        new BadRequestException(
-          'Player already has an active transfer. Complete or cancel the existing transfer first.',
-        ),
+        new BadRequestException('Player is already at My Club'),
       );
     });
 
@@ -213,7 +222,14 @@ describe('TransfersService', () => {
       });
 
       playerRepository.exists.mockResolvedValue(true);
-      transferRepository.findOne.mockResolvedValue(mockTransfer); // Active transfer exists
+      transferRepository.find.mockResolvedValue([
+        createMockTransfer({
+          transferType: TransferType.LOAN,
+          transferDirection: TransferDirection.OUTGOING,
+          transferDate: new Date('2024-01-01'),
+          loanEndDate: new Date('2024-06-30'),
+        }),
+      ]);
       transferRepository.create.mockReturnValue(loanReturnTransfer);
       transferRepository.save.mockResolvedValue(loanReturnTransfer);
 
@@ -435,6 +451,35 @@ describe('TransfersService', () => {
   });
 
   describe('update', () => {
+    it('accepts notes-only updates to a completed transfer without rechecking historical ownership', async () => {
+      const transfer = createMockTransfer();
+      transferRepository.findOneOrFail.mockResolvedValue(transfer);
+      transferRepository.save.mockImplementation((value) =>
+        Promise.resolve(value as Transfer),
+      );
+      const result = await service.update(1, { notes: 'Corrected note' });
+      expect(result.notes).toBe('Corrected note');
+      expect(result.transferStatus).toBe(TransferStatus.COMPLETED);
+      expect(transferRepository.find).not.toHaveBeenCalled();
+    });
+    it('rejects merged loan dates and incompatible directions before saving', async () => {
+      transferRepository.findOneOrFail.mockResolvedValue(
+        createMockTransfer({ transferStatus: TransferStatus.PENDING }),
+      );
+      await expect(
+        service.update(1, { transferType: TransferType.LOAN }),
+      ).rejects.toThrow(BadRequestException);
+      await expect(
+        service.update(1, { transferType: TransferType.SALE }),
+      ).rejects.toThrow(BadRequestException);
+      await expect(
+        service.update(1, {
+          transferType: TransferType.LOAN,
+          loanEndDate: new Date('2023-01-01'),
+        }),
+      ).rejects.toThrow(BadRequestException);
+      expect(transferRepository.save).not.toHaveBeenCalled();
+    });
     const updateTransferDto: UpdateTransferDto = {
       otherClubName: 'Manchester United',
       transferFee: 75000000,
@@ -524,6 +569,21 @@ describe('TransfersService', () => {
   });
 
   describe('remove', () => {
+    it('checks completion again after obtaining the locks', async () => {
+      transferRepository.findOneOrFail
+        .mockResolvedValueOnce(
+          createMockTransfer({ transferStatus: TransferStatus.PENDING }),
+        )
+        .mockResolvedValueOnce(createMockTransfer());
+      await expect(service.remove(1)).rejects.toThrow(
+        'Cannot delete completed transfers',
+      );
+      expect(transferRepository.remove).not.toHaveBeenCalled();
+      expect(playerRepository.findOneOrFail).toHaveBeenCalledWith({
+        where: { id: 1 },
+        lock: { mode: 'pessimistic_write' },
+      });
+    });
     it('should successfully remove a pending transfer', async () => {
       const pendingTransfer = createMockTransfer({
         transferStatus: TransferStatus.PENDING,

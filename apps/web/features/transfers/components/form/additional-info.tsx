@@ -32,6 +32,7 @@ export function AdditionalInfo() {
                 placeholder={t("placeholders.enterNotes")}
                 className="min-h-[100px]"
                 {...field}
+                value={field.value ?? ""}
               />
             </FormControl>
             <FormDescription>{t("descriptions.notes")}</FormDescription>
