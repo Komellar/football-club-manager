@@ -1,18 +1,16 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PlayerStatisticsResponseDto } from "@repo/core";
+import type { PlayerPerformanceSummary } from "@repo/core";
 import { getTranslations } from "next-intl/server";
 import { getSummaryCards } from "../../../utils";
 
 interface StatsSummaryCardsProps {
-  statistics: PlayerStatisticsResponseDto[];
+  summary: PlayerPerformanceSummary;
 }
 
-export async function StatsSummaryCards({
-  statistics,
-}: StatsSummaryCardsProps) {
+export async function StatsSummaryCards({ summary }: StatsSummaryCardsProps) {
   const t = await getTranslations("Players.performanceTab.statsSummaryCards");
 
-  const summaryCards = getSummaryCards(statistics, t);
+  const summaryCards = getSummaryCards(summary, t);
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

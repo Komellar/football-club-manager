@@ -1,145 +1,64 @@
-import { PlayerPosition, PlayerStatisticsResponseDto } from "@repo/core";
-import { PureStats } from "../types/stats";
-
-function getStatsSummaryData(statistics: PlayerStatisticsResponseDto[]) {
-  const totalStats = statistics.reduce(
-    (acc, stat) => ({
-      minutesPlayed: acc.minutesPlayed + stat.minutesPlayed,
-      goals: acc.goals + stat.goals,
-      assists: acc.assists + stat.assists,
-    }),
-    {
-      minutesPlayed: 0,
-      goals: 0,
-      assists: 0,
-    }
-  );
-
-  const seasonsCount = new Set(statistics.map((stat) => stat.season)).size;
-
-  const avgRating =
-    statistics.filter((s) => s.rating).length > 0
-      ? statistics.reduce((sum, s) => sum + (s.rating || 0), 0) /
-        statistics.filter((s) => s.rating).length
-      : null;
-
-  return { totalStats, seasonsCount, avgRating };
-}
+import { PlayerPosition } from "@repo/core";
+import type {
+  PlayerPerformanceSummary,
+  PlayerSeasonStatistics,
+} from "@repo/core";
+import type { PureStats } from "../types/stats";
 
 export function getSummaryCards(
-  statistics: PlayerStatisticsResponseDto[],
-  t: (key: string, params?: Record<string, any>) => string
+  summary: PlayerPerformanceSummary,
+  t: (key: string, params?: Record<string, string | number>) => string,
 ) {
-  const { totalStats, seasonsCount, avgRating } =
-    getStatsSummaryData(statistics);
-
+  const totals = summary.totals;
   return [
     {
       title: t("totalAppearances"),
-      value: statistics.length,
-      description: t("acrossSeasons", { count: seasonsCount }),
+      value: totals.appearances,
+      description: t("acrossSeasons", { count: summary.seasons.length }),
     },
     {
       title: t("totalGoals"),
-      value: totalStats.goals,
+      value: totals.goals,
       description: t("inMinutes", {
-        minutes: totalStats.minutesPlayed.toLocaleString(),
+        minutes: totals.minutesPlayed.toLocaleString(),
       }),
     },
-    {
-      title: t("totalAssists"),
-      value: totalStats.assists,
-    },
-    {
-      title: t("averageRating"),
-      value: avgRating ? avgRating.toFixed(1) : "-",
-    },
+    { title: t("totalAssists"), value: totals.assists },
+    { title: t("averageRating"), value: totals.rating?.toFixed(1) ?? "-" },
   ];
 }
 
-export const groupStatisticsBySeason = (
-  statistics: PlayerStatisticsResponseDto[]
-): Record<string, PlayerStatisticsResponseDto[]> => {
-  return statistics.reduce<Record<string, PlayerStatisticsResponseDto[]>>(
-    (acc, stat) => {
-      if (!acc[stat.season]) {
-        acc[stat.season] = [];
-      }
-      acc[stat.season]!.push(stat);
-      return acc;
-    },
-    {}
-  );
-};
-
 export const getGoalsAndAssistsBySeason = (
-  statisticsBySeason: Record<string, PlayerStatisticsResponseDto[]>
-) => {
-  return Object.entries(statisticsBySeason)
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([season, stats]) => {
-      const totalGoals = stats.reduce((sum, s) => sum + s.goals, 0);
-      const totalAssists = stats.reduce((sum, s) => sum + s.assists, 0);
-      return {
-        season,
-        goals: totalGoals,
-        assists: totalAssists,
-      };
-    });
-};
+  statistics: PlayerSeasonStatistics[],
+) =>
+  [...statistics]
+    .sort((a, b) => a.season.localeCompare(b.season))
+    .map(({ season, goals, assists }) => ({ season, goals, assists }));
 
 export const getPerformanceRatingsBySeason = (
-  statisticsBySeason: Record<string, PlayerStatisticsResponseDto[]>
-) => {
-  return Object.entries(statisticsBySeason)
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([season, stats]) => {
-      const averageRatingRaw =
-        stats.reduce((sum, s) => sum + (s.rating || 0), 0) / stats.length;
-      const averageRating = Number(averageRatingRaw.toFixed(1));
-
-      return {
-        season,
-        rating: averageRating,
-      };
-    });
-};
+  statistics: PlayerSeasonStatistics[],
+) =>
+  [...statistics]
+    .sort((a, b) => a.season.localeCompare(b.season))
+    .map(({ season, rating }) => ({
+      season,
+      rating: rating === null ? null : Number(rating.toFixed(1)),
+    }));
 
 export const getTotalStatsBySeason = (
-  statisticsBySeason: Record<string, PlayerStatisticsResponseDto[]>
-): PureStats[] => {
-  return Object.entries(statisticsBySeason)
-    .sort(([a], [b]) => b.localeCompare(a))
-    .map(([season, stats]) => {
-      const calculatedStats = {
-        season,
-        minutesPlayed: stats.reduce((sum, s) => sum + s.minutesPlayed, 0),
-        goals: stats.reduce((sum, s) => sum + s.goals, 0),
-        assists: stats.reduce((sum, s) => sum + s.assists, 0),
-        yellowCards: stats.reduce((sum, s) => sum + s.yellowCards, 0),
-        redCards: stats.reduce((sum, s) => sum + s.redCards, 0),
-        fouls: stats.reduce((sum, s) => sum + s.fouls, 0),
-        shotsOnTarget: stats.reduce((sum, s) => sum + s.shotsOnTarget, 0),
-        shotsOffTarget: stats.reduce((sum, s) => sum + s.shotsOffTarget, 0),
-        savesMade: stats.reduce((sum, s) => sum + s.savesMade, 0),
-        goalsConceded: stats.reduce((sum, s) => sum + s.goalsConceded, 0),
-        rating: Number(
-          (
-            stats.reduce((sum, s) => sum + (s.rating || 0), 0) / stats.length
-          ).toFixed(1)
-        ),
-      };
-
-      return {
-        ...calculatedStats,
-      };
-    });
-};
+  statistics: PlayerSeasonStatistics[],
+): PureStats[] =>
+  [...statistics]
+    .sort((a, b) => b.season.localeCompare(a.season))
+    .map((stat) => ({
+      ...stat,
+      rating: stat.rating === null ? null : Number(stat.rating.toFixed(1)),
+    }));
 
 export const getSeasonStatsColumns = (
-  position: PlayerPosition
-): Partial<keyof PureStats>[] => {
-  return position === PlayerPosition.GOALKEEPER
+  position: PlayerPosition,
+): (keyof PureStats)[] =>
+  position === PlayerPosition.GOALKEEPER
     ? [
         "season",
         "minutesPlayed",
@@ -163,4 +82,3 @@ export const getSeasonStatsColumns = (
         "fouls",
         "rating",
       ];
-};

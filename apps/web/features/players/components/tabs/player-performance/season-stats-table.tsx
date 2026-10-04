@@ -7,13 +7,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PlayerPosition, PlayerStatisticsResponseDto } from "@repo/core";
+import { PlayerPosition, type PlayerSeasonStatistics } from "@repo/core";
 import { getSeasonStatsColumns, getTotalStatsBySeason } from "../../../utils";
 import { getTranslations } from "next-intl/server";
 import { cn } from "@/lib/utils";
 
 interface SeasonStatsTableProps {
-  statistics: Record<string, PlayerStatisticsResponseDto[]>;
+  statistics: PlayerSeasonStatistics[];
   position: PlayerPosition;
 }
 

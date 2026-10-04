@@ -4,13 +4,23 @@ import type {
   PlayerStatisticsResponseDto,
   PlayerStatisticsQueryDto,
   PaginationResult,
+  PlayerPerformanceSummary,
 } from "@repo/core";
 
 const BASE_URL = "/statistics";
 
+export async function getPlayerPerformanceSummary(
+  playerId: number,
+): Promise<PlayerPerformanceSummary> {
+  const { data } = await apiClient.get<PlayerPerformanceSummary>(
+    `${BASE_URL}/player/${playerId}/summary`,
+  );
+  return data;
+}
+
 export async function getPlayerStatistics(
   playerId: number,
-  params?: Partial<PlayerStatisticsQueryDto>
+  params?: Partial<PlayerStatisticsQueryDto>,
 ): Promise<PaginationResult<PlayerStatisticsResponseDto>> {
   try {
     const {
@@ -31,7 +41,7 @@ export async function getPlayerStatistics(
 }
 
 export async function getStatisticsById(
-  id: number
+  id: number,
 ): Promise<PlayerStatisticsResponseDto> {
   try {
     const { data }: AxiosResponse<PlayerStatisticsResponseDto> =

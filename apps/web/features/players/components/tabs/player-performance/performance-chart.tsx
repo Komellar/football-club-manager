@@ -6,14 +6,14 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { PlayerStatisticsResponseDto } from "@repo/core";
+import type { PlayerSeasonStatistics } from "@repo/core";
 import { Line, LineChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { getPerformanceRatingsBySeason } from "../../../utils";
 import { ratingChartConfig } from "../../../constants";
 import { useTranslations } from "next-intl";
 
 interface PerformanceChartProps {
-  statistics: Record<string, PlayerStatisticsResponseDto[]>;
+  statistics: PlayerSeasonStatistics[];
 }
 
 export function PerformanceChart({ statistics }: PerformanceChartProps) {
@@ -38,7 +38,7 @@ export function PerformanceChart({ statistics }: PerformanceChartProps) {
               axisLine={false}
               tickMargin={8}
             />
-            <YAxis domain={[5, 10]} />
+            <YAxis domain={[1, 10]} />
             <ChartTooltip content={<ChartTooltipContent />} />
             <Line
               type="natural"

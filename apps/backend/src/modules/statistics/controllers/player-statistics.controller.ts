@@ -13,6 +13,8 @@ import {
   ParseIntPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiOkResponse } from '@nestjs/swagger';
+import type { PlayerPerformanceSummary } from '@repo/core';
 import { PlayerStatisticsService } from '../services/player-statistics.service';
 import { AuthGuard } from '@/shared/guards/auth.guard';
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe';
@@ -51,6 +53,16 @@ export class PlayerStatisticsController {
     queryDto?: PlayerStatisticsQueryDto,
   ): Promise<PaginationResult<PlayerStatisticsResponseDto>> {
     return this.playerStatisticsService.findAll(queryDto);
+  }
+
+  @Get('player/:playerId/summary')
+  @ApiOkResponse({
+    description: 'Career and season totals across every recorded match',
+  })
+  async getPlayerSummary(
+    @Param('playerId', ParseIntPipe) playerId: number,
+  ): Promise<PlayerPerformanceSummary> {
+    return this.playerStatisticsService.getPlayerSummary(playerId);
   }
 
   @Get(':id')

@@ -1,5 +1,5 @@
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { getPlayerStatistics } from "@/features/players/api";
+import { getPlayerPerformanceSummary } from "@/features/players/api";
 import { getPlayerById } from "@/features/players/api/players";
 import {
   GoalsAssistsChart,
@@ -7,7 +7,6 @@ import {
   SeasonStatsTable,
   StatsSummaryCards,
 } from "@/features/players/components/tabs";
-import { groupStatisticsBySeason } from "@/features/players/utils";
 import { Info } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
@@ -20,14 +19,12 @@ export default async function PlayerPerformancePage({
   const { id } = await params;
 
   const playerId = Number(id);
-  const [player, { data }] = await Promise.all([
+  const [player, summary] = await Promise.all([
     getPlayerById(playerId),
-    getPlayerStatistics(playerId),
+    getPlayerPerformanceSummary(playerId),
   ]);
 
-  const statisticsBySeason = groupStatisticsBySeason(data);
-
-  if (!data || data.length === 0) {
+  if (summary.totals.appearances === 0) {
     return (
       <Alert>
         <Info className="h-4 w-4" />
@@ -38,15 +35,15 @@ export default async function PlayerPerformancePage({
 
   return (
     <div className="space-y-6">
-      <StatsSummaryCards statistics={data} />
+      <StatsSummaryCards summary={summary} />
 
       <div className="grid md:grid-cols-2 md:gap-x-6 gap-x-0 gap-y-6">
-        <GoalsAssistsChart statistics={statisticsBySeason} />
-        <PerformanceChart statistics={statisticsBySeason} />
+        <GoalsAssistsChart statistics={summary.seasons} />
+        <PerformanceChart statistics={summary.seasons} />
       </div>
 
       <SeasonStatsTable
-        statistics={statisticsBySeason}
+        statistics={summary.seasons}
         position={player.position}
       />
     </div>
