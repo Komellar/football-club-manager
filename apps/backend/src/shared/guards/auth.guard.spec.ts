@@ -134,5 +134,25 @@ describe('AuthGuard', () => {
         UnauthorizedException,
       );
     });
+
+    it('normalizes existing JWTs signed with id to the profile contract', async () => {
+      mockRequest.headers = { authorization: 'Bearer existing-token' };
+      verifyAsyncSpy.mockResolvedValue({
+        id: 5,
+        name: 'Existing User',
+        email: 'existing@example.com',
+        role: RoleType.USER,
+      });
+      await guard.canActivate(mockExecutionContext);
+      expect(mockRequest.user?.userId).toBe(5);
+    });
+
+    it('rejects signed payloads without a valid user identity', async () => {
+      mockRequest.headers = { authorization: 'Bearer malformed-token' };
+      verifyAsyncSpy.mockResolvedValue({ role: RoleType.ADMIN });
+      await expect(guard.canActivate(mockExecutionContext)).rejects.toThrow(
+        UnauthorizedException,
+      );
+    });
   });
 });

@@ -1,6 +1,10 @@
 import { AuthService } from '../services/auth.service';
 import type { CreateUserDto } from '@repo/core';
-import { RoleType } from '@repo/core';
+import {
+  RoleType,
+  CreateUserApiSchema,
+  AuthTokenPayloadSchema,
+} from '@repo/core';
 import type { UserService } from '@/modules/users/services/user.service';
 import type { JwtService } from '@nestjs/jwt';
 import type { User } from '@/shared/entities/user.entity';
@@ -66,6 +70,34 @@ describe('AuthService', () => {
   });
 
   describe('register', () => {
+    it('forces a regular role even when an admin role is supplied', async () => {
+      mockUserService.create.mockResolvedValue(mockUser);
+      await service.register({ ...mockRegisterDto, roleName: RoleType.ADMIN });
+      expect(mockUserService.create).toHaveBeenCalledWith({
+        ...mockRegisterDto,
+        roleName: RoleType.USER,
+      });
+      expect(
+        CreateUserApiSchema.parse({
+          ...mockRegisterDto,
+          password: 'Password123',
+          roleName: RoleType.ADMIN,
+        }).roleName,
+      ).toBe(RoleType.USER);
+    });
+
+    it('signs a payload that satisfies the profile identity contract', async () => {
+      mockUserService.create.mockResolvedValue(mockUser);
+      await service.register(mockRegisterDto);
+      expect(
+        AuthTokenPayloadSchema.parse(mockJwtService.sign.mock.calls[0][0]),
+      ).toEqual({
+        userId: mockUser.id,
+        name: mockUser.name,
+        email: mockUser.email,
+        role: mockUser.role,
+      });
+    });
     it('should register a user successfully', async () => {
       mockUserService.create.mockResolvedValue(mockUser);
       mockJwtService.sign.mockReturnValue('jwt-token-123');
@@ -74,7 +106,7 @@ describe('AuthService', () => {
 
       expect(mockUserService.create).toHaveBeenCalledWith(mockRegisterDto);
       expect(mockJwtService.sign).toHaveBeenCalledWith({
-        id: 1,
+        userId: 1,
         name: 'John Doe',
         email: 'john@example.com',
         role: RoleType.USER,
@@ -117,7 +149,7 @@ describe('AuthService', () => {
         'hashedpassword123',
       );
       expect(mockJwtService.sign).toHaveBeenCalledWith({
-        id: 1,
+        userId: 1,
         name: 'John Doe',
         email: 'john@example.com',
         role: RoleType.USER,

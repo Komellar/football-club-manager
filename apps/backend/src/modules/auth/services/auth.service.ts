@@ -25,7 +25,12 @@ export class AuthService {
     };
 
     return {
-      access_token: this.jwtService.sign(payload),
+      access_token: this.jwtService.sign({
+        userId: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      }),
       user: payload,
     };
   }
@@ -61,7 +66,7 @@ export class AuthService {
   async register(userData: CreateUserDto): Promise<LoginResponseDto> {
     const { passwordHash: _, ...user } = await this.userService.create({
       ...userData,
-      roleName: userData.roleName || RoleType.USER,
+      roleName: RoleType.USER,
     });
 
     return this.createAuthResponse(user);

@@ -9,7 +9,7 @@ export const CreateUserSchema = z.object({
     .max(100, "Name must be less than 100 characters")
     .regex(
       /^[a-zA-Z\s\-'\.]+$/,
-      "Name can only contain letters, spaces, hyphens, apostrophes, and periods"
+      "Name can only contain letters, spaces, hyphens, apostrophes, and periods",
     ),
 
   email: z
@@ -22,16 +22,16 @@ export const CreateUserSchema = z.object({
     .max(255, "Password must be less than 255 characters")
     .regex(
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-      "Password must contain at least one lowercase letter, one uppercase letter, and one number"
+      "Password must contain at least one lowercase letter, one uppercase letter, and one number",
     ),
 
   roleName: z.enum(RoleType).optional(),
 });
 
-// Schema for API requests with default role
+// Public registration always creates a regular user.
 export const CreateUserApiSchema = CreateUserSchema.transform((data) => ({
   ...data,
-  roleName: data.roleName ?? RoleType.USER,
+  roleName: RoleType.USER,
 }));
 
 export type CreateUserDto = z.infer<typeof CreateUserSchema>;
@@ -76,3 +76,20 @@ export const UserSchema = z.object({
 });
 
 export type User = z.infer<typeof UserSchema>;
+
+// Accept existing tokens issued with `id` while new tokens use `userId`.
+export const AuthTokenPayloadSchema = z
+  .union([
+    UserSchema,
+    UserSchema.omit({ userId: true }).extend({
+      id: z.number().int().positive(),
+    }),
+  ])
+  .transform(
+    (payload): User => ({
+      userId: "userId" in payload ? payload.userId : payload.id,
+      name: payload.name,
+      email: payload.email,
+      role: payload.role,
+    }),
+  );

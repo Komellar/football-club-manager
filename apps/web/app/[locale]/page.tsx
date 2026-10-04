@@ -10,15 +10,11 @@ export default async function Home({
 }) {
   const { locale } = await params;
 
+  let user;
   try {
-    const user = await getProfile();
-
-    if (user) {
-      redirect(`/${locale}/dashboard`);
-    } else {
-      redirect(`/${locale}/login`);
-    }
-  } catch (error) {
+    user = await getProfile();
+  } catch {
     redirect(`/${locale}/login`);
   }
+  redirect(user ? `/${locale}/dashboard` : `/${locale}/login`);
 }
