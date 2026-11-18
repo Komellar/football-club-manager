@@ -5,10 +5,13 @@ import {
   HttpCode,
   HttpStatus,
   Get,
+  UseGuards,
   Request,
   Response,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiTags, ApiTooManyRequestsResponse } from '@nestjs/swagger';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
+import { REGISTER_THROTTLE } from '../../../config/throttle.config';
 import { Response as ExpressResponse } from 'express';
 import { AuthService } from '../services/auth.service';
 import { Public } from '@/shared/decorators/public.decorator';
@@ -33,6 +36,8 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Public()
+  @UseGuards(ThrottlerGuard)
+  @ApiTooManyRequestsResponse({ description: 'Too many login attempts' })
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @LoginUser()
@@ -49,6 +54,9 @@ export class AuthController {
   }
 
   @Public()
+  @UseGuards(ThrottlerGuard)
+  @Throttle(REGISTER_THROTTLE)
+  @ApiTooManyRequestsResponse({ description: 'Too many sign-ups' })
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   @RegisterUser()

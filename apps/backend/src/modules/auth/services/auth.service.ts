@@ -9,6 +9,11 @@ import type {
 } from '@repo/core';
 import * as bcrypt from 'bcrypt';
 
+import { randomUUID } from 'crypto';
+
+// Hash of a random value nobody knows, at the same cost as real accounts.
+const DUMMY_PASSWORD_HASH = bcrypt.hashSync(randomUUID(), 10);
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -40,7 +45,13 @@ export class AuthService {
     password: string,
   ): Promise<UserResponseDto | null> {
     const user = await this.userService.findByEmail(email);
-    if (user && (await bcrypt.compare(password, user.passwordHash))) {
+    // Always run one bcrypt comparison so response time does not reveal
+    // whether the email is registered.
+    const passwordMatches = await bcrypt.compare(
+      password,
+      user?.passwordHash ?? DUMMY_PASSWORD_HASH,
+    );
+    if (user && passwordMatches) {
       // Transform User entity to UserResponseDto format
       return {
         id: user.id,

@@ -192,7 +192,8 @@ describe('AuthService', () => {
       expect(mockUserService.findByEmail).toHaveBeenCalledWith(
         'notfound@example.com',
       );
-      expect(mockBcrypt.compare).not.toHaveBeenCalled();
+      // A comparison still runs, so timing does not reveal unknown emails.
+      expect(mockBcrypt.compare).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -227,7 +228,8 @@ describe('AuthService', () => {
       expect(mockUserService.findByEmail).toHaveBeenCalledWith(
         'john@example.com',
       );
-      expect(mockBcrypt.compare).not.toHaveBeenCalled();
+      // A comparison still runs, so timing does not reveal unknown emails.
+      expect(mockBcrypt.compare).toHaveBeenCalledTimes(1);
       expect(result).toBeNull();
     });
 

@@ -18,7 +18,7 @@ export const CreateUserSchema = z.object({
 
   password: z
     .string()
-    .min(6, "Password must be at least 6 characters")
+    .min(8, "Password must be at least 8 characters")
     .max(255, "Password must be less than 255 characters")
     .regex(
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,

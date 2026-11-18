@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
+import helmet from 'helmet';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { HttpAdapterHost } from '@nestjs/core';
 import { AllExceptionsFilter } from './shared/filters/all-exceptions.filter';
@@ -22,6 +23,16 @@ async function bootstrap() {
       plainObjects: true,
     });
   });
+
+  // Behind a reverse proxy, set TRUST_PROXY (e.g. 1) so rate limits see the
+  // client's IP instead of the proxy's.
+  if (process.env.TRUST_PROXY) {
+    const hops = Number(process.env.TRUST_PROXY);
+    app.set('trust proxy', Number.isNaN(hops) ? process.env.TRUST_PROXY : hops);
+  }
+
+  // The web app on another port of the same site loads API images.
+  app.use(helmet({ crossOriginResourcePolicy: { policy: 'same-site' } }));
 
   const httpAdapterHost = app.get(HttpAdapterHost);
   app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost));

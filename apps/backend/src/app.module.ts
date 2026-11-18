@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { throttlerOptions } from './config/throttle.config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { getDatabaseConfig } from './config/database.config';
@@ -28,6 +30,7 @@ import { StadiumModule } from './modules/stadium/stadium.module';
       inject: [ConfigService],
     }),
     EventEmitterModule.forRoot(),
+    ThrottlerModule.forRoot(throttlerOptions),
     UserModule,
     AuthModule,
     PlayersModule,
