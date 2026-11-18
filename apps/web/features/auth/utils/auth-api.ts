@@ -40,15 +40,8 @@ export const login = async (data: LoginDto): Promise<ActionResult> => {
   }
 
   try {
-    // Backend will handle setting the cookie directly
-    const response = await callAuthAPI("login", result.data);
-
-    // Store token in Redux store for API requests
-    if (typeof window !== "undefined") {
-      const { store } = await import("@/store");
-      const { setToken } = await import("../store");
-      store.dispatch(setToken(response.access_token));
-    }
+    // The backend sets the httpOnly session cookie; the token is not in the body.
+    await callAuthAPI("login", result.data);
 
     return {};
   } catch (error) {
@@ -71,15 +64,8 @@ export const register = async (data: CreateUserDto): Promise<ActionResult> => {
   }
 
   try {
-    // Backend will handle setting the cookie directly
-    const response = await callAuthAPI("register", result.data);
-
-    // Store token in Redux store for API requests
-    if (typeof window !== "undefined") {
-      const { store } = await import("@/store");
-      const { setToken } = await import("../store");
-      store.dispatch(setToken(response.access_token));
-    }
+    // The backend sets the httpOnly session cookie; the token is not in the body.
+    await callAuthAPI("register", result.data);
 
     return {};
   } catch (error) {

@@ -18,6 +18,7 @@ describe('AuthController', () => {
     register: jest.Mock;
     login: jest.Mock;
     validateUser: jest.Mock;
+    revokeSessions: jest.Mock;
   };
 
   const mockLoginDto: LoginDto = {
@@ -32,14 +33,19 @@ describe('AuthController', () => {
     roleName: RoleType.USER,
   };
 
-  const mockAuthResult: LoginResponseDto = {
-    access_token: 'mock-jwt-token',
+  const expiresAt = new Date('2030-01-01T00:00:00Z');
+  const mockAuthBody: LoginResponseDto = {
     user: {
       id: 1,
       email: 'john@example.com',
       name: 'John Doe',
       role: RoleType.USER,
     },
+  };
+  const mockAuthResult = {
+    token: 'mock-jwt-token',
+    expiresAt,
+    body: mockAuthBody,
   };
 
   let mockResponse: Partial<ExpressResponse>;
@@ -49,6 +55,7 @@ describe('AuthController', () => {
       register: jest.fn(),
       login: jest.fn(),
       validateUser: jest.fn(),
+      revokeSessions: jest.fn(),
     };
 
     mockResponse = {
@@ -112,16 +119,17 @@ describe('AuthController', () => {
       expect(mockAuthService.register).toHaveBeenCalledWith(mockRegisterDto);
       expect(mockResponse.cookie).toHaveBeenCalledWith(
         'auth_token',
-        mockAuthResult.access_token,
+        'mock-jwt-token',
         {
           httpOnly: true,
           secure: false, // NODE_ENV !== 'production' in test
           sameSite: 'lax',
-          maxAge: 24 * 60 * 60 * 1000, // 1 day
+          expires: expiresAt, // the cookie lives exactly as long as the token
           path: '/',
         },
       );
-      expect(result).toEqual(mockAuthResult);
+      expect(result).toEqual(mockAuthBody);
+      expect(result).not.toHaveProperty('access_token');
     });
 
     it('should throw error when registration fails', async () => {
@@ -153,16 +161,17 @@ describe('AuthController', () => {
       );
       expect(mockResponse.cookie).toHaveBeenCalledWith(
         'auth_token',
-        mockAuthResult.access_token,
+        'mock-jwt-token',
         {
           httpOnly: true,
           secure: false, // NODE_ENV !== 'production' in test
           sameSite: 'lax',
-          maxAge: 24 * 60 * 60 * 1000, // 1 day
+          expires: expiresAt, // the cookie lives exactly as long as the token
           path: '/',
         },
       );
-      expect(result).toEqual(mockAuthResult);
+      expect(result).toEqual(mockAuthBody);
+      expect(result).not.toHaveProperty('access_token');
     });
 
     it('should throw UnauthorizedException when login fails', async () => {
@@ -183,9 +192,16 @@ describe('AuthController', () => {
   });
 
   describe('logout', () => {
-    it('should clear auth cookie and return success message', () => {
-      const result = controller.logout(mockResponse as ExpressResponse);
+    it('revokes the sessions, clears the cookie and returns success', async () => {
+      const req = { headers: {}, cookies: { auth_token: 'current-token' } };
+      const result = await controller.logout(
+        req as unknown as Parameters<AuthController['logout']>[0],
+        mockResponse as ExpressResponse,
+      );
 
+      expect(mockAuthService.revokeSessions).toHaveBeenCalledWith(
+        'current-token',
+      );
       expect(mockResponse.clearCookie).toHaveBeenCalledWith('auth_token', {
         httpOnly: true,
         secure: false, // NODE_ENV !== 'production' in test

@@ -20,7 +20,11 @@ describe('Login and registration rate limits', () => {
             login: () => {
               throw new UnauthorizedException('Invalid credentials');
             },
-            register: () => ({ access_token: 't', user: {} }),
+            register: () => ({
+              token: 't',
+              expiresAt: new Date(Date.now() + 60_000),
+              body: { user: {} },
+            }),
           },
         },
       ],

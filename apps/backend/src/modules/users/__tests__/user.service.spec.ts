@@ -23,6 +23,7 @@ describe('UserService', () => {
     email: 'john@example.com',
     passwordHash: 'hashedpassword123',
     role: RoleType.USER,
+    tokenVersion: 0,
     createdAt: new Date('2024-01-01'),
     updatedAt: new Date('2024-01-01'),
   };

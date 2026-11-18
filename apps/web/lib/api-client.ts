@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from "axios";
 
-const baseURL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+const baseURL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 const isServer = typeof window === "undefined";
 
@@ -28,19 +28,9 @@ const createApiClient = (): AxiosInstance => {
         } catch (error) {
           console.warn("Failed to get auth cookie:", error);
         }
-      } else {
-        // Client-side: Use Redux store token
-        try {
-          const { store } = await import("../store");
-          const state = store.getState();
-          const token = state.auth?.token;
-          if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-          }
-        } catch (error) {
-          console.warn("Failed to get auth token:", error);
-        }
       }
+      // Client-side: the browser attaches the httpOnly auth_token cookie
+      // itself (withCredentials), so no header is needed.
       return config;
     },
     (error) => {

@@ -17,16 +17,14 @@ export const LoginUser = () =>
     ApiOperation({
       summary: 'User login',
       description:
-        'Authenticates a user with email and password, returns JWT access token for subsequent API calls.',
+        'Authenticates a user with email and password and sets the httpOnly auth_token session cookie.',
     }),
     AuthApiBody('login'),
     ApiOkResponse({
-      description: 'Login successful, JWT token returned',
+      description: 'Login successful, session cookie set',
       example: {
-        accessToken:
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoiYWRtaW5AZXhhbXBsZS5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE2MzAwMDAwMDAsImV4cCI6MTYzMDAwMzYwMH0.abc123',
         user: {
-          userId: 1,
+          id: 1,
           name: 'Admin User',
           email: 'admin@example.com',
           role: 'admin',
@@ -48,11 +46,12 @@ export const RegisterUser = () =>
   applyDecorators(
     ApiOperation({
       summary: 'User registration',
-      description: 'Creates a new user account and returns JWT token',
+      description:
+        'Creates a new user account and sets the httpOnly auth_token session cookie',
     }),
     AuthApiBody('register'),
     ApiCreatedResponse({
-      description: 'Registration successful, JWT token returned',
+      description: 'Registration successful, session cookie set',
     }),
     ApiConflictResponse({
       description: 'User with this email already exists',

@@ -19,6 +19,7 @@ describe('UserController', () => {
     email: 'john@example.com',
     passwordHash: 'hashedpassword123',
     role: RoleType.USER,
+    tokenVersion: 0,
     createdAt: new Date('2024-01-01'),
     updatedAt: new Date('2024-01-01'),
   };
@@ -61,6 +62,7 @@ describe('UserController', () => {
       expect(mockUserService.findById).toHaveBeenCalledWith(1);
       expect(result).toEqual(expectedUserResponse);
       expect(result).not.toHaveProperty('passwordHash');
+      expect(result).not.toHaveProperty('tokenVersion');
     });
 
     it("refuses to return another user's account", async () => {

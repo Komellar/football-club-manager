@@ -12,8 +12,15 @@ import {
 import { ApiTags, ApiTooManyRequestsResponse } from '@nestjs/swagger';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { REGISTER_THROTTLE } from '../../../config/throttle.config';
-import { Response as ExpressResponse } from 'express';
-import { AuthService } from '../services/auth.service';
+import type {
+  Request as ExpressRequest,
+  Response as ExpressResponse,
+} from 'express';
+import { AuthService, type AuthSession } from '../services/auth.service';
+import {
+  AUTH_COOKIE_NAME,
+  extractSessionToken,
+} from '@/shared/guards/session-token';
 import { Public } from '@/shared/decorators/public.decorator';
 import { CreateUserApiSchema, LoginSchema } from '@repo/core';
 import type {
@@ -45,12 +52,11 @@ export class AuthController {
     @Body(new ZodValidationPipe(LoginSchema)) loginDto: LoginDto,
     @Response({ passthrough: true }) res: ExpressResponse,
   ): Promise<LoginResponseDto> {
-    const result = await this.authService.login(
+    const session = await this.authService.login(
       loginDto.email,
       loginDto.password,
     );
-    this.setAuthCookie(res, result.access_token);
-    return result;
+    return this.startSession(res, session);
   }
 
   @Public()
@@ -65,23 +71,20 @@ export class AuthController {
     registerDto: CreateUserDto,
     @Response({ passthrough: true }) res: ExpressResponse,
   ): Promise<LoginResponseDto> {
-    const result = await this.authService.register(registerDto);
-    this.setAuthCookie(res, result.access_token);
-    return result;
+    const session = await this.authService.register(registerDto);
+    return this.startSession(res, session);
   }
 
   @Public()
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  logout(@Response({ passthrough: true }) res: ExpressResponse): {
-    message: string;
-  } {
-    res.clearCookie('auth_token', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-    });
+  async logout(
+    @Request() req: ExpressRequest,
+    @Response({ passthrough: true }) res: ExpressResponse,
+  ): Promise<{ message: string }> {
+    // Revokes every session of this user, not just this browser's cookie.
+    await this.authService.revokeSessions(extractSessionToken(req));
+    res.clearCookie(AUTH_COOKIE_NAME, this.cookieOptions());
 
     return { message: 'Logged out successfully' };
   }
@@ -97,13 +100,24 @@ export class AuthController {
     };
   }
 
-  private setAuthCookie(res: ExpressResponse, token: string) {
-    res.cookie('auth_token', token, {
+  /** The cookie expires with the token, and the token stays out of the body. */
+  private startSession(
+    res: ExpressResponse,
+    session: AuthSession,
+  ): LoginResponseDto {
+    res.cookie(AUTH_COOKIE_NAME, session.token, {
+      ...this.cookieOptions(),
+      expires: session.expiresAt,
+    });
+    return session.body;
+  }
+
+  private cookieOptions() {
+    return {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 24 * 60 * 60 * 1000, // 1 day in milliseconds
+      sameSite: 'lax' as const,
       path: '/',
-    });
+    };
   }
 }

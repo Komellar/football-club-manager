@@ -1,186 +1,87 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { ExecutionContext, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
+import { RoleType } from '@repo/core';
 import { AuthGuard } from './auth.guard';
-import { RoleType, User } from '@repo/core';
+import type { AuthService } from '@/modules/auth/services/auth.service';
 import type { RequestWithUser } from '@/modules/auth/types';
 
 describe('AuthGuard', () => {
-  let guard: AuthGuard;
-  let jwtService: JwtService;
-  let configService: ConfigService;
-  let verifyAsyncSpy: jest.SpyInstance;
-  let getSpy: jest.SpyInstance;
+  const user = {
+    userId: 1,
+    name: 'Test User',
+    email: 'test@example.com',
+    role: RoleType.USER,
+  };
+  const auth = { verifySession: jest.fn() };
+  const guard = new AuthGuard(auth as unknown as AuthService, new Reflector());
+  const handler = () => undefined;
+  class Controller {}
+  let request: Partial<RequestWithUser>;
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        AuthGuard,
-        Reflector,
-        {
-          provide: JwtService,
-          useValue: {
-            verifyAsync: jest.fn(),
-          },
-        },
-        {
-          provide: ConfigService,
-          useValue: {
-            get: jest.fn().mockReturnValue('test-secret'),
-          },
-        },
-      ],
-    }).compile();
+  const context = (type = 'http') =>
+    ({
+      getType: () => type,
+      getHandler: () => handler,
+      getClass: () => Controller,
+      switchToHttp: () => ({ getRequest: () => request }),
+    }) as unknown as ExecutionContext;
 
-    guard = module.get<AuthGuard>(AuthGuard);
-    jwtService = module.get(JwtService);
-    configService = module.get(ConfigService);
-
-    verifyAsyncSpy = jest.spyOn(jwtService, 'verifyAsync');
-    getSpy = jest.spyOn(configService, 'get');
+  beforeEach(() => {
+    jest.clearAllMocks();
+    request = { headers: {} };
+    auth.verifySession.mockResolvedValue({ user, expiresAt: new Date() });
   });
 
-  it('should be defined', () => {
-    expect(guard).toBeDefined();
+  it('requires a token', async () => {
+    await expect(guard.canActivate(context())).rejects.toThrow(
+      'Access token is required',
+    );
   });
 
-  describe('canActivate', () => {
-    let mockExecutionContext: ExecutionContext;
-    let mockRequest: Partial<RequestWithUser>;
-
-    beforeEach(() => {
-      mockRequest = {
-        headers: {},
-      };
-
-      mockExecutionContext = {
-        getType: () => 'http',
-        getHandler: () => handler,
-        getClass: () => Controller,
-        switchToHttp: () => ({
-          getRequest: () => mockRequest,
-        }),
-      } as unknown as ExecutionContext;
-    });
-
-    const handler = () => undefined;
-    class Controller {}
-
-    it('lets @Public() routes through without a token', async () => {
-      Reflect.defineMetadata('isPublic', true, handler);
-      try {
-        await expect(guard.canActivate(mockExecutionContext)).resolves.toBe(
-          true,
-        );
-        expect(verifyAsyncSpy).not.toHaveBeenCalled();
-      } finally {
-        Reflect.deleteMetadata('isPublic', handler);
-      }
-    });
-
-    it('leaves WebSocket contexts to the gateway', async () => {
-      const wsContext = {
-        ...mockExecutionContext,
-        getType: () => 'ws',
-      } as unknown as ExecutionContext;
-      await expect(guard.canActivate(wsContext)).resolves.toBe(true);
-    });
-
-    it('should throw UnauthorizedException when no authorization header is present', async () => {
-      await expect(guard.canActivate(mockExecutionContext)).rejects.toThrow(
+  it('ignores malformed or lowercase bearer headers', async () => {
+    for (const authorization of ['InvalidToken', 'bearer lowercase-token']) {
+      request.headers = { authorization };
+      await expect(guard.canActivate(context())).rejects.toThrow(
         UnauthorizedException,
       );
-      await expect(guard.canActivate(mockExecutionContext)).rejects.toThrow(
-        'Access token is required',
-      );
-    });
+    }
+    expect(auth.verifySession).not.toHaveBeenCalled();
+  });
 
-    it('should throw UnauthorizedException when authorization header is malformed', async () => {
-      mockRequest.headers = { authorization: 'InvalidToken' };
+  it('accepts the bearer header and attaches the current user', async () => {
+    request.headers = { authorization: 'Bearer valid-token' };
+    await expect(guard.canActivate(context())).resolves.toBe(true);
+    expect(auth.verifySession).toHaveBeenCalledWith('valid-token');
+    expect(request.user).toEqual(user);
+  });
 
-      await expect(guard.canActivate(mockExecutionContext)).rejects.toThrow(
-        UnauthorizedException,
-      );
-    });
+  it('falls back to the auth_token cookie', async () => {
+    request.cookies = { auth_token: 'cookie-token' };
+    await guard.canActivate(context());
+    expect(auth.verifySession).toHaveBeenCalledWith('cookie-token');
+  });
 
-    it('should throw UnauthorizedException when token verification fails', async () => {
-      mockRequest.headers = { authorization: 'Bearer invalid-token' };
-      (jwtService.verifyAsync as jest.Mock).mockRejectedValue(
-        new Error('Invalid token'),
-      );
+  it('rejects revoked or invalid sessions', async () => {
+    request.headers = { authorization: 'Bearer revoked' };
+    auth.verifySession.mockRejectedValue(
+      new UnauthorizedException('Session has been revoked'),
+    );
+    await expect(guard.canActivate(context())).rejects.toThrow(
+      'Session has been revoked',
+    );
+  });
 
-      await expect(guard.canActivate(mockExecutionContext)).rejects.toThrow(
-        UnauthorizedException,
-      );
-      await expect(guard.canActivate(mockExecutionContext)).rejects.toThrow(
-        'Invalid or expired token',
-      );
-    });
+  it('lets @Public() routes through without a token', async () => {
+    Reflect.defineMetadata('isPublic', true, handler);
+    try {
+      await expect(guard.canActivate(context())).resolves.toBe(true);
+      expect(auth.verifySession).not.toHaveBeenCalled();
+    } finally {
+      Reflect.deleteMetadata('isPublic', handler);
+    }
+  });
 
-    it('should return true and attach user to request when token is valid', async () => {
-      const mockPayload: User = {
-        userId: 1,
-        name: 'Test User',
-        email: 'test@example.com',
-        role: RoleType.USER,
-      };
-
-      mockRequest.headers = { authorization: 'Bearer valid-token' };
-      verifyAsyncSpy.mockResolvedValue(mockPayload);
-
-      const result = await guard.canActivate(mockExecutionContext);
-
-      expect(result).toBe(true);
-      expect(mockRequest.user).toEqual(mockPayload);
-      expect(verifyAsyncSpy).toHaveBeenCalledWith('valid-token', {
-        secret: 'test-secret',
-      });
-    });
-
-    it('should call configService.get with JWT_SECRET', async () => {
-      const mockPayload: User = {
-        userId: 1,
-        name: 'Test User',
-        email: 'test@example.com',
-        role: RoleType.USER,
-      };
-
-      mockRequest.headers = { authorization: 'Bearer valid-token' };
-      verifyAsyncSpy.mockResolvedValue(mockPayload);
-
-      await guard.canActivate(mockExecutionContext);
-
-      expect(getSpy).toHaveBeenCalledWith('JWT_SECRET');
-    });
-
-    it('should handle Bearer token with different casing', async () => {
-      mockRequest.headers = { authorization: 'bearer lowercase-token' };
-
-      await expect(guard.canActivate(mockExecutionContext)).rejects.toThrow(
-        UnauthorizedException,
-      );
-    });
-
-    it('normalizes existing JWTs signed with id to the profile contract', async () => {
-      mockRequest.headers = { authorization: 'Bearer existing-token' };
-      verifyAsyncSpy.mockResolvedValue({
-        id: 5,
-        name: 'Existing User',
-        email: 'existing@example.com',
-        role: RoleType.USER,
-      });
-      await guard.canActivate(mockExecutionContext);
-      expect(mockRequest.user?.userId).toBe(5);
-    });
-
-    it('rejects signed payloads without a valid user identity', async () => {
-      mockRequest.headers = { authorization: 'Bearer malformed-token' };
-      verifyAsyncSpy.mockResolvedValue({ role: RoleType.ADMIN });
-      await expect(guard.canActivate(mockExecutionContext)).rejects.toThrow(
-        UnauthorizedException,
-      );
-    });
+  it('leaves WebSocket contexts to the gateway', async () => {
+    await expect(guard.canActivate(context('ws'))).resolves.toBe(true);
   });
 });

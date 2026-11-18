@@ -1,118 +1,84 @@
-import { AuthService } from '../services/auth.service';
-import type { CreateUserDto } from '@repo/core';
-import {
-  RoleType,
-  CreateUserApiSchema,
-  AuthTokenPayloadSchema,
-} from '@repo/core';
-import type { UserService } from '@/modules/users/services/user.service';
-import type { JwtService } from '@nestjs/jwt';
-import type { User } from '@/shared/entities/user.entity';
+import { UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import type { EventEmitter2 } from '@nestjs/event-emitter';
 import * as bcrypt from 'bcrypt';
+import type { CreateUserDto } from '@repo/core';
+import { RoleType, CreateUserApiSchema } from '@repo/core';
+import { AuthService, SESSIONS_REVOKED_EVENT } from '../services/auth.service';
+import type { UserService } from '@/modules/users/services/user.service';
+import type { User } from '@/shared/entities/user.entity';
 
 jest.mock('bcrypt');
 const mockBcrypt = bcrypt as jest.Mocked<typeof bcrypt>;
 
 describe('AuthService', () => {
   let service: AuthService;
-  let mockUserService: jest.Mocked<Pick<UserService, 'create' | 'findByEmail'>>;
-  let mockJwtService: jest.Mocked<Pick<JwtService, 'sign'>>;
+  let jwt: JwtService;
+  let user: User;
+  let userService: {
+    create: jest.Mock;
+    findByEmail: jest.Mock;
+    findById: jest.Mock;
+    incrementTokenVersion: jest.Mock;
+  };
+  const events = { emit: jest.fn() };
 
-  const mockRegisterDto: CreateUserDto = {
+  const registerDto: CreateUserDto = {
     name: 'John Doe',
     email: 'john@example.com',
-    password: 'password123',
+    password: 'Password123',
     roleName: RoleType.USER,
   };
 
-  const mockUser: User = {
-    id: 1,
-    name: 'John Doe',
-    email: 'john@example.com',
-    passwordHash: 'hashedpassword123',
-    role: RoleType.USER,
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-01'),
-  };
-
-  const mockUserResponse = {
-    id: 1,
-    name: 'John Doe',
-    email: 'john@example.com',
-    role: RoleType.USER,
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-01'),
-  };
-
   beforeEach(() => {
-    mockUserService = {
-      create: jest.fn(),
-      findByEmail: jest.fn(),
-    };
-
-    mockJwtService = {
-      sign: jest.fn(),
-    };
-
-    // Use type assertion with unknown as intermediate step for cleaner type casting
-    service = new AuthService(
-      mockUserService as unknown as UserService,
-      mockJwtService as unknown as JwtService,
-    );
-  });
-
-  afterEach(() => {
     jest.clearAllMocks();
-  });
-
-  it('should be defined', () => {
-    expect(service).toBeDefined();
+    user = {
+      id: 1,
+      name: 'John Doe',
+      email: 'john@example.com',
+      passwordHash: 'hashedpassword123',
+      role: RoleType.USER,
+      tokenVersion: 0,
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01'),
+    };
+    userService = {
+      create: jest.fn().mockResolvedValue(user),
+      findByEmail: jest.fn().mockResolvedValue(user),
+      findById: jest.fn(() => Promise.resolve(user)),
+      incrementTokenVersion: jest.fn(() => {
+        user.tokenVersion++;
+        return Promise.resolve();
+      }),
+    };
+    jwt = new JwtService({
+      secret: 'test-secret',
+      signOptions: { expiresIn: '1d' },
+    });
+    service = new AuthService(
+      userService as unknown as UserService,
+      jwt,
+      events as unknown as EventEmitter2,
+    );
   });
 
   describe('register', () => {
     it('forces a regular role even when an admin role is supplied', async () => {
-      mockUserService.create.mockResolvedValue(mockUser);
-      await service.register({ ...mockRegisterDto, roleName: RoleType.ADMIN });
-      expect(mockUserService.create).toHaveBeenCalledWith({
-        ...mockRegisterDto,
+      await service.register({ ...registerDto, roleName: RoleType.ADMIN });
+      expect(userService.create).toHaveBeenCalledWith({
+        ...registerDto,
         roleName: RoleType.USER,
       });
       expect(
-        CreateUserApiSchema.parse({
-          ...mockRegisterDto,
-          password: 'Password123',
-          roleName: RoleType.ADMIN,
-        }).roleName,
+        CreateUserApiSchema.parse({ ...registerDto, roleName: RoleType.ADMIN })
+          .roleName,
       ).toBe(RoleType.USER);
     });
 
-    it('signs a payload that satisfies the profile identity contract', async () => {
-      mockUserService.create.mockResolvedValue(mockUser);
-      await service.register(mockRegisterDto);
-      expect(
-        AuthTokenPayloadSchema.parse(mockJwtService.sign.mock.calls[0][0]),
-      ).toEqual({
-        userId: mockUser.id,
-        name: mockUser.name,
-        email: mockUser.email,
-        role: mockUser.role,
-      });
-    });
-    it('should register a user successfully', async () => {
-      mockUserService.create.mockResolvedValue(mockUser);
-      mockJwtService.sign.mockReturnValue('jwt-token-123');
+    it('returns the profile without the token, and a token that expires in a day', async () => {
+      const session = await service.register(registerDto);
 
-      const result = await service.register(mockRegisterDto);
-
-      expect(mockUserService.create).toHaveBeenCalledWith(mockRegisterDto);
-      expect(mockJwtService.sign).toHaveBeenCalledWith({
-        userId: 1,
-        name: 'John Doe',
-        email: 'john@example.com',
-        role: RoleType.USER,
-      });
-      expect(result).toEqual({
-        access_token: 'jwt-token-123',
+      expect(session.body).toEqual({
         user: {
           id: 1,
           name: 'John Doe',
@@ -120,136 +86,121 @@ describe('AuthService', () => {
           role: RoleType.USER,
         },
       });
-    });
-
-    it('should throw error when user creation fails', async () => {
-      mockUserService.create.mockRejectedValue(new Error('Role not found'));
-
-      await expect(service.register(mockRegisterDto)).rejects.toThrow(
-        'Role not found',
-      );
-
-      expect(mockUserService.create).toHaveBeenCalledWith(mockRegisterDto);
+      expect(JSON.stringify(session.body)).not.toContain(session.token);
+      expect(jwt.decode(session.token)).toMatchObject({ userId: 1, tv: 0 });
+      const lifetime = session.expiresAt.getTime() - Date.now();
+      expect(lifetime).toBeGreaterThan(23 * 3600_000);
+      expect(lifetime).toBeLessThanOrEqual(24 * 3600_000);
     });
   });
 
   describe('login', () => {
-    it('should login successfully and return access token with user data', async () => {
-      mockUserService.findByEmail.mockResolvedValue(mockUser);
+    it('issues a session for valid credentials', async () => {
       mockBcrypt.compare.mockResolvedValue(true as never);
-      mockJwtService.sign.mockReturnValue('jwt-token-123');
 
-      const result = await service.login('john@example.com', 'password123');
+      const session = await service.login('john@example.com', 'Password123');
 
-      expect(mockUserService.findByEmail).toHaveBeenCalledWith(
-        'john@example.com',
-      );
       expect(mockBcrypt.compare).toHaveBeenCalledWith(
-        'password123',
+        'Password123',
         'hashedpassword123',
       );
-      expect(mockJwtService.sign).toHaveBeenCalledWith({
-        userId: 1,
-        name: 'John Doe',
-        email: 'john@example.com',
-        role: RoleType.USER,
-      });
-      expect(result).toEqual({
-        access_token: 'jwt-token-123',
-        user: {
-          id: 1,
-          name: 'John Doe',
-          email: 'john@example.com',
-          role: RoleType.USER,
-        },
-      });
+      await expect(service.verifySession(session.token)).resolves.toMatchObject(
+        { user: { userId: 1, role: RoleType.USER } },
+      );
     });
 
-    it('should throw UnauthorizedException when credentials are invalid', async () => {
-      mockUserService.findByEmail.mockResolvedValue(mockUser);
+    it('rejects a wrong password', async () => {
       mockBcrypt.compare.mockResolvedValue(false as never);
-
       await expect(
         service.login('john@example.com', 'wrongpassword'),
       ).rejects.toThrow('Invalid credentials');
-
-      expect(mockUserService.findByEmail).toHaveBeenCalledWith(
-        'john@example.com',
-      );
-      expect(mockBcrypt.compare).toHaveBeenCalledWith(
-        'wrongpassword',
-        'hashedpassword123',
-      );
     });
 
-    it('should throw UnauthorizedException when user is not found', async () => {
-      mockUserService.findByEmail.mockResolvedValue(null);
+    it('still runs a password comparison for unknown emails', async () => {
+      userService.findByEmail.mockResolvedValue(null);
+      mockBcrypt.compare.mockResolvedValue(false as never);
 
       await expect(
-        service.login('notfound@example.com', 'password123'),
+        service.login('notfound@example.com', 'Password123'),
       ).rejects.toThrow('Invalid credentials');
-
-      expect(mockUserService.findByEmail).toHaveBeenCalledWith(
-        'notfound@example.com',
-      );
-      // A comparison still runs, so timing does not reveal unknown emails.
+      // Timing therefore does not reveal which emails are registered.
       expect(mockBcrypt.compare).toHaveBeenCalledTimes(1);
     });
   });
 
-  describe('validateUser', () => {
-    it('should validate user successfully', async () => {
-      mockUserService.findByEmail.mockResolvedValue(mockUser);
-      mockBcrypt.compare.mockResolvedValue(true as never);
+  describe('verifySession', () => {
+    const issue = () => service.register(registerDto).then((s) => s.token);
 
-      const result = await service.validateUser(
-        'john@example.com',
-        'password123',
-      );
+    it('reads the profile from the database, so role changes apply at once', async () => {
+      const token = await issue();
+      user.role = RoleType.ADMIN;
+      user.name = 'Renamed';
 
-      expect(mockUserService.findByEmail).toHaveBeenCalledWith(
-        'john@example.com',
-      );
-      expect(mockBcrypt.compare).toHaveBeenCalledWith(
-        'password123',
-        'hashedpassword123',
-      );
-      expect(result).toEqual(mockUserResponse);
+      const { user: current } = await service.verifySession(token);
+
+      expect(current).toEqual({
+        userId: 1,
+        name: 'Renamed',
+        email: 'john@example.com',
+        role: RoleType.ADMIN,
+      });
     });
 
-    it('should return null when user is not found', async () => {
-      mockUserService.findByEmail.mockResolvedValue(null);
+    it('rejects tokens that are forged, expired or missing a version', async () => {
+      const forged = new JwtService({ secret: 'other' }).sign({
+        userId: 1,
+        tv: 0,
+      });
+      const expired = jwt.sign({ userId: 1, tv: 0 }, { expiresIn: -10 });
+      // Tokens issued before this change carried profile data and no version.
+      const legacy = jwt.sign({ userId: 1, name: 'John', role: 'admin' });
 
-      const result = await service.validateUser(
-        'john@example.com',
-        'password123',
-      );
-
-      expect(mockUserService.findByEmail).toHaveBeenCalledWith(
-        'john@example.com',
-      );
-      // A comparison still runs, so timing does not reveal unknown emails.
-      expect(mockBcrypt.compare).toHaveBeenCalledTimes(1);
-      expect(result).toBeNull();
+      for (const token of [forged, expired, legacy, 'not-a-jwt']) {
+        await expect(service.verifySession(token)).rejects.toThrow(
+          UnauthorizedException,
+        );
+      }
     });
 
-    it('should return null when password is invalid', async () => {
-      mockUserService.findByEmail.mockResolvedValue(mockUser);
-      mockBcrypt.compare.mockResolvedValue(false as never);
+    it('rejects tokens of deleted users', async () => {
+      const token = await issue();
+      userService.findById.mockResolvedValue(null);
+      await expect(service.verifySession(token)).rejects.toThrow(
+        UnauthorizedException,
+      );
+    });
+  });
 
-      const result = await service.validateUser(
-        'john@example.com',
-        'wrongpassword',
-      );
+  describe('revokeSessions', () => {
+    it("invalidates every one of the user's tokens and announces it", async () => {
+      const first = (await service.register(registerDto)).token;
+      const second = (await service.register(registerDto)).token;
 
-      expect(mockUserService.findByEmail).toHaveBeenCalledWith(
-        'john@example.com',
+      await service.revokeSessions(first);
+
+      expect(userService.incrementTokenVersion).toHaveBeenCalledWith(1);
+      expect(events.emit).toHaveBeenCalledWith(SESSIONS_REVOKED_EVENT, 1);
+      await expect(service.verifySession(first)).rejects.toThrow(
+        'Session has been revoked',
       );
-      expect(mockBcrypt.compare).toHaveBeenCalledWith(
-        'wrongpassword',
-        'hashedpassword123',
+      await expect(service.verifySession(second)).rejects.toThrow(
+        'Session has been revoked',
       );
-      expect(result).toBeNull();
+      // Signing in again works.
+      const fresh = (await service.register(registerDto)).token;
+      await expect(service.verifySession(fresh)).resolves.toBeDefined();
+    });
+
+    it('ignores missing, invalid and already revoked tokens', async () => {
+      const token = (await service.register(registerDto)).token;
+      await service.revokeSessions(token);
+      userService.incrementTokenVersion.mockClear();
+
+      await service.revokeSessions(undefined);
+      await service.revokeSessions('garbage');
+      await service.revokeSessions(token);
+
+      expect(userService.incrementTokenVersion).not.toHaveBeenCalled();
     });
   });
 });

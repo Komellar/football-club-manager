@@ -56,8 +56,9 @@ export const UserResponseSchema = z.object({
 
 export type UserResponseDto = z.infer<typeof UserResponseSchema>;
 
+// The session token travels only in the httpOnly auth_token cookie; it is
+// deliberately not part of the response body, so page scripts never see it.
 export const LoginResponseSchema = z.object({
-  access_token: z.string().min(1, "Access token cannot be empty"),
   user: z.object({
     id: z.number().int().positive("User ID must be a positive integer"),
     name: z.string().trim().min(1, "Name cannot be empty"),
@@ -77,19 +78,14 @@ export const UserSchema = z.object({
 
 export type User = z.infer<typeof UserSchema>;
 
-// Accept existing tokens issued with `id` while new tokens use `userId`.
-export const AuthTokenPayloadSchema = z
-  .union([
-    UserSchema,
-    UserSchema.omit({ userId: true }).extend({
-      id: z.number().int().positive(),
-    }),
-  ])
-  .transform(
-    (payload): User => ({
-      userId: "userId" in payload ? payload.userId : payload.id,
-      name: payload.name,
-      email: payload.email,
-      role: payload.role,
-    }),
-  );
+/**
+ * What a session token carries. Profile fields are read from the database on
+ * every request, so role changes apply immediately. `tv` must match the
+ * user's token version; logging out increments it and revokes the token.
+ */
+export const AuthTokenPayloadSchema = z.object({
+  userId: z.number().int().positive(),
+  tv: z.number().int().nonnegative(),
+});
+
+export type AuthTokenPayload = z.infer<typeof AuthTokenPayloadSchema>;

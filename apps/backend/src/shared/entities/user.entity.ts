@@ -36,6 +36,10 @@ export class User {
   })
   role: RoleType;
 
+  /** Embedded in session tokens; incrementing it revokes all of them. */
+  @Column({ type: 'int', name: 'token_version', default: 0 })
+  tokenVersion: number;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 

@@ -31,6 +31,11 @@ export class UserService {
     });
   }
 
+  /** Revokes every session token issued to this user. */
+  async incrementTokenVersion(id: number): Promise<void> {
+    await this.userRepository.increment({ id }, 'tokenVersion', 1);
+  }
+
   async findById(id: number): Promise<User | null> {
     return this.userRepository.findOne({
       where: { id },

@@ -5,8 +5,7 @@ import { MatchSimulationEngineService } from './services/match-simulation-engine
 import { PlayersModule } from '../players/players.module';
 import { StatisticsModule } from '../statistics/statistics.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { JwtModule } from '@nestjs/jwt';
-import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from '../auth/auth.module';
 import { Player } from '@/shared/entities/player.entity';
 import { LineupService } from './services/lineup.service';
 import { LineupController } from './controllers/lineup.controller';
@@ -21,8 +20,7 @@ import { StadiumModule } from '../stadium/stadium.module';
     PlayersModule,
     StatisticsModule,
     TypeOrmModule.forFeature([Player, Fixture]),
-    JwtModule,
-    ConfigModule,
+    AuthModule,
     StadiumModule,
   ],
   controllers: [LineupController, FixturesController, MatchHistoryController],

@@ -1,10 +1,10 @@
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
+import { UnauthorizedException } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
 import type { Socket } from 'socket.io';
 import { RoleType } from '@repo/core';
 import { MatchEventsGateway } from '../gateways/match-events.gateway';
 import { MatchEventsService } from '../services/match-events.service';
+import type { AuthService } from '../../auth/services/auth.service';
 
 describe('MatchEventsGateway authentication', () => {
   const service = {
@@ -12,57 +12,78 @@ describe('MatchEventsGateway authentication', () => {
     getActiveMatch: jest.fn(),
     handleClientDisconnect: jest.fn(),
   };
-  const jwt = { verifyAsync: jest.fn() };
-  const config = { get: jest.fn(() => 'test-secret') };
+  const auth = { verifySession: jest.fn() };
   let gateway: MatchEventsGateway;
-  const client = {
-    id: 'client',
-    handshake: { auth: { token: 'token' }, headers: {} },
-    join: jest.fn(),
+  const makeClient = (id: string) => ({
+    id,
+    handshake: {
+      auth: {},
+      headers: { cookie: 'theme=dark; auth_token=token' },
+    },
+    join: jest.fn().mockResolvedValue(undefined),
     disconnect: jest.fn(),
-  };
+  });
+  let client: ReturnType<typeof makeClient>;
+
+  const session = (userId: number) => ({
+    user: { userId, name: 'User', email: 'u@example.com', role: RoleType.USER },
+    expiresAt: new Date(Date.now() + 2000),
+  });
 
   beforeEach(() => {
     jest.useFakeTimers();
     jest.clearAllMocks();
     gateway = new MatchEventsGateway(
       service as unknown as MatchEventsService,
-      jwt as unknown as JwtService,
-      config as unknown as ConfigService,
+      auth as unknown as AuthService,
     );
-    jwt.verifyAsync.mockResolvedValue({
-      userId: 1,
-      name: 'User',
-      email: 'user@example.com',
-      role: RoleType.USER,
-      exp: Math.floor(Date.now() / 1000) + 2,
-    });
-    client.join.mockResolvedValue(undefined);
+    client = makeClient('client');
+    auth.verifySession.mockImplementation(() => Promise.resolve(session(1)));
   });
   afterEach(() => {
     gateway.onModuleDestroy();
     jest.useRealTimers();
   });
 
-  it('disconnects a subscribed socket when its token expires', async () => {
-    await gateway.handleSubscribeToMatch({}, client as unknown as Socket);
+  const subscribe = (socket = client) =>
+    gateway.handleSubscribeToMatch({}, socket as unknown as Socket);
+
+  it('verifies the session cookie from the handshake', async () => {
+    await subscribe();
+    expect(auth.verifySession).toHaveBeenCalledWith('token');
     expect(client.join).toHaveBeenCalledWith('active-match');
+  });
+
+  it('disconnects a subscribed socket when its token expires', async () => {
+    await subscribe();
     jest.advanceTimersByTime(2000);
     expect(client.disconnect).toHaveBeenCalledWith(true);
   });
 
   it('cancels the expiry timer when the client disconnects', async () => {
-    await gateway.handleSubscribeToMatch({}, client as unknown as Socket);
+    await subscribe();
     gateway.handleDisconnect(client as unknown as Socket);
     jest.advanceTimersByTime(2000);
     expect(client.disconnect).not.toHaveBeenCalled();
   });
 
-  it('rejects a signed payload without a user identity before joining the room', async () => {
-    jwt.verifyAsync.mockResolvedValue({ role: RoleType.ADMIN });
-    await expect(
-      gateway.handleSubscribeToMatch({}, client as unknown as Socket),
-    ).rejects.toThrow(WsException);
+  it('rejects invalid or revoked sessions before joining the room', async () => {
+    auth.verifySession.mockRejectedValue(
+      new UnauthorizedException('Session has been revoked'),
+    );
+    await expect(subscribe()).rejects.toThrow(WsException);
     expect(client.join).not.toHaveBeenCalled();
+  });
+
+  it("drops only the logged-out user's sockets when sessions are revoked", async () => {
+    const other = makeClient('other');
+    await subscribe();
+    auth.verifySession.mockResolvedValueOnce(session(2));
+    await subscribe(other);
+
+    gateway.onSessionsRevoked(1);
+
+    expect(client.disconnect).toHaveBeenCalledWith(true);
+    expect(other.disconnect).not.toHaveBeenCalled();
   });
 });

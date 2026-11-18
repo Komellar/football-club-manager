@@ -12,8 +12,11 @@ import { Logger, UseFilters, OnModuleDestroy } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Server, Socket } from 'socket.io';
 import { MatchEventsService } from '../services/match-events.service';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
+import {
+  AuthService,
+  SESSIONS_REVOKED_EVENT,
+} from '../../auth/services/auth.service';
+import { AUTH_COOKIE_NAME } from '../../../shared/guards/session-token';
 import {
   SubscribeToMatch,
   UnsubscribeFromMatch,
@@ -24,7 +27,6 @@ import {
   MatchEvent,
   MatchEnded,
   MatchSimulationState,
-  AuthTokenPayloadSchema,
 } from '@repo/core';
 import { WsValidationPipe } from '../../../shared/pipes/ws-validation.pipe';
 import { WsExceptionFilter } from '../../../shared/filters/ws-exception.filter';
@@ -61,11 +63,13 @@ export class MatchEventsGateway
     string,
     ReturnType<typeof setTimeout>
   >();
+  /** Which user each authenticated socket belongs to, for revocation. */
+  private readonly socketUsers = new Map<string, number>();
+  private readonly sockets = new Map<string, Socket>();
 
   constructor(
     private readonly matchEventsService: MatchEventsService,
-    private readonly jwt: JwtService,
-    private readonly config: ConfigService,
+    private readonly auth: AuthService,
   ) {}
 
   handleConnection(client: Socket) {
@@ -75,6 +79,8 @@ export class MatchEventsGateway
   handleDisconnect(client: Socket) {
     clearTimeout(this.expiryTimers.get(client.id));
     this.expiryTimers.delete(client.id);
+    this.socketUsers.delete(client.id);
+    this.sockets.delete(client.id);
     this.logger.log(`Client disconnected: ${client.id}`);
     try {
       this.matchEventsService.handleClientDisconnect(client.id);
@@ -140,32 +146,35 @@ export class MatchEventsGateway
     const cookie = client.handshake.headers.cookie
       ?.split(';')
       .map((part) => part.trim())
-      .find((part) => part.startsWith('auth_token='))
-      ?.slice('auth_token='.length);
+      .find((part) => part.startsWith(`${AUTH_COOKIE_NAME}=`))
+      ?.slice(AUTH_COOKIE_NAME.length + 1);
     const handshakeToken: unknown = client.handshake.auth?.token;
     const token = typeof handshakeToken === 'string' ? handshakeToken : cookie;
     try {
       if (!token) throw new Error('Missing token');
-      const payload = await this.jwt.verifyAsync<Record<string, unknown>>(
-        token,
-        {
-          secret: this.config.get<string>('JWT_SECRET'),
-        },
+      const { user, expiresAt } = await this.auth.verifySession(
+        decodeURIComponent(token),
       );
-      AuthTokenPayloadSchema.parse(payload);
+      this.socketUsers.set(client.id, user.userId);
+      this.sockets.set(client.id, client);
       clearTimeout(this.expiryTimers.get(client.id));
-      this.expiryTimers.delete(client.id);
-      if (typeof payload.exp === 'number') {
-        this.expiryTimers.set(
-          client.id,
-          setTimeout(
-            () => client.disconnect(true),
-            Math.max(0, payload.exp * 1000 - Date.now()),
-          ),
-        );
-      }
+      this.expiryTimers.set(
+        client.id,
+        setTimeout(
+          () => client.disconnect(true),
+          Math.max(0, expiresAt.getTime() - Date.now()),
+        ),
+      );
     } catch {
       throw new WsException('Please sign in to access matches');
+    }
+  }
+
+  /** Logging out revokes the user's sessions; drop their open sockets too. */
+  @OnEvent(SESSIONS_REVOKED_EVENT)
+  onSessionsRevoked(userId: number) {
+    for (const [socketId, owner] of this.socketUsers) {
+      if (owner === userId) this.sockets.get(socketId)?.disconnect(true);
     }
   }
 

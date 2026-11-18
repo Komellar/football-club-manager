@@ -36,7 +36,7 @@ export class UserController {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    const { passwordHash: _, ...result } = user;
+    const { passwordHash: _hash, tokenVersion: _version, ...result } = user;
     return result;
   }
 }

@@ -1,12 +1,15 @@
 "use client";
 
-import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 import type { User } from "@repo/core";
 import { checkAuth, logout } from "./auth-thunks";
 
+/**
+ * The session token lives only in the httpOnly auth_token cookie, which the
+ * browser sends with every API request; page scripts never see it.
+ */
 export interface AuthState {
   user: User | null;
-  token: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   error: string | null;
@@ -14,7 +17,6 @@ export interface AuthState {
 
 const initialState: AuthState = {
   user: null,
-  token: null,
   isLoading: true,
   isAuthenticated: false,
   error: null,
@@ -24,9 +26,6 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    setToken: (state, action: PayloadAction<string | null>) => {
-      state.token = action.payload;
-    },
     clearAuth: (state) => {
       Object.assign(state, initialState, { isLoading: false });
     },
@@ -64,6 +63,6 @@ const authSlice = createSlice({
   },
 });
 
-export const { setToken, clearAuth } = authSlice.actions;
+export const { clearAuth } = authSlice.actions;
 
 export default authSlice.reducer;
