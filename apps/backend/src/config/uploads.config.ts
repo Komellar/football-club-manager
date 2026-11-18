@@ -1,4 +1,5 @@
 import { join } from 'path';
+import type { ServerResponse } from 'http';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 
 /**
@@ -14,7 +15,7 @@ export function setupUploads(
     prefix: '/uploads/',
     index: false,
     dotfiles: 'deny',
-    setHeaders: (res) => {
+    setHeaders: (res: ServerResponse) => {
       res.setHeader('X-Content-Type-Options', 'nosniff');
       res.setHeader(
         'Content-Security-Policy',

@@ -2,6 +2,14 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { INestApplication } from '@nestjs/common';
 
 /**
+ * The docs list every route, so they are served only outside production
+ * unless SWAGGER_ENABLED=true opts in.
+ */
+export function apiDocsEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
+  return env.NODE_ENV !== 'production' || env.SWAGGER_ENABLED === 'true';
+}
+
+/**
  * Swagger/OpenAPI Documentation Configuration
  *
  * This configuration sets up comprehensive API documentation with:

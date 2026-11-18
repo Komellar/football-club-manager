@@ -25,7 +25,9 @@
         "DB_USERNAME",
         "DB_PASSWORD",
         "DB_NAME",
-        "FRONTEND_URL"
+        "FRONTEND_URL",
+        "TRUST_PROXY",
+        "SWAGGER_ENABLED"
       ]
     },
     "web#build": {
@@ -56,7 +58,9 @@
         "DB_USERNAME",
         "DB_PASSWORD",
         "DB_NAME",
-        "FRONTEND_URL"
+        "FRONTEND_URL",
+        "TRUST_PROXY",
+        "SWAGGER_ENABLED"
       ]
     },
     "lint": {
@@ -85,7 +89,9 @@
         "DB_USERNAME",
         "DB_PASSWORD",
         "DB_NAME",
-        "FRONTEND_URL"
+        "FRONTEND_URL",
+        "TRUST_PROXY",
+        "SWAGGER_ENABLED"
       ]
     },
     "start": {
@@ -101,7 +107,9 @@
         "DB_USERNAME",
         "DB_PASSWORD",
         "DB_NAME",
-        "FRONTEND_URL"
+        "FRONTEND_URL",
+        "TRUST_PROXY",
+        "SWAGGER_ENABLED"
       ]
     }
   }

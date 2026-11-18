@@ -18,6 +18,10 @@ import {
 } from '../../auth/services/auth.service';
 import { AUTH_COOKIE_NAME } from '../../../shared/guards/session-token';
 import {
+  allowedOrigins,
+  allowWebSocketRequest,
+} from '../../../config/origins.config';
+import {
   SubscribeToMatch,
   UnsubscribeFromMatch,
   SubscribeToMatchSchema,
@@ -45,9 +49,14 @@ import {
  */
 @WebSocketGateway({
   cors: {
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    // Evaluated per request: FRONTEND_URL may come from .env after import.
+    origin: (
+      origin: string | undefined,
+      callback: (err: Error | null, allow?: boolean) => void,
+    ) => callback(null, !origin || allowedOrigins().includes(origin)),
     credentials: true,
   },
+  allowRequest: allowWebSocketRequest,
   namespace: 'match-events',
   transports: ['websocket'],
 })

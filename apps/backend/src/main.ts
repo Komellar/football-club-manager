@@ -5,8 +5,9 @@ import helmet from 'helmet';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { HttpAdapterHost } from '@nestjs/core';
 import { AllExceptionsFilter } from './shared/filters/all-exceptions.filter';
-import { setupSwagger } from './config/swagger.config';
+import { apiDocsEnabled, setupSwagger } from './config/swagger.config';
 import { setupUploads } from './config/uploads.config';
+import { allowedOrigins } from './config/origins.config';
 import * as qs from 'qs';
 
 async function bootstrap() {
@@ -38,7 +39,7 @@ async function bootstrap() {
   app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost));
 
   app.enableCors({
-    origin: [process.env.FRONTEND_URL || 'http://localhost:3000'],
+    origin: allowedOrigins(),
     credentials: true,
   });
 
@@ -46,7 +47,9 @@ async function bootstrap() {
 
   setupUploads(app);
 
-  setupSwagger(app);
+  if (apiDocsEnabled()) {
+    setupSwagger(app);
+  }
 
   const port = process.env.PORT || 4000;
   await app.listen(port);
