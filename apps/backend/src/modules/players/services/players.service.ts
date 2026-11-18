@@ -13,6 +13,22 @@ import type {
   PaginatedPlayerListResponseDto,
 } from '@repo/core';
 
+const PNG_SIGNATURE = Buffer.from([
+  0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
+]);
+const JPEG_SIGNATURE = Buffer.from([0xff, 0xd8, 0xff]);
+
+/** Returns the extension matching the image's magic bytes, or null. */
+export function detectImageExtension(buffer: Buffer): '.png' | '.jpg' | null {
+  if (buffer.subarray(0, PNG_SIGNATURE.length).equals(PNG_SIGNATURE)) {
+    return '.png';
+  }
+  if (buffer.subarray(0, JPEG_SIGNATURE.length).equals(JPEG_SIGNATURE)) {
+    return '.jpg';
+  }
+  return null;
+}
+
 @Injectable()
 export class PlayersService {
   constructor(
@@ -120,22 +136,28 @@ export class PlayersService {
     // This will throw EntityNotFoundError if player doesn't exist
     await this.playerRepository.findOneOrFail({ where: { id } });
 
-    if (!file?.buffer || !file?.originalname) {
+    if (!file?.buffer) {
       throw new BadRequestException('Invalid file provided');
+    }
+
+    if (file.buffer.length === 0) {
+      throw new BadRequestException('File is empty');
+    }
+
+    // The extension comes from the file's own signature, never from the
+    // client-supplied name: a PNG header followed by HTML and named
+    // "x.html" would otherwise be stored and served as a web page.
+    const fileExtension = detectImageExtension(file.buffer);
+    if (!fileExtension) {
+      throw new BadRequestException('Only JPEG and PNG images are allowed');
     }
 
     // Create uploads directory if it doesn't exist
     const uploadDir = path.join(process.cwd(), 'uploads', 'players');
     await fs.mkdir(uploadDir, { recursive: true });
 
-    const originalName = file.originalname || 'upload';
-    const fileExtension = path.extname(originalName) || '.jpg';
     const filename = `${id}_${Date.now()}${fileExtension}`;
     const filePath = path.join(uploadDir, filename);
-
-    if (file.buffer.length === 0) {
-      throw new BadRequestException('File is empty');
-    }
 
     await fs.writeFile(filePath, file.buffer);
 

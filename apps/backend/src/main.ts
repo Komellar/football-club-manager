@@ -1,11 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
-import { join } from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { HttpAdapterHost } from '@nestjs/core';
 import { AllExceptionsFilter } from './shared/filters/all-exceptions.filter';
 import { setupSwagger } from './config/swagger.config';
+import { setupUploads } from './config/uploads.config';
 import * as qs from 'qs';
 
 async function bootstrap() {
@@ -33,10 +33,7 @@ async function bootstrap() {
 
   app.use(cookieParser());
 
-  // Serve static files from uploads directory
-  app.useStaticAssets(join(process.cwd(), 'uploads'), {
-    prefix: '/uploads/',
-  });
+  setupUploads(app);
 
   setupSwagger(app);
 

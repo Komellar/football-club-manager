@@ -451,8 +451,16 @@ describe('PlayersService', () => {
   });
 
   describe('uploadImage', () => {
+    const jpegBytes = Buffer.concat([
+      Buffer.from([0xff, 0xd8, 0xff, 0xe0]),
+      Buffer.from('test image data'),
+    ]);
+    const pngBytes = Buffer.concat([
+      Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+      Buffer.from('<html><script>alert(1)</script></html>'),
+    ]);
     const mockFile = {
-      buffer: Buffer.from('test image data'),
+      buffer: jpegBytes,
       originalname: 'test.jpg',
     } as Express.Multer.File;
 
@@ -513,6 +521,40 @@ describe('PlayersService', () => {
       await expect(service.uploadImage(1, invalidFile)).rejects.toThrow(
         new BadRequestException('Invalid file provided'),
       );
+    });
+
+    it('takes the extension from the file contents, not the client name', async () => {
+      mockRepository.findOneOrFail.mockResolvedValue(mockPlayer);
+      mockRepository.update.mockResolvedValue({ affected: 1 });
+      jest.spyOn(Date, 'now').mockReturnValue(123456789);
+
+      await service.uploadImage(1, {
+        buffer: pngBytes,
+        originalname: 'avatar.html',
+      } as Express.Multer.File);
+
+      expect(fs.writeFile).toHaveBeenCalledWith(
+        path.join(process.cwd(), 'uploads', 'players', '1_123456789.png'),
+        pngBytes,
+      );
+      expect(mockRepository.update).toHaveBeenCalledWith(1, {
+        imageUrl: '/uploads/players/1_123456789.png',
+      });
+    });
+
+    it('rejects files that are not JPEG or PNG', async () => {
+      mockRepository.findOneOrFail.mockResolvedValue(mockPlayer);
+      (fs.writeFile as jest.Mock).mockClear();
+
+      await expect(
+        service.uploadImage(1, {
+          buffer: Buffer.from('<svg onload="alert(1)"></svg>'),
+          originalname: 'avatar.png',
+        } as Express.Multer.File),
+      ).rejects.toThrow(
+        new BadRequestException('Only JPEG and PNG images are allowed'),
+      );
+      expect(fs.writeFile).not.toHaveBeenCalled();
     });
 
     it('should throw BadRequestException if file is empty', async () => {
