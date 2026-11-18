@@ -7,13 +7,11 @@ import {
   Param,
   Delete,
   ParseIntPipe,
-  UseGuards,
   HttpCode,
   HttpStatus,
   Query,
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
-import { AuthGuard } from '@/shared/guards/auth.guard';
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe';
 import { ContractsService } from '../services/contracts.service';
 import {
@@ -37,7 +35,6 @@ import {
 @Controller('contracts')
 @ApiTags('contracts')
 @ApiBearerAuth()
-@UseGuards(AuthGuard)
 export class ContractsController {
   constructor(private readonly contractsService: ContractsService) {}
 

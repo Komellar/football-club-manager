@@ -4,19 +4,35 @@ import {
   ExecutionContext,
   UnauthorizedException,
 } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { AuthTokenPayloadSchema } from '@repo/core';
 import type { RequestWithUser } from '@/modules/auth/types';
+import { IS_PUBLIC_KEY } from '@/shared/decorators/public.decorator';
 
+/**
+ * Registered globally (APP_GUARD). Every HTTP route requires a valid token
+ * unless it is marked with @Public(). WebSocket gateways authenticate
+ * their own messages.
+ */
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly reflector: Reflector,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    if (context.getType() !== 'http') return true;
+
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    if (isPublic) return true;
+
     const request = context.switchToHttp().getRequest<RequestWithUser>();
 
     const token = this.extractTokenFromRequest(request);

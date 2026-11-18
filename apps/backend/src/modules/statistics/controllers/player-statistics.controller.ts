@@ -7,7 +7,6 @@ import {
   Param,
   Delete,
   Query,
-  UseGuards,
   HttpCode,
   HttpStatus,
   ParseIntPipe,
@@ -16,7 +15,6 @@ import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { ApiOkResponse } from '@nestjs/swagger';
 import type { PlayerPerformanceSummary } from '@repo/core';
 import { PlayerStatisticsService } from '../services/player-statistics.service';
-import { AuthGuard } from '@/shared/guards/auth.guard';
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe';
 import {
   CreatePlayerStatisticsSchema,
@@ -40,7 +38,6 @@ import {
 @Controller('statistics')
 @ApiTags('statistics')
 @ApiBearerAuth()
-@UseGuards(AuthGuard)
 export class PlayerStatisticsController {
   constructor(
     private readonly playerStatisticsService: PlayerStatisticsService,

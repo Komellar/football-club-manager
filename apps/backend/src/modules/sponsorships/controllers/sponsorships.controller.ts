@@ -7,14 +7,12 @@ import {
   Param,
   Delete,
   Query,
-  UseGuards,
   HttpCode,
   HttpStatus,
   ParseIntPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { SponsorshipsService } from '../services/sponsorships.service';
-import { AuthGuard } from '@/shared/guards/auth.guard';
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe';
 import {
   CreateSponsorshipSchema,
@@ -38,7 +36,6 @@ import {
 @Controller('sponsorships')
 @ApiTags('sponsorships')
 @ApiBearerAuth()
-@UseGuards(AuthGuard)
 export class SponsorshipsController {
   constructor(private readonly sponsorshipsService: SponsorshipsService) {}
 

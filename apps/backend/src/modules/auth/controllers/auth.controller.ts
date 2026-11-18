@@ -5,14 +5,13 @@ import {
   HttpCode,
   HttpStatus,
   Get,
-  UseGuards,
   Request,
   Response,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Response as ExpressResponse } from 'express';
 import { AuthService } from '../services/auth.service';
-import { AuthGuard } from '@/shared/guards/auth.guard';
+import { Public } from '@/shared/decorators/public.decorator';
 import { CreateUserApiSchema, LoginSchema } from '@repo/core';
 import type {
   CreateUserDto,
@@ -33,6 +32,7 @@ import {
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Public()
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @LoginUser()
@@ -48,6 +48,7 @@ export class AuthController {
     return result;
   }
 
+  @Public()
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   @RegisterUser()
@@ -61,6 +62,7 @@ export class AuthController {
     return result;
   }
 
+  @Public()
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   logout(@Response({ passthrough: true }) res: ExpressResponse): {
@@ -77,7 +79,6 @@ export class AuthController {
   }
 
   @Get('profile')
-  @UseGuards(AuthGuard)
   @GetCurrentUser()
   getProfile(@Request() req: RequestWithUser): User {
     return {

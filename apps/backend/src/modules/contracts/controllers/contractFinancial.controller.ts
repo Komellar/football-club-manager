@@ -1,11 +1,4 @@
-import {
-  Controller,
-  Get,
-  Param,
-  ParseIntPipe,
-  UseGuards,
-} from '@nestjs/common';
-import { AuthGuard } from '@/shared/guards/auth.guard';
+import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
 import { ContractFinancialService } from '../services';
 import {
   type ContractValueCalculation,
@@ -13,7 +6,6 @@ import {
 } from '@repo/core';
 
 @Controller('contracts/financial')
-@UseGuards(AuthGuard)
 export class ContractFinancialController {
   constructor(
     private readonly contractFinancialService: ContractFinancialService,

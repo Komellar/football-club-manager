@@ -1,57 +1,38 @@
 import {
   Controller,
+  ForbiddenException,
   Get,
-  Post,
-  Body,
+  NotFoundException,
   Param,
   ParseIntPipe,
-  HttpCode,
-  HttpStatus,
-  NotFoundException,
+  Request,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { RoleType } from '@repo/core';
+import type { UserResponseDto } from '@repo/core';
+import type { RequestWithUser } from '@/modules/auth/types';
 import { UserService } from '../services/user.service';
-import { CreateUserApiSchema } from '@repo/core';
-import type { CreateUserDto, UserResponseDto } from '@repo/core';
-import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe';
-import {
-  CreateUser,
-  GetUserById,
-} from '../decorators/user-endpoint.decorators';
+import { GetUserById } from '../decorators/user-endpoint.decorators';
 
+/**
+ * Accounts are created only through POST /auth/register. A user may read
+ * their own record; admins may read any record.
+ */
 @Controller('users')
 @ApiTags('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post()
-  @HttpCode(HttpStatus.CREATED)
-  @CreateUser()
-  async create(
-    @Body(new ZodValidationPipe(CreateUserApiSchema))
-    createUserDto: CreateUserDto,
-  ): Promise<UserResponseDto> {
-    const user = await this.userService.create(createUserDto);
-    const { passwordHash: _, ...result } = user;
-    return result;
-  }
-
   @Get(':id')
   @GetUserById()
   async findById(
     @Param('id', ParseIntPipe) id: number,
+    @Request() req: RequestWithUser,
   ): Promise<UserResponseDto> {
-    const user = await this.userService.findById(id);
-    if (!user) {
-      throw new NotFoundException('User not found');
+    if (req.user.userId !== id && req.user.role !== RoleType.ADMIN) {
+      throw new ForbiddenException('You can only view your own account');
     }
-    const { passwordHash: _, ...result } = user;
-    return result;
-  }
-
-  @Get('email/:email')
-  async findByEmail(@Param('email') email: string): Promise<UserResponseDto> {
-    const user = await this.userService.findByEmail(email);
+    const user = await this.userService.findById(id);
     if (!user) {
       throw new NotFoundException('User not found');
     }

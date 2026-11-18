@@ -1,9 +1,7 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@/shared/guards/auth.guard';
+import { Controller, Get } from '@nestjs/common';
 import { LineupService } from '../services/lineup.service';
 
 @Controller('match-lineup')
-@UseGuards(AuthGuard)
 export class LineupController {
   constructor(private readonly lineups: LineupService) {}
 

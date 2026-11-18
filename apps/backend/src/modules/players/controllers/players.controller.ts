@@ -7,7 +7,6 @@ import {
   Param,
   Delete,
   Query,
-  UseGuards,
   HttpCode,
   HttpStatus,
   ParseIntPipe,
@@ -18,7 +17,6 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { PlayersService } from '../services/players.service';
-import { AuthGuard } from '@/shared/guards/auth.guard';
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe';
 import {
   CreatePlayer,
@@ -40,7 +38,6 @@ import {
 @ApiTags('players')
 @ApiBearerAuth()
 @Controller('players')
-@UseGuards(AuthGuard)
 export class PlayersController {
   constructor(private readonly playersService: PlayersService) {}
 

@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { Reflector } from '@nestjs/core';
 import { AuthGuard } from './auth.guard';
 import { RoleType, User } from '@repo/core';
 import type { RequestWithUser } from '@/modules/auth/types';
@@ -17,6 +18,7 @@ describe('AuthGuard', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthGuard,
+        Reflector,
         {
           provide: JwtService,
           useValue: {
@@ -54,10 +56,36 @@ describe('AuthGuard', () => {
       };
 
       mockExecutionContext = {
+        getType: () => 'http',
+        getHandler: () => handler,
+        getClass: () => Controller,
         switchToHttp: () => ({
           getRequest: () => mockRequest,
         }),
-      } as ExecutionContext;
+      } as unknown as ExecutionContext;
+    });
+
+    const handler = () => undefined;
+    class Controller {}
+
+    it('lets @Public() routes through without a token', async () => {
+      Reflect.defineMetadata('isPublic', true, handler);
+      try {
+        await expect(guard.canActivate(mockExecutionContext)).resolves.toBe(
+          true,
+        );
+        expect(verifyAsyncSpy).not.toHaveBeenCalled();
+      } finally {
+        Reflect.deleteMetadata('isPublic', handler);
+      }
+    });
+
+    it('leaves WebSocket contexts to the gateway', async () => {
+      const wsContext = {
+        ...mockExecutionContext,
+        getType: () => 'ws',
+      } as unknown as ExecutionContext;
+      await expect(guard.canActivate(wsContext)).resolves.toBe(true);
     });
 
     it('should throw UnauthorizedException when no authorization header is present', async () => {

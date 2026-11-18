@@ -7,14 +7,12 @@ import {
   Param,
   Delete,
   Query,
-  UseGuards,
   HttpCode,
   HttpStatus,
   ParseIntPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { TransfersService } from '../services/transfers.service';
-import { AuthGuard } from '@/shared/guards/auth.guard';
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe';
 import {
   CreateTransferValidationSchema as CreateTransferSchema,
@@ -39,7 +37,6 @@ import {
 @Controller('transfers')
 @ApiTags('transfers')
 @ApiBearerAuth()
-@UseGuards(AuthGuard)
 export class TransfersController {
   constructor(private readonly transfersService: TransfersService) {}
 
