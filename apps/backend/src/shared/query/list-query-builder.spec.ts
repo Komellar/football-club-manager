@@ -617,17 +617,32 @@ describe('ListQueryBuilder', () => {
       });
     });
 
-    it('should handle zero page and limit', async () => {
-      const queryDto = { page: 0, limit: 0 };
+    it('never returns an unbounded page for zero or negative limits', async () => {
+      for (const queryDto of [
+        { page: 0, limit: 0 },
+        { page: -3, limit: -5 },
+      ]) {
+        mockRepository.findAndCount.mockClear();
+        await ListQueryBuilder.executeQuery(mockRepository, queryDto);
 
-      await ListQueryBuilder.executeQuery(mockRepository, queryDto);
+        expect(mockRepository.findAndCount).toHaveBeenCalledWith({
+          where: {},
+          order: { updatedAt: 'DESC' },
+          skip: 0,
+          take: 10,
+        });
+      }
+    });
 
-      expect(mockRepository.findAndCount).toHaveBeenCalledWith({
-        where: {},
-        order: { updatedAt: 'DESC' },
-        skip: 0, // Uses default page (1) when 0: (1-1) * 10 = 0
-        take: undefined,
+    it('caps the page size at 100', async () => {
+      const result = await ListQueryBuilder.executeQuery(mockRepository, {
+        limit: 5000,
       });
+
+      expect(mockRepository.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({ take: 100 }),
+      );
+      expect(result.pagination.limit).toBe(100);
     });
   });
 

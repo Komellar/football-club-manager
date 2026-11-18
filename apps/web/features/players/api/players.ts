@@ -6,6 +6,7 @@ import type {
   PlayerResponseDto,
   CreatePlayerDto,
 } from "@repo/core";
+import { MAX_PAGE_SIZE, SortOrder } from "@repo/core";
 import { cache } from "react";
 
 const BASE_URL = "/players";
@@ -26,6 +27,23 @@ export async function getPlayers(
       throw new Error(errorMessage);
     }
     throw new Error("Failed to fetch players");
+  }
+}
+
+/**
+ * Fetches every player for pickers (contract and transfer forms) by walking
+ * the pages, since the API caps each page at MAX_PAGE_SIZE.
+ */
+export async function getAllPlayers(): Promise<{ data: PlayerResponseDto[] }> {
+  const data: PlayerResponseDto[] = [];
+  for (let page = 1; ; page++) {
+    const result = await getPlayers({
+      page,
+      limit: MAX_PAGE_SIZE,
+      sort: { by: "name", order: SortOrder.ASC },
+    });
+    data.push(...result.data);
+    if (!result.pagination.hasNext) return { data };
   }
 }
 

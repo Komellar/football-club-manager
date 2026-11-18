@@ -8,9 +8,18 @@ export const SortParamsSchema = z
   })
   .optional();
 
+/** Largest page any list endpoint returns. */
+export const MAX_PAGE_SIZE = 100;
+
 export const ListQueryParamsSchema = z.object({
   page: z.coerce.number().int().positive().default(1).optional(),
-  limit: z.coerce.number().int().max(100).default(10).optional(),
+  limit: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(MAX_PAGE_SIZE)
+    .default(10)
+    .optional(),
   search: z.string().optional(),
   sort: SortParamsSchema,
 });

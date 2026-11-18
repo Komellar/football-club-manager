@@ -34,9 +34,28 @@ export const MonthlyFinanceDataSchema = z.object({
 
 export type MonthlyFinanceData = z.infer<typeof MonthlyFinanceDataSchema>;
 
-export const FinancePeriodQuerySchema = z.object({
-  startDate: z.string().transform((str) => new Date(str)),
-  endDate: z.string().transform((str) => new Date(str)),
-});
+/** Each month in the range costs several queries, so the span is capped. */
+export const FINANCE_MAX_RANGE_YEARS = 10;
+
+export const FinancePeriodQuerySchema = z
+  .object({
+    startDate: z.coerce.date<string>("startDate must be a valid date"),
+    endDate: z.coerce.date<string>("endDate must be a valid date"),
+  })
+  .refine((data) => data.startDate <= data.endDate, {
+    message: "startDate must be before or equal to endDate",
+    path: ["endDate"],
+  })
+  .refine(
+    (data) => {
+      const limit = new Date(data.startDate);
+      limit.setUTCFullYear(limit.getUTCFullYear() + FINANCE_MAX_RANGE_YEARS);
+      return data.endDate <= limit;
+    },
+    {
+      message: `The period can span at most ${FINANCE_MAX_RANGE_YEARS} years`,
+      path: ["endDate"],
+    },
+  );
 
 export type FinancePeriodQuery = z.infer<typeof FinancePeriodQuerySchema>;

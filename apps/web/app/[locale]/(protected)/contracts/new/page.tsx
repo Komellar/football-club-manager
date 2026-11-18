@@ -3,7 +3,7 @@ import { ContractForm } from "@/features/contracts/components";
 import { ArrowLeft } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
-import { getPlayers } from "@/features/players/api";
+import { getAllPlayers } from "@/features/players/api";
 
 export default async function NewContractPage({
   params,
@@ -13,7 +13,7 @@ export default async function NewContractPage({
   const { locale } = await params;
   const t = await getTranslations("Contracts");
 
-  const playersPromise = getPlayers({ limit: 0 });
+  const playersPromise = getAllPlayers();
 
   return (
     <div className="space-y-6">

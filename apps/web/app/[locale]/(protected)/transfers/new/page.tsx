@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { getPlayers } from "@/features/players/api";
+import { getAllPlayers } from "@/features/players/api";
 
 export default async function NewTransferPage({
   params,
@@ -14,7 +14,7 @@ export default async function NewTransferPage({
   const t = await getTranslations("Transfers");
 
   // Fetch all players for the dropdown
-  const playersData = await getPlayers({ limit: 0 });
+  const playersData = await getAllPlayers();
   const players = playersData.data.map((player) => ({
     id: player.id,
     name: player.name,

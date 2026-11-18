@@ -18,6 +18,7 @@ import {
   CompareOperator,
   FilterMode,
   SortOrder,
+  MAX_PAGE_SIZE,
   type Comparable,
   type FilterOptions,
   type SearchOptions,
@@ -30,6 +31,7 @@ import {
 export class ListQueryBuilder {
   private static readonly DEFAULT_PAGE = 1;
   private static readonly DEFAULT_LIMIT = 10;
+  private static readonly MAX_LIMIT = MAX_PAGE_SIZE;
   private static readonly DEFAULT_FILTER_MODE = FilterMode.PARTIAL;
   private static readonly DEFAULT_SORT_BY = 'updatedAt';
   private static readonly DEFAULT_SORT_ORDER = SortOrder.DESC;
@@ -40,9 +42,8 @@ export class ListQueryBuilder {
     filterOptions?: FilterOptions,
     relations?: string[],
   ): Promise<PaginationResult<T>> {
-    const page = queryDto?.page || this.DEFAULT_PAGE;
-    const limit =
-      typeof queryDto?.limit === 'number' ? queryDto.limit : this.DEFAULT_LIMIT;
+    const page = this.normalizePage(queryDto?.page);
+    const limit = this.normalizeLimit(queryDto?.limit);
 
     const typeormQuery = this.buildTypeOrmQuery(
       page,
@@ -70,7 +71,7 @@ export class ListQueryBuilder {
     if (!queryDto) {
       return {
         skip: (page - 1) * limit,
-        take: limit === 0 ? undefined : limit,
+        take: limit,
         ...(relations && { relations }),
       };
     }
@@ -95,9 +96,23 @@ export class ListQueryBuilder {
       where: finalWhere,
       order,
       skip: (page - 1) * limit,
-      take: limit === 0 ? undefined : limit,
+      take: limit,
       ...(relations && { relations }),
     };
+  }
+
+  private static normalizePage(page: unknown): number {
+    return Number.isInteger(page) && (page as number) > 0
+      ? (page as number)
+      : this.DEFAULT_PAGE;
+  }
+
+  /** Every list is paginated: there is no "return everything" value. */
+  private static normalizeLimit(limit: unknown): number {
+    if (!Number.isInteger(limit) || (limit as number) < 1) {
+      return this.DEFAULT_LIMIT;
+    }
+    return Math.min(limit as number, this.MAX_LIMIT);
   }
 
   private static processFilters(
