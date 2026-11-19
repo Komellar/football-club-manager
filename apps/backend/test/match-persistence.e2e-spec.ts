@@ -75,7 +75,7 @@ databaseTests('Atomic PostgreSQL match completion', () => {
       id serial PRIMARY KEY, player_id int NOT NULL REFERENCES "${schema}".players(id),
       contract_type varchar NOT NULL, status varchar NOT NULL, start_date date NOT NULL, end_date date NOT NULL,
       salary numeric(12,2) NOT NULL, bonuses numeric(12,2), sign_on_fee numeric(12,2), agent_fee numeric(12,2),
-      release_clause numeric(12,2), notes text, created_at timestamp NOT NULL DEFAULT now(), updated_at timestamp NOT NULL DEFAULT now()
+      release_clause numeric(12,2), notes text, terminated_at date, created_at timestamp NOT NULL DEFAULT now(), updated_at timestamp NOT NULL DEFAULT now()
     )`);
     await database.query(`CREATE TABLE "${schema}".transfers (
       id serial PRIMARY KEY, player_id int NOT NULL REFERENCES "${schema}".players(id),
