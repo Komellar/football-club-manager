@@ -3,7 +3,14 @@ import { PlayerPosition } from "../../enums/player-position";
 import { isValidPlayerAge } from "../../utils/age-utils";
 import { VALID_NATIONALITIES } from "../../constants/confederations";
 
-export const CreatePlayerSchema = z.object({
+const EARLIEST_BIRTH_DATE = new Date("1900-01-01");
+
+/**
+ * Fields shared by create, update and responses. The date of birth only has
+ * to be plausible here; the 15–50 signing age applies at creation, so an
+ * existing player stays editable after turning 51.
+ */
+export const PlayerInputSchema = z.object({
   name: z
     .string()
     .trim()
@@ -23,8 +30,8 @@ export const CreatePlayerSchema = z.object({
   dateOfBirth: z.coerce
     .date<Date>("Invalid date")
     .refine(
-      (date) => isValidPlayerAge(date),
-      "Player must be between 15 and 50 years old"
+      (date) => date >= EARLIEST_BIRTH_DATE && date <= new Date(),
+      "Date of birth must be in the past"
     ),
 
   country: z
@@ -68,4 +75,15 @@ export const CreatePlayerSchema = z.object({
   imageUrl: z.url("Image URL must be a valid URL").optional().nullable(),
 });
 
+export const CreatePlayerSchema = PlayerInputSchema.extend({
+  dateOfBirth: PlayerInputSchema.shape.dateOfBirth.refine(
+    (date) => isValidPlayerAge(date),
+    "Player must be between 15 and 50 years old"
+  ),
+});
+
+/** Full replacement of an existing player; no signing-age limit. */
+export const UpdatePlayerSchema = PlayerInputSchema;
+
 export type CreatePlayerDto = z.infer<typeof CreatePlayerSchema>;
+export type UpdatePlayerDto = z.infer<typeof UpdatePlayerSchema>;

@@ -1,5 +1,5 @@
 import { createZodApiBodyDecorator } from '../../../shared/decorators/api-body.decorators';
-import { CreatePlayerSchema } from '@repo/core';
+import { CreatePlayerSchema, UpdatePlayerSchema } from '@repo/core';
 
 export const PlayerApiBody = createZodApiBodyDecorator({
   create: {
@@ -7,7 +7,7 @@ export const PlayerApiBody = createZodApiBodyDecorator({
     zodSchema: CreatePlayerSchema,
   },
   update: {
-    description: 'Player data to update (all fields optional)',
-    zodSchema: CreatePlayerSchema,
+    description: 'Full player data (replaces the stored player)',
+    zodSchema: UpdatePlayerSchema,
   },
 });

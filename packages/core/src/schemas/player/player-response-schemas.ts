@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { createPaginationResponseSchema } from "../../utils/schema-utils";
-import { CreatePlayerSchema } from "./player-input-schemas";
+import { PlayerInputSchema } from "./player-input-schemas";
 
-export const PlayerResponseSchema = CreatePlayerSchema.extend({
+export const PlayerResponseSchema = PlayerInputSchema.extend({
   id: z.number().int().positive(),
   age: z.number().int().min(0),
   createdAt: z.coerce.date(),

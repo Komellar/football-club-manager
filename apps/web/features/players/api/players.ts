@@ -5,6 +5,7 @@ import type {
   PaginatedPlayerListResponseDto,
   PlayerResponseDto,
   CreatePlayerDto,
+  UpdatePlayerDto,
 } from "@repo/core";
 import { MAX_PAGE_SIZE, SortOrder } from "@repo/core";
 import { cache } from "react";
@@ -86,7 +87,7 @@ export async function createPlayer(
 
 export async function updatePlayer(
   id: number,
-  playerData: CreatePlayerDto
+  playerData: UpdatePlayerDto
 ): Promise<PlayerResponseDto> {
   try {
     const { data }: AxiosResponse<PlayerResponseDto> = await apiClient.put(

@@ -2,11 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { updatePlayer } from "../api/players";
-import type { CreatePlayerDto } from "@repo/core";
+import type { UpdatePlayerDto } from "@repo/core";
 
 export async function updatePlayerAction(
   playerId: number,
-  playerData: CreatePlayerDto
+  playerData: UpdatePlayerDto
 ) {
   if (!playerData.isActive) {
     delete playerData.jerseyNumber;

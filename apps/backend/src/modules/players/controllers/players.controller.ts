@@ -28,6 +28,8 @@ import {
 } from '../decorators/player-endpoint.decorators';
 import {
   CreatePlayerSchema,
+  UpdatePlayerSchema,
+  type UpdatePlayerDto,
   PlayerListSchema,
   type CreatePlayerDto,
   type PlayerResponseDto,
@@ -78,8 +80,8 @@ export class PlayersController {
   @UpdatePlayer()
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body(new ZodValidationPipe(CreatePlayerSchema))
-    updatePlayerDto: CreatePlayerDto,
+    @Body(new ZodValidationPipe(UpdatePlayerSchema))
+    updatePlayerDto: UpdatePlayerDto,
   ): Promise<PlayerResponseDto> {
     return this.playersService.update(id, updatePlayerDto);
   }

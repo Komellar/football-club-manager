@@ -13,8 +13,8 @@ import { updatePlayerAction } from "../../actions";
 import { transformToFormValues } from "../../utils";
 import {
   PlayerResponseDto,
-  CreatePlayerSchema,
-  CreatePlayerDto,
+  UpdatePlayerSchema,
+  UpdatePlayerDto,
 } from "@repo/core";
 import { PhysicalAttributes, BasicInfo, TeamInfo, PlayerStatus } from ".";
 
@@ -29,12 +29,12 @@ export function EditPlayerForm({ player }: EditPlayerFormProps) {
   const [isPending, startTransition] = useTransition();
   const [serverError, setServerError] = useState<string | null>(null);
 
-  const form = useForm<CreatePlayerDto>({
-    resolver: zodResolver(CreatePlayerSchema),
+  const form = useForm<UpdatePlayerDto>({
+    resolver: zodResolver(UpdatePlayerSchema),
     defaultValues: transformToFormValues(player),
   });
 
-  const onSubmit = async (data: CreatePlayerDto) => {
+  const onSubmit = async (data: UpdatePlayerDto) => {
     setServerError(null);
     startTransition(async () => {
       try {

@@ -8,6 +8,7 @@ import { ListQueryBuilder } from '@/shared/query/list-query-builder';
 import { FilterOptions, FilterMode, PlayerPosition } from '@repo/core';
 import type {
   CreatePlayerDto,
+  UpdatePlayerDto,
   PlayerResponseDto,
   PlayerListDto,
   PaginatedPlayerListResponseDto,
@@ -81,7 +82,7 @@ export class PlayersService {
 
   async update(
     id: number,
-    updatePlayerDto: CreatePlayerDto,
+    updatePlayerDto: UpdatePlayerDto,
   ): Promise<PlayerResponseDto> {
     const playerExists = await this.playerRepository.exists({
       where: { id },
