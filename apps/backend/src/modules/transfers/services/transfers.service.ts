@@ -20,6 +20,10 @@ import type {
 } from '@repo/core';
 import { ListQueryBuilder } from '@/shared/query/list-query-builder';
 import { getTransferOwnership } from './transfer-lifecycle';
+import {
+  isPermanentDeparture,
+  terminateContractsOnDeparture,
+} from '@/modules/contracts/services/contract-rules';
 
 @Injectable()
 export class TransfersService {
@@ -41,9 +45,14 @@ export class TransfersService {
       });
       const repository = manager.getRepository(Transfer);
       await this.validateLifecycle(repository, data);
-      return this.mapToResponseDto(
-        await repository.save(repository.create(data)),
-      );
+      const saved = await repository.save(repository.create(data));
+      if (saved.isCompleted && isPermanentDeparture(saved))
+        await terminateContractsOnDeparture(
+          manager,
+          saved.playerId,
+          saved.transferDate,
+        );
+      return this.mapToResponseDto(saved);
     });
   }
 
@@ -151,9 +160,15 @@ export class TransfersService {
       ];
       if (lifecycleFields.some((field) => Object.hasOwn(fields, field)))
         await this.validateLifecycle(repository, data, id);
-      return this.mapToResponseDto(
-        await repository.save(Object.assign(transfer, data)),
-      );
+      const wasCompleted = transfer.isCompleted;
+      const saved = await repository.save(Object.assign(transfer, data));
+      if (!wasCompleted && saved.isCompleted && isPermanentDeparture(saved))
+        await terminateContractsOnDeparture(
+          manager,
+          saved.playerId,
+          saved.transferDate,
+        );
+      return this.mapToResponseDto(saved);
     });
   }
 

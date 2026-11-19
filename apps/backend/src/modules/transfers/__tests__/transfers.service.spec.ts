@@ -6,7 +6,9 @@ import { BadRequestException } from '@nestjs/common';
 import { TransfersService } from '../services/transfers.service';
 import { Transfer } from '@/shared/entities/transfer.entity';
 import { Player } from '@/shared/entities/player.entity';
+import { Contract } from '@/shared/entities/contract.entity';
 import {
+  ContractStatus,
   TransferStatus,
   TransferType,
   TransferDirection,
@@ -82,6 +84,7 @@ describe('TransfersService', () => {
   let transferRepository: jest.Mocked<Repository<Transfer>>;
   let playerRepository: jest.Mocked<Repository<Player>>;
   let queryBuilder: jest.Mocked<SelectQueryBuilder<Transfer>>;
+  let contractRepository: { find: jest.Mock; save: jest.Mock };
 
   const mockPlayer = createMockPlayer();
   const mockTransfer = createMockTransfer();
@@ -120,6 +123,10 @@ describe('TransfersService', () => {
       manager: { transaction: jest.fn() },
     };
 
+    contractRepository = {
+      find: jest.fn().mockResolvedValue([]),
+      save: jest.fn(),
+    };
     const mockPlayerRepository = {
       findOne: jest.fn(),
       findOneOrFail: jest.fn(),
@@ -130,7 +137,11 @@ describe('TransfersService', () => {
       async (callback: (manager: unknown) => unknown) =>
         await callback({
           getRepository: (entity: unknown) =>
-            entity === Player ? mockPlayerRepository : mockTransferRepository,
+            entity === Player
+              ? mockPlayerRepository
+              : entity === Contract
+                ? contractRepository
+                : mockTransferRepository,
         }),
     );
 
@@ -451,6 +462,37 @@ describe('TransfersService', () => {
   });
 
   describe('update', () => {
+    it('terminates the player contracts when a sale is completed', async () => {
+      const sale = createMockTransfer({
+        transferDirection: TransferDirection.OUTGOING,
+        transferType: TransferType.SALE,
+        transferStatus: TransferStatus.PENDING,
+        transferDate: new Date('2024-07-01'),
+      });
+      transferRepository.findOneOrFail.mockResolvedValue(sale);
+      transferRepository.find.mockResolvedValue([
+        createMockTransfer({ id: 2 }),
+      ]);
+      transferRepository.save.mockImplementation((value) =>
+        Promise.resolve(value as Transfer),
+      );
+      const contract = Object.assign(new Contract(), {
+        id: 5,
+        status: ContractStatus.ACTIVE,
+        endDate: new Date('2026-06-30'),
+      });
+      contractRepository.find.mockResolvedValue([contract]);
+
+      await service.update(1, { transferStatus: TransferStatus.COMPLETED });
+
+      expect(contractRepository.save).toHaveBeenCalledWith([
+        expect.objectContaining({
+          status: ContractStatus.TERMINATED,
+          terminatedAt: new Date('2024-07-01'),
+        }),
+      ]);
+    });
+
     it('accepts notes-only updates to a completed transfer without rechecking historical ownership', async () => {
       const transfer = createMockTransfer();
       transferRepository.findOneOrFail.mockResolvedValue(transfer);

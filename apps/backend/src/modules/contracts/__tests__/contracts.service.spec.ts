@@ -1,4 +1,4 @@
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, ConflictException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { Contract } from '@/shared/entities/contract.entity';
 import { ContractStatus, ContractType, UpdateContractSchema } from '@repo/core';
@@ -8,6 +8,8 @@ describe('Contract partial updates', () => {
   const repo = {
     findOneOrFail: jest.fn(),
     save: jest.fn(),
+    create: jest.fn(),
+    exists: jest.fn(),
     manager: { transaction: jest.fn() },
   };
   const service = new ContractsService(repo as unknown as Repository<Contract>);
@@ -24,6 +26,10 @@ describe('Contract partial updates', () => {
       endDate: new Date('2026-12-31'),
     });
     repo.findOneOrFail.mockResolvedValue(contract);
+    repo.exists.mockResolvedValue(false);
+    repo.create.mockImplementation((value: Partial<Contract>) =>
+      Object.assign(new Contract(), value),
+    );
     repo.save.mockImplementation((value: Contract) => Promise.resolve(value));
     repo.manager.transaction.mockImplementation(
       async (callback: (manager: unknown) => unknown) =>
@@ -67,6 +73,29 @@ describe('Contract partial updates', () => {
     } finally {
       jest.useRealTimers();
     }
+  });
+  it('rejects a contract that overlaps another binding contract', async () => {
+    repo.exists.mockResolvedValue(true);
+    await expect(
+      service.create({
+        playerId: 2,
+        contractType: ContractType.PERMANENT,
+        status: ContractStatus.ACTIVE,
+        salary: 1000,
+        startDate: new Date('2026-06-01'),
+        endDate: new Date('2027-06-01'),
+      }),
+    ).rejects.toThrow(ConflictException);
+    await expect(service.update(1, { salary: 3000 })).rejects.toThrow(
+      ConflictException,
+    );
+    expect(repo.save).not.toHaveBeenCalled();
+  });
+  it('does not check overlaps for terminated contracts', async () => {
+    repo.exists.mockResolvedValue(true);
+    await service.update(1, { status: ContractStatus.TERMINATED });
+    expect(repo.exists).not.toHaveBeenCalled();
+    expect(repo.save).toHaveBeenCalled();
   });
   it('rejects reversed dates in the shared patch schema', () => {
     expect(

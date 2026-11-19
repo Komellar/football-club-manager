@@ -14,6 +14,8 @@ import {
   CreateContractSchema,
 } from '@repo/core';
 import { ListQueryBuilder } from '@/shared/query/list-query-builder';
+import { Player } from '@/shared/entities/player.entity';
+import { assertNoOverlappingContract } from './contract-rules';
 
 /** Today as a UTC calendar date, matching how DATE columns are read. */
 export function todayUtc(now = new Date()): Date {
@@ -47,9 +49,18 @@ export class ContractsService {
   async create(createContractDto: CreateContractDto): Promise<Contract> {
     const parsed = CreateContractSchema.safeParse(createContractDto);
     if (!parsed.success) throw new BadRequestException(parsed.error.issues);
-    const contract = this.contractRepository.create(parsed.data);
-    syncTerminationDate(contract, undefined);
-    return await this.contractRepository.save(contract);
+    return this.contractRepository.manager.transaction(async (manager) => {
+      // Serializes contract changes per player so the overlap check holds.
+      await manager.getRepository(Player).findOneOrFail({
+        where: { id: parsed.data.playerId },
+        lock: { mode: 'pessimistic_write' },
+      });
+      const repository = manager.getRepository(Contract);
+      const contract = repository.create(parsed.data);
+      syncTerminationDate(contract, undefined);
+      await assertNoOverlappingContract(manager, contract);
+      return await repository.save(contract);
+    });
   }
 
   async findAll(
@@ -91,7 +102,14 @@ export class ContractsService {
     id: number,
     updateContractDto: UpdateContractDto,
   ): Promise<Contract> {
+    const { playerId } = await this.contractRepository.findOneOrFail({
+      where: { id },
+    });
     await this.contractRepository.manager.transaction(async (manager) => {
+      await manager.getRepository(Player).findOneOrFail({
+        where: { id: playerId },
+        lock: { mode: 'pessimistic_write' },
+      });
       const repository = manager.getRepository(Contract);
       const contract = await repository.findOneOrFail({
         where: { id },
@@ -115,6 +133,7 @@ export class ContractsService {
       const previousStatus = contract.status;
       Object.assign(contract, parsed.data);
       syncTerminationDate(contract, previousStatus);
+      await assertNoOverlappingContract(manager, contract);
       await repository.save(contract);
     });
     return await this.contractRepository.findOneOrFail({
