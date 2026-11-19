@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 import { Request, Response } from 'express';
-import { EntityNotFoundError } from 'typeorm';
+import { EntityNotFoundError, QueryFailedError } from 'typeorm';
 
 interface ErrorResponse {
   statusCode: number;
@@ -19,6 +19,47 @@ interface ErrorResponse {
   method: string;
   requestId?: string;
   stack?: string;
+}
+
+const PG_UNIQUE_VIOLATION = '23505';
+const PG_FOREIGN_KEY_VIOLATION = '23503';
+
+/** Friendly messages for unique columns, keyed by the column in the error. */
+const UNIQUE_MESSAGES: Record<string, string> = {
+  email: 'An account with this email already exists',
+  jersey_number: 'This jersey number is already taken by an active player',
+};
+
+/**
+ * Turns database constraint errors (often a lost race against an earlier
+ * check) into client errors instead of 500s. Returns undefined for anything
+ * else. The driver's detail text is never sent, since it echoes values.
+ */
+export function describeConstraintViolation(
+  exception: unknown,
+): { statusCode: number; message: string; error: string } | undefined {
+  if (!(exception instanceof QueryFailedError)) return undefined;
+  const driverError = exception.driverError as
+    | { code?: string; detail?: string }
+    | undefined;
+  const column = /Key \(([^)]+)\)/.exec(driverError?.detail ?? '')?.[1];
+  if (driverError?.code === PG_UNIQUE_VIOLATION) {
+    return {
+      statusCode: HttpStatus.CONFLICT,
+      message:
+        (column && UNIQUE_MESSAGES[column]) ||
+        'A record with these details already exists',
+      error: 'Conflict',
+    };
+  }
+  if (driverError?.code === PG_FOREIGN_KEY_VIOLATION) {
+    return {
+      statusCode: HttpStatus.BAD_REQUEST,
+      message: 'A referenced record does not exist',
+      error: 'BadRequest',
+    };
+  }
+  return undefined;
 }
 
 /**
@@ -46,8 +87,11 @@ export class AllExceptionsFilter implements ExceptionFilter {
     let statusCode: number;
     let message: string | object;
     let error: string;
+    const constraint = describeConstraintViolation(exception);
 
-    if (exception instanceof HttpException) {
+    if (constraint) {
+      ({ statusCode, message, error } = constraint);
+    } else if (exception instanceof HttpException) {
       // Handle known HTTP exceptions
       statusCode = exception.getStatus();
       const exceptionResponse = exception.getResponse();
