@@ -53,6 +53,21 @@ describe('Contract partial updates', () => {
     ).rejects.toThrow(BadRequestException);
     expect(repo.save).not.toHaveBeenCalled();
   });
+  it('stamps a termination date that stops wages, and clears it on reinstatement', async () => {
+    jest.useFakeTimers().setSystemTime(new Date('2026-06-15T10:00:00Z'));
+    try {
+      const terminated = await service.update(1, {
+        status: ContractStatus.TERMINATED,
+      });
+      expect(terminated.terminatedAt).toEqual(new Date('2026-06-15'));
+      const reinstated = await service.update(1, {
+        status: ContractStatus.ACTIVE,
+      });
+      expect(reinstated.terminatedAt).toBeNull();
+    } finally {
+      jest.useRealTimers();
+    }
+  });
   it('rejects reversed dates in the shared patch schema', () => {
     expect(
       UpdateContractSchema.safeParse({

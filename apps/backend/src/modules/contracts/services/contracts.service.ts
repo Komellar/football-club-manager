@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Contract } from '@/shared/entities/contract.entity';
 import {
+  ContractStatus,
   CreateContractDto,
   UpdateContractDto,
   ContractListDto,
@@ -13,6 +14,28 @@ import {
   CreateContractSchema,
 } from '@repo/core';
 import { ListQueryBuilder } from '@/shared/query/list-query-builder';
+
+/** Today as a UTC calendar date, matching how DATE columns are read. */
+export function todayUtc(now = new Date()): Date {
+  return new Date(now.toISOString().slice(0, 10));
+}
+
+/**
+ * Stamps the termination date when a contract becomes terminated and clears
+ * it if the contract is reinstated.
+ */
+function syncTerminationDate(
+  contract: Contract,
+  previousStatus: ContractStatus | undefined,
+): void {
+  if (contract.status !== ContractStatus.TERMINATED) {
+    contract.terminatedAt = null;
+  } else if (previousStatus !== ContractStatus.TERMINATED) {
+    const today = todayUtc();
+    contract.terminatedAt =
+      today < contract.endDate ? today : new Date(contract.endDate);
+  }
+}
 
 @Injectable()
 export class ContractsService {
@@ -25,6 +48,7 @@ export class ContractsService {
     const parsed = CreateContractSchema.safeParse(createContractDto);
     if (!parsed.success) throw new BadRequestException(parsed.error.issues);
     const contract = this.contractRepository.create(parsed.data);
+    syncTerminationDate(contract, undefined);
     return await this.contractRepository.save(contract);
   }
 
@@ -88,7 +112,10 @@ export class ContractsService {
       );
       const parsed = CreateContractSchema.safeParse({ ...contract, ...fields });
       if (!parsed.success) throw new BadRequestException(parsed.error.issues);
-      await repository.save(Object.assign(contract, parsed.data));
+      const previousStatus = contract.status;
+      Object.assign(contract, parsed.data);
+      syncTerminationDate(contract, previousStatus);
+      await repository.save(contract);
     });
     return await this.contractRepository.findOneOrFail({
       where: { id },

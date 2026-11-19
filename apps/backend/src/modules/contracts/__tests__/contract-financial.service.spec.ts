@@ -1,9 +1,12 @@
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Contract } from '@/shared/entities/contract.entity';
-import { ContractFinancialService } from '../services/contractFinancial.service';
+import {
+  ContractFinancialService,
+  WAGE_BEARING_STATUSES,
+} from '../services/contractFinancial.service';
 import { dateColumnTransformer } from '@/shared/utils/date-column.transformer';
 import { Transfer } from '@/shared/entities/transfer.entity';
-import { TransferType, TransferStatus } from '@repo/core';
+import { ContractStatus, TransferType, TransferStatus } from '@repo/core';
 
 describe('Database calendar dates', () => {
   it.each([
@@ -34,6 +37,29 @@ describe('Database calendar dates', () => {
       });
     },
   );
+  it('only charges signed contracts and stops wages at termination', async () => {
+    const find = jest.fn().mockResolvedValue([
+      {
+        status: ContractStatus.TERMINATED,
+        startDate: new Date('2026-01-01'),
+        endDate: new Date('2026-12-31'),
+        terminatedAt: new Date('2026-03-31'),
+        salary: 1000,
+      },
+    ]);
+    const service = new ContractFinancialService({
+      find,
+    } as unknown as Repository<Contract>);
+    const { totalWages } = await service.calculateTotalWages(
+      new Date('2026-01-01'),
+      new Date('2026-12-31T23:59:59.999Z'),
+    );
+    expect(totalWages).toBe(3000);
+    expect(find.mock.calls[0][0].where.status).toEqual(
+      In(WAGE_BEARING_STATUSES),
+    );
+    expect(WAGE_BEARING_STATUSES).not.toContain(ContractStatus.PENDING);
+  });
   it('normalizes DATE columns without shifting their UTC calendar day', () => {
     expect(dateColumnTransformer.from('2026-02-28')).toEqual(
       new Date('2026-02-28T00:00:00.000Z'),

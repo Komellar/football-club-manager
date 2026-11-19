@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
+import { Repository, In, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
 import {
   ContractStatus,
   ContractType,
@@ -8,6 +8,12 @@ import {
   type ContractFinancialSummary,
 } from '@repo/core';
 import { Contract } from '@/shared/entities';
+
+export const WAGE_BEARING_STATUSES = [
+  ContractStatus.ACTIVE,
+  ContractStatus.EXPIRED,
+  ContractStatus.TERMINATED,
+];
 
 @Injectable()
 export class ContractFinancialService {
@@ -223,8 +229,10 @@ export class ContractFinancialService {
     totalSignOnFees: number;
     totalAgentFees: number;
   }> {
+    // Pending contracts were never signed, so they cost nothing.
     const contracts = await this.contractRepository.find({
       where: {
+        status: In(WAGE_BEARING_STATUSES),
         startDate: LessThanOrEqual(endDate),
         endDate: MoreThanOrEqual(startDate),
       },
@@ -236,7 +244,11 @@ export class ContractFinancialService {
 
     for (const contract of contracts) {
       const contractStart = new Date(contract.startDate);
-      const contractEnd = new Date(contract.endDate);
+      const contractEnd = new Date(
+        contract.terminatedAt && contract.terminatedAt < contract.endDate
+          ? contract.terminatedAt
+          : contract.endDate,
+      );
       const overlapStart =
         contractStart > startDate ? contractStart : startDate;
       const overlapEnd = contractEnd < endDate ? contractEnd : endDate;

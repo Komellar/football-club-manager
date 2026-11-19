@@ -121,6 +121,15 @@ export class Contract {
   @Column({ type: 'text', nullable: true })
   notes?: string | null;
 
+  /** Set when the contract is terminated; wages stop on this date. */
+  @Column({
+    type: 'date',
+    name: 'terminated_at',
+    nullable: true,
+    transformer: dateColumnTransformer,
+  })
+  terminatedAt?: Date | null;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
