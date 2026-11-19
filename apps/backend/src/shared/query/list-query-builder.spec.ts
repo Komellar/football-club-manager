@@ -282,6 +282,43 @@ describe('ListQueryBuilder', () => {
     });
   });
 
+  describe('Field aliases', () => {
+    beforeEach(() => {
+      mockRepository.findAndCount.mockResolvedValue([[], 0]);
+    });
+
+    it('maps non-column filters onto real columns and keeps dates', async () => {
+      const from = new Date('2026-01-01');
+      const to = new Date('2026-12-31');
+      await ListQueryBuilder.executeQuery(
+        mockRepository,
+        { where: { dateFrom: from, dateTo: to, minSalary: 500 } },
+        {
+          fieldAliases: {
+            dateFrom: { field: 'transferDate', mode: FilterMode.GTE },
+            dateTo: { field: 'transferDate', mode: FilterMode.LTE },
+            minSalary: { field: 'salary', mode: FilterMode.GTE },
+          },
+        },
+      );
+
+      expect(mockRepository.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            transferDate: {
+              _type: 'and',
+              _conditions: [
+                { _type: 'moreThanOrEqual', _value: from },
+                { _type: 'lessThanOrEqual', _value: to },
+              ],
+            },
+            salary: { _type: 'moreThanOrEqual', _value: 500 },
+          },
+        }),
+      );
+    });
+  });
+
   describe('Filter Modes', () => {
     beforeEach(() => {
       mockRepository.findAndCount.mockResolvedValue([[], 0]);

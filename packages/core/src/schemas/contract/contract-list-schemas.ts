@@ -23,6 +23,8 @@ export const ContractListFiltersSchema = z.object({
   playerId: z.coerce.number().int().positive().optional(),
   status: z.enum(ContractStatus).optional(),
   contractType: z.enum(ContractType).optional(),
+  minSalary: z.coerce.number().min(0).optional(),
+  maxSalary: z.coerce.number().min(0).optional(),
 });
 
 export const ContractListSchema = ListQueryParamsSchema.extend({

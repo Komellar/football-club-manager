@@ -68,9 +68,12 @@ export class ContractsService {
   ): Promise<PaginatedContractListResponseDto> {
     const filterOptions: FilterOptions = {
       defaultFilterMode: FilterMode.EXACT,
-      filterModes: {
-        minSalary: FilterMode.GTE,
-        maxSalary: FilterMode.LTE,
+      fieldAliases: {
+        minSalary: { field: 'salary', mode: FilterMode.GTE },
+        maxSalary: { field: 'salary', mode: FilterMode.LTE },
+        // Contracts that are in force at some point in the range.
+        dateFrom: { field: 'endDate', mode: FilterMode.GTE },
+        dateTo: { field: 'startDate', mode: FilterMode.LTE },
       },
       searchOptions: {
         searchFields: ['player.name'],

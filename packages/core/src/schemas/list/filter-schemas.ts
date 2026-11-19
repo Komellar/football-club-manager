@@ -15,6 +15,16 @@ export const FilterOptionsSchema = z.object({
   filterModes: z.record(z.string(), FilterModeSchema).optional(),
   defaultFilterMode: FilterModeSchema.optional(),
   searchOptions: FilterSearchOptionsSchema.optional(),
+  /**
+   * Query filters that aren't entity columns, mapped to the column and
+   * comparison they stand for (e.g. minSalary -> salary >=).
+   */
+  fieldAliases: z
+    .record(
+      z.string(),
+      z.object({ field: z.string(), mode: FilterModeSchema }),
+    )
+    .optional(),
 });
 
 export const ComparableSchema = z.record(

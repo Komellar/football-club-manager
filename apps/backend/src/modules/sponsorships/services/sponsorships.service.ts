@@ -50,6 +50,10 @@ export class SponsorshipsService {
         filterModes: {
           sponsorName: FilterMode.PARTIAL,
         },
+        fieldAliases: {
+          dateFrom: { field: 'endDate', mode: FilterMode.GTE },
+          dateTo: { field: 'startDate', mode: FilterMode.LTE },
+        },
         searchOptions: {
           searchFields: ['sponsorName'],
           searchMode: FilterMode.PARTIAL,

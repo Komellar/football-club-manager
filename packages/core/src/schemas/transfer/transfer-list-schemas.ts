@@ -16,7 +16,6 @@ export const TRANSFER_SORT_COLUMNS = [
   "transferType",
   "transferStatus",
   "transferFee",
-  "isCompleted",
   "otherClubName",
   "createdAt",
 ] as const;

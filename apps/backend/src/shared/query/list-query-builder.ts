@@ -125,11 +125,23 @@ export class ListQueryBuilder {
     const filterModes = options?.filterModes || {};
     const defaultMode = options?.defaultFilterMode || this.DEFAULT_FILTER_MODE;
 
-    Object.entries(flatFilters).forEach(([key, value]) => {
-      const mode = filterModes[key] || defaultMode;
-      const comparable = this.toComparable(value, mode);
+    const aliases = options?.fieldAliases || {};
 
-      result[key] = this.buildFilterOperator(comparable, mode);
+    Object.entries(flatFilters).forEach(([key, value]) => {
+      const alias = aliases[key];
+      const field = alias?.field ?? key;
+      const mode = alias?.mode ?? filterModes[key] ?? defaultMode;
+      const comparable = this.toComparable(value, mode);
+      const condition = this.buildFilterOperator(comparable, mode);
+
+      // Two aliases can target one column (dateFrom and dateTo, say).
+      result[field] =
+        result[field] === undefined
+          ? condition
+          : And(
+              result[field] as FindOperator<unknown>,
+              condition as FindOperator<unknown>,
+            );
     });
 
     return result;
@@ -146,7 +158,11 @@ export class ListQueryBuilder {
 
         const currentPath = [...path, key];
 
-        if (Array.isArray(value) || this.isComparable(value)) {
+        if (
+          Array.isArray(value) ||
+          value instanceof Date ||
+          this.isComparable(value)
+        ) {
           result[currentPath.join('.')] = value;
         } else if (typeof value === 'object') {
           process(value as Record<string, unknown>, currentPath);

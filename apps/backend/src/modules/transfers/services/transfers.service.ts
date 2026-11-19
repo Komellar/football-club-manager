@@ -64,6 +64,10 @@ export class TransfersService {
       filterModes: {
         otherClubName: FilterMode.PARTIAL,
       },
+      fieldAliases: {
+        dateFrom: { field: 'transferDate', mode: FilterMode.GTE },
+        dateTo: { field: 'transferDate', mode: FilterMode.LTE },
+      },
       searchOptions: {
         searchFields: ['otherClubName'],
         searchMode: FilterMode.PARTIAL,
