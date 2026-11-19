@@ -6,12 +6,7 @@ import { EntityNotFoundError } from 'typeorm';
 import { PlayerStatisticsService } from '../services/player-statistics.service';
 import { PlayerStatistics } from '@/shared/entities/player-statistics.entity';
 import { PaginationHelper } from '@/shared/helpers/pagination.helper';
-import {
-  CreatePlayerStatisticsDto,
-  UpdatePlayerStatisticsDto,
-  PlayerStatisticsQueryDto,
-  SortOrder,
-} from '@repo/core';
+import { PlayerStatisticsQueryDto, SortOrder } from '@repo/core';
 
 // Mock data
 const mockStatistics = {
@@ -30,28 +25,6 @@ const mockStatistics = {
   averageRating: 8.2,
   createdAt: new Date(),
   updatedAt: new Date(),
-};
-
-const mockCreateDto: CreatePlayerStatisticsDto = {
-  playerId: 1,
-  season: '2023-24',
-  minutesPlayed: 2700,
-  goals: 15,
-  assists: 8,
-  yellowCards: 3,
-  redCards: 0,
-  savesMade: 0,
-  fouls: 0,
-  shotsOffTarget: 0,
-  shotsOnTarget: 0,
-  goalsConceded: 0,
-  rating: 8.5,
-};
-
-const mockUpdateDto: UpdatePlayerStatisticsDto = {
-  goals: 16,
-  assists: 9,
-  rating: 8.7,
 };
 
 const mockQueryDto: PlayerStatisticsQueryDto = {
@@ -104,32 +77,6 @@ describe('PlayerStatisticsService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
-  });
-
-  describe('create', () => {
-    it('should create player statistics successfully', async () => {
-      // Arrange
-      mockRepository.create.mockReturnValue(mockStatistics);
-      mockRepository.save.mockResolvedValue(mockStatistics);
-
-      // Act
-      const result = await service.create(mockCreateDto);
-
-      // Assert
-      expect(mockRepository.create).toHaveBeenCalledWith(mockCreateDto);
-      expect(mockRepository.save).toHaveBeenCalledWith(mockStatistics);
-      expect(result).toEqual(mockStatistics);
-    });
-
-    it('should throw Error on database error', async () => {
-      // Arrange
-      mockRepository.create.mockImplementation(() => {
-        throw new Error('Database error');
-      });
-
-      // Act & Assert
-      await expect(service.create(mockCreateDto)).rejects.toThrow(Error);
-    });
   });
 
   describe('findAll', () => {
@@ -241,88 +188,6 @@ describe('PlayerStatisticsService', () => {
 
       // Act & Assert
       await expect(service.findOne(1)).rejects.toThrow(Error);
-    });
-  });
-
-  describe('update', () => {
-    it('should update statistics successfully', async () => {
-      // Arrange
-      const updatedStats = { ...mockStatistics, ...mockUpdateDto };
-
-      // First call for the existence check, second call for returning updated data
-      mockRepository.findOneOrFail
-        .mockResolvedValueOnce(mockStatistics) // First call: existence check
-        .mockResolvedValueOnce(updatedStats); // Second call: return updated data
-      mockRepository.update.mockResolvedValue({ affected: 1 });
-
-      // Act
-      const result = await service.update(1, mockUpdateDto);
-
-      // Assert
-      expect(mockRepository.findOneOrFail).toHaveBeenCalledWith({
-        where: { id: 1 },
-      });
-      expect(mockRepository.update).toHaveBeenCalledWith(1, mockUpdateDto);
-      expect(result).toEqual(updatedStats);
-    });
-
-    it('should throw EntityNotFoundError if statistics not found', async () => {
-      // Arrange
-      mockRepository.findOneOrFail.mockRejectedValue(
-        new EntityNotFoundError('PlayerStatistics', 'id'),
-      );
-
-      // Act & Assert
-      await expect(service.update(1, mockUpdateDto)).rejects.toThrow(
-        EntityNotFoundError,
-      );
-    });
-
-    it('should throw Error on database error', async () => {
-      // Arrange
-      mockRepository.findOneOrFail.mockResolvedValue(mockStatistics);
-      mockRepository.update.mockRejectedValue(new Error('Database error'));
-
-      // Act & Assert
-      await expect(service.update(1, mockUpdateDto)).rejects.toThrow(Error);
-    });
-  });
-
-  describe('remove', () => {
-    it('should remove statistics successfully', async () => {
-      // Arrange
-      mockRepository.findOneOrFail.mockResolvedValue(mockStatistics);
-      mockRepository.remove.mockResolvedValue(mockStatistics);
-
-      // Act
-      await service.remove(1);
-
-      // Assert
-      expect(mockRepository.findOneOrFail).toHaveBeenCalledWith({
-        where: { id: 1 },
-        relations: ['player'],
-      });
-      expect(mockRepository.remove).toHaveBeenCalledWith(mockStatistics);
-    });
-
-    it('should throw EntityNotFoundError if statistics not found', async () => {
-      // Arrange
-      mockRepository.findOneOrFail.mockRejectedValue(
-        new EntityNotFoundError('PlayerStatistics', 'id'),
-      );
-
-      // Act & Assert
-      await expect(service.remove(1)).rejects.toThrow(EntityNotFoundError);
-    });
-
-    it('should throw Error on database error', async () => {
-      // Arrange
-      mockRepository.findOneOrFail.mockRejectedValue(
-        new Error('Database error'),
-      );
-
-      // Act & Assert
-      await expect(service.remove(1)).rejects.toThrow(Error);
     });
   });
 });

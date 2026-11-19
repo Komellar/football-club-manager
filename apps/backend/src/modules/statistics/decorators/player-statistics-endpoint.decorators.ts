@@ -1,6 +1,5 @@
 import { applyDecorators } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
-import { PlayerStatisticsApiBody } from './player-statistics-api.decorators';
 
 /**
  * Composite decorator for GET /statistics - Get all player statistics with filtering
@@ -103,92 +102,6 @@ export const GetStatisticsByPlayer = () =>
     ApiResponse({
       status: 404,
       description: 'Player not found',
-    }),
-    ApiResponse({
-      status: 401,
-      description: 'Authentication required',
-    }),
-  );
-
-/**
- * Composite decorator for POST /statistics - Create new player statistics
- */
-export const CreatePlayerStatistics = () =>
-  applyDecorators(
-    ApiOperation({
-      summary: 'Create new player statistics',
-      description:
-        'Creates a new player statistics record with the provided data',
-    }),
-    PlayerStatisticsApiBody('create'),
-    ApiResponse({
-      status: 201,
-      description: 'Player statistics created successfully',
-    }),
-    ApiResponse({
-      status: 400,
-      description: 'Invalid statistics data provided',
-    }),
-    ApiResponse({
-      status: 401,
-      description: 'Authentication required',
-    }),
-  );
-
-/**
- * Composite decorator for PATCH /statistics/:id - Update player statistics
- */
-export const UpdatePlayerStatistics = () =>
-  applyDecorators(
-    ApiOperation({
-      summary: 'Update player statistics',
-      description: 'Updates existing player statistics with partial data',
-    }),
-    ApiParam({
-      name: 'id',
-      type: 'number',
-      description: 'Player statistics unique identifier',
-    }),
-    PlayerStatisticsApiBody('update'),
-    ApiResponse({
-      status: 200,
-      description: 'Player statistics updated successfully',
-    }),
-    ApiResponse({
-      status: 404,
-      description: 'Player statistics not found',
-    }),
-    ApiResponse({
-      status: 400,
-      description: 'Invalid update data provided',
-    }),
-    ApiResponse({
-      status: 401,
-      description: 'Authentication required',
-    }),
-  );
-
-/**
- * Composite decorator for DELETE /statistics/:id - Delete player statistics
- */
-export const DeletePlayerStatistics = () =>
-  applyDecorators(
-    ApiOperation({
-      summary: 'Delete player statistics',
-      description: 'Permanently deletes a player statistics record',
-    }),
-    ApiParam({
-      name: 'id',
-      type: 'number',
-      description: 'Player statistics unique identifier',
-    }),
-    ApiResponse({
-      status: 204,
-      description: 'Player statistics deleted successfully',
-    }),
-    ApiResponse({
-      status: 404,
-      description: 'Player statistics not found',
     }),
     ApiResponse({
       status: 401,

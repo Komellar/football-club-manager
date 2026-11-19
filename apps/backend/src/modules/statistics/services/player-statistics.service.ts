@@ -4,8 +4,6 @@ import { Repository } from 'typeorm';
 import { PlayerStatistics } from '@/shared/entities/player-statistics.entity';
 import { ListQueryBuilder } from '@/shared/query/list-query-builder';
 import type {
-  CreatePlayerStatisticsDto,
-  UpdatePlayerStatisticsDto,
   PlayerStatisticsResponseDto,
   PlayerStatisticsQueryDto,
   FilterOptions,
@@ -23,15 +21,6 @@ export class PlayerStatisticsService {
     @InjectRepository(PlayerStatistics)
     private statisticsRepository: Repository<PlayerStatistics>,
   ) {}
-
-  async create(
-    createStatisticsDto: CreatePlayerStatisticsDto,
-  ): Promise<PlayerStatisticsResponseDto> {
-    const statistics = this.statisticsRepository.create(createStatisticsDto);
-    const savedStatistics = await this.statisticsRepository.save(statistics);
-
-    return savedStatistics;
-  }
 
   async findAll(
     queryDto?: Partial<PlayerStatisticsQueryDto>,
@@ -94,27 +83,5 @@ export class PlayerStatisticsService {
     });
     totals.rating = ratingCount > 0 ? ratingSum / ratingCount : null;
     return { playerId, totals, seasons };
-  }
-
-  async update(
-    id: number,
-    updateStatisticsDto: UpdatePlayerStatisticsDto,
-  ): Promise<PlayerStatisticsResponseDto> {
-    // This will throw EntityNotFoundError if not found, which global filter handles
-    await this.statisticsRepository.findOneOrFail({ where: { id } });
-
-    await this.statisticsRepository.update(id, updateStatisticsDto);
-    return await this.statisticsRepository.findOneOrFail({
-      where: { id },
-    });
-  }
-
-  async remove(id: number): Promise<void> {
-    const statistics = await this.statisticsRepository.findOneOrFail({
-      where: { id },
-      relations: ['player'],
-    });
-
-    await this.statisticsRepository.remove(statistics);
   }
 }

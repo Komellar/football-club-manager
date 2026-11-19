@@ -1,27 +1,11 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  Query,
-  HttpCode,
-  HttpStatus,
-  ParseIntPipe,
-} from '@nestjs/common';
+import { Controller, Get, Param, Query, ParseIntPipe } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { ApiOkResponse } from '@nestjs/swagger';
 import type { PlayerPerformanceSummary } from '@repo/core';
 import { PlayerStatisticsService } from '../services/player-statistics.service';
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe';
 import {
-  CreatePlayerStatisticsSchema,
-  UpdatePlayerStatisticsSchema,
   PlayerStatisticsQuerySchema,
-  type CreatePlayerStatisticsDto,
-  type UpdatePlayerStatisticsDto,
   type PlayerStatisticsResponseDto,
   type PlayerStatisticsQueryDto,
   type PaginationResult,
@@ -30,11 +14,12 @@ import {
   GetAllPlayerStatistics,
   GetPlayerStatisticsById,
   GetStatisticsByPlayer,
-  CreatePlayerStatistics,
-  UpdatePlayerStatistics,
-  DeletePlayerStatistics,
 } from '../decorators/player-statistics-endpoint.decorators';
 
+/**
+ * Read-only: statistics are written only when a fixture completes, so they
+ * always belong to a real match.
+ */
 @Controller('statistics')
 @ApiTags('statistics')
 @ApiBearerAuth()
@@ -84,32 +69,5 @@ export class PlayerStatisticsController {
         playerId,
       },
     });
-  }
-
-  @Post()
-  @HttpCode(HttpStatus.CREATED)
-  @CreatePlayerStatistics()
-  async create(
-    @Body(new ZodValidationPipe(CreatePlayerStatisticsSchema))
-    createStatisticsDto: CreatePlayerStatisticsDto,
-  ): Promise<PlayerStatisticsResponseDto> {
-    return this.playerStatisticsService.create(createStatisticsDto);
-  }
-
-  @Patch(':id')
-  @UpdatePlayerStatistics()
-  async update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body(new ZodValidationPipe(UpdatePlayerStatisticsSchema))
-    updateStatisticsDto: UpdatePlayerStatisticsDto,
-  ): Promise<PlayerStatisticsResponseDto> {
-    return this.playerStatisticsService.update(id, updateStatisticsDto);
-  }
-
-  @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @DeletePlayerStatistics()
-  async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
-    return this.playerStatisticsService.remove(id);
   }
 }
