@@ -19,6 +19,10 @@ import { MatchSimulationEngineService } from './match-simulation-engine.service'
 import { randomUUID } from 'crypto';
 import { FixturesService } from './fixtures.service';
 
+/** Saves that fail this many times in a row are given up on. */
+export const MAX_COMPLETION_ATTEMPTS = 5;
+const COMPLETION_RETRY_BASE_MS = 5000;
+
 interface ExtendedMatchSimulationState extends MatchSimulationState {
   destroy$: Subject<void>;
   subscription: Subscription | null;
@@ -31,6 +35,7 @@ export class MatchEventsService implements OnModuleDestroy {
   private activeMatch: ExtendedMatchSimulationState | null = null;
   private starting = false;
   private completionRetry: ReturnType<typeof setTimeout> | undefined;
+  private completionAttempts = 0;
 
   constructor(
     private readonly simulationEngine: MatchSimulationEngineService,
@@ -40,6 +45,7 @@ export class MatchEventsService implements OnModuleDestroy {
 
   onModuleDestroy() {
     clearTimeout(this.completionRetry);
+    this.completionAttempts = 0;
     if (this.activeMatch) {
       this.activeMatch.destroy$.next();
       this.activeMatch.destroy$.complete();
@@ -202,6 +208,7 @@ export class MatchEventsService implements OnModuleDestroy {
   }
 
   private async endMatch(): Promise<void> {
+    this.completionRetry = undefined;
     if (!this.activeMatch) return;
 
     const matchState = this.activeMatch;
@@ -230,17 +237,29 @@ export class MatchEventsService implements OnModuleDestroy {
           phase: 'completed',
         });
       } catch (error) {
+        this.completionAttempts++;
+        if (this.completionAttempts >= MAX_COMPLETION_ATTEMPTS) {
+          this.logger.error(
+            `Could not save match result after ${this.completionAttempts} attempts; marking the fixture as interrupted`,
+            error,
+          );
+          await this.abandonMatch(matchState);
+          return;
+        }
+        const delay =
+          COMPLETION_RETRY_BASE_MS * 2 ** (this.completionAttempts - 1);
         this.logger.error(
-          'Could not save match result; retrying in five seconds',
+          `Could not save match result; retrying in ${delay / 1000} seconds`,
           error,
         );
         this.completionRetry = setTimeout(() => {
           void this.endMatch();
-        }, 5000);
+        }, delay);
         this.emitMatchState();
         return;
       }
     }
+    this.completionAttempts = 0;
 
     const matchEnded: MatchEnded = {
       matchId: matchState.matchId,
@@ -256,6 +275,33 @@ export class MatchEventsService implements OnModuleDestroy {
     this.activeMatch = null;
 
     this.logger.log(`Match ${matchState.matchId} ended and cleaned up`);
+  }
+
+  /**
+   * Frees the engine when the result can't be stored, so one broken save
+   * doesn't block every later match until a restart.
+   */
+  private async abandonMatch(
+    matchState: ExtendedMatchSimulationState,
+  ): Promise<void> {
+    this.completionAttempts = 0;
+    matchState.phase = 'interrupted';
+    if (matchState.fixtureId) {
+      try {
+        await this.fixtures.interrupt(matchState.fixtureId);
+      } catch (error) {
+        // Startup marks leftover in_progress fixtures as interrupted anyway.
+        this.logger.error('Could not mark the fixture as interrupted', error);
+      }
+    }
+    this.emitMatchState();
+    this.eventEmitter.emit(MATCH_INTERNAL_ENDED as string, {
+      matchId: matchState.matchId,
+      score: matchState.score,
+      events: matchState.events,
+      phase: 'interrupted',
+    } satisfies MatchEnded);
+    this.activeMatch = null;
   }
 
   private createAndBroadcastMatchStateTimeEvent(

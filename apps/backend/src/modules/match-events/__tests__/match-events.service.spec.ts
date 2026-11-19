@@ -1,7 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { MatchEventType, PlayerPosition, type StartMatch } from '@repo/core';
-import { MatchEventsService } from '../services/match-events.service';
+import {
+  MatchEventsService,
+  MAX_COMPLETION_ATTEMPTS,
+} from '../services/match-events.service';
 import { MatchSimulationEngineService } from '../services/match-simulation-engine.service';
 import { FixturesService } from '../services/fixtures.service';
 import {
@@ -165,6 +168,31 @@ describe('MatchEventsService', () => {
       .mocked(eventEmitter.emit)
       .mock.calls.filter(([name]) => name === MATCH_INTERNAL_ENDED);
     expect(endEvents).toHaveLength(1);
+  });
+
+  it('gives up on a save that keeps failing and frees the engine', async () => {
+    const fixtureId = '83ce6cb0-700d-4a39-a647-921c49c6df53';
+    jest
+      .spyOn(fixtures, 'complete')
+      .mockRejectedValue(new Error('violates foreign key constraint'));
+    service.startMatchSimulation({ ...matchData, fixtureId });
+    jest.spyOn(simulationEngine, 'isMatchEnded').mockReturnValue(true);
+    await jest.advanceTimersByTimeAsync(
+      MATCH_SIMULATION_CONFIG.TICK_INTERVAL_MS,
+    );
+    expect(service.isMatchActive()).toBe(true);
+
+    // Backoff: 5s, 10s, 20s, 40s between the five attempts.
+    await jest.advanceTimersByTimeAsync(75_000);
+
+    expect(fixtures.complete).toHaveBeenCalledTimes(MAX_COMPLETION_ATTEMPTS);
+    expect(fixtures.interrupt).toHaveBeenCalledWith(fixtureId);
+    expect(service.isMatchActive()).toBe(false);
+    expect(eventEmitter.emit).toHaveBeenCalledWith(
+      MATCH_INTERNAL_ENDED,
+      expect.objectContaining({ phase: 'interrupted' }),
+    );
+    expect(() => service.startMatchSimulation(matchData)).not.toThrow();
   });
 
   it('broadcasts the clock even when no football event occurs', async () => {
