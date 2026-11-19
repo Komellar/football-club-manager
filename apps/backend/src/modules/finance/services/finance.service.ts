@@ -3,6 +3,7 @@ import { ContractFinancialService } from '../../contracts/services/contractFinan
 import { TransferFinancialService } from '../../transfers/services/transferFinancial.service';
 import { SponsorshipFinancialService } from '../../sponsorships/services/sponsorship-financial.service';
 import { StadiumFinancialService } from './stadium-financial.service';
+import { sumMoney } from '@/shared/utils/money';
 import {
   Finances,
   FinancialSummary,
@@ -173,18 +174,20 @@ export class FinanceService {
     currentDate: Date,
     finances: MonthlyFinances,
   ): MonthlyFinanceData {
-    const income =
-      finances.monthTransferIncome +
-      finances.monthSponsorshipIncome +
-      finances.monthTicketSales;
-    const expenses =
-      finances.monthWages +
-      finances.monthSignOnFees +
-      finances.monthContractAgentFees +
-      finances.monthTransferExpenses +
-      finances.monthTransferAgentFees +
-      finances.monthMatchdayCosts +
-      finances.monthStadiumMaintenance;
+    const income = sumMoney(
+      finances.monthTransferIncome,
+      finances.monthSponsorshipIncome,
+      finances.monthTicketSales,
+    );
+    const expenses = sumMoney(
+      finances.monthWages,
+      finances.monthSignOnFees,
+      finances.monthContractAgentFees,
+      finances.monthTransferExpenses,
+      finances.monthTransferAgentFees,
+      finances.monthMatchdayCosts,
+      finances.monthStadiumMaintenance,
+    );
 
     return {
       month: `${currentDate.getUTCFullYear()}-${String(currentDate.getUTCMonth() + 1).padStart(2, '0')}`,
@@ -200,16 +203,19 @@ export class FinanceService {
     totals: MonthlyTotals,
     finances: MonthlyFinances,
   ): void {
-    totals.totalTicketSales += finances.monthTicketSales;
-    totals.totalMatchdayCosts += finances.monthMatchdayCosts;
-    totals.totalStadiumMaintenance += finances.monthStadiumMaintenance;
-    totals.totalTransferIncome += finances.monthTransferIncome;
-    totals.totalSponsorshipIncome += finances.monthSponsorshipIncome;
-    totals.totalWages += finances.monthWages;
-    totals.totalSignOnFees += finances.monthSignOnFees;
-    totals.totalContractAgentFees += finances.monthContractAgentFees;
-    totals.totalTransferExpenses += finances.monthTransferExpenses;
-    totals.totalTransferAgentFees += finances.monthTransferAgentFees;
+    const add = (key: keyof MonthlyTotals, value: number) => {
+      totals[key] = sumMoney(totals[key], value);
+    };
+    add('totalTicketSales', finances.monthTicketSales);
+    add('totalMatchdayCosts', finances.monthMatchdayCosts);
+    add('totalStadiumMaintenance', finances.monthStadiumMaintenance);
+    add('totalTransferIncome', finances.monthTransferIncome);
+    add('totalSponsorshipIncome', finances.monthSponsorshipIncome);
+    add('totalWages', finances.monthWages);
+    add('totalSignOnFees', finances.monthSignOnFees);
+    add('totalContractAgentFees', finances.monthContractAgentFees);
+    add('totalTransferExpenses', finances.monthTransferExpenses);
+    add('totalTransferAgentFees', finances.monthTransferAgentFees);
   }
 
   /**
@@ -220,23 +226,25 @@ export class FinanceService {
     startDate: Date,
     endDate: Date,
   ): Finances {
-    const totalIncome =
-      totals.totalTransferIncome +
-      totals.totalSponsorshipIncome +
-      totals.totalTicketSales;
-    const totalExpenses =
-      totals.totalWages +
-      totals.totalTransferExpenses +
-      totals.totalContractAgentFees +
-      totals.totalTransferAgentFees +
-      totals.totalSignOnFees +
-      totals.totalMatchdayCosts +
-      totals.totalStadiumMaintenance;
+    const totalIncome = sumMoney(
+      totals.totalTransferIncome,
+      totals.totalSponsorshipIncome,
+      totals.totalTicketSales,
+    );
+    const totalExpenses = sumMoney(
+      totals.totalWages,
+      totals.totalTransferExpenses,
+      totals.totalContractAgentFees,
+      totals.totalTransferAgentFees,
+      totals.totalSignOnFees,
+      totals.totalMatchdayCosts,
+      totals.totalStadiumMaintenance,
+    );
 
     return {
       totalIncome,
       totalExpenses,
-      netProfit: totalIncome - totalExpenses,
+      netProfit: sumMoney(totalIncome, -totalExpenses),
       period: {
         startDate,
         endDate,
@@ -250,8 +258,10 @@ export class FinanceService {
         expenses: {
           wages: totals.totalWages,
           transferFees: totals.totalTransferExpenses,
-          agentFees:
-            totals.totalContractAgentFees + totals.totalTransferAgentFees,
+          agentFees: sumMoney(
+            totals.totalContractAgentFees,
+            totals.totalTransferAgentFees,
+          ),
           stadiumMaintenance: totals.totalStadiumMaintenance,
           matchdayCosts: totals.totalMatchdayCosts,
         },

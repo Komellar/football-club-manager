@@ -8,6 +8,12 @@ import {
   type ContractFinancialSummary,
 } from '@repo/core';
 import { Contract } from '@/shared/entities';
+import {
+  dayIndex,
+  fromCents,
+  proratedMonthlyCents,
+  toCents,
+} from '@/shared/utils/money';
 
 export const WAGE_BEARING_STATUSES = [
   ContractStatus.ACTIVE,
@@ -238,41 +244,43 @@ export class ContractFinancialService {
       },
     });
 
-    let totalWages = 0;
-    let totalSignOnFees = 0;
-    let totalContractAgentFees = 0;
+    const rangeStart = dayIndex(startDate);
+    const rangeEnd = dayIndex(endDate);
+    let wageCents = 0;
+    let signOnFeeCents = 0;
+    let agentFeeCents = 0;
 
     for (const contract of contracts) {
-      const contractStart = new Date(contract.startDate);
-      const contractEnd = new Date(
-        contract.terminatedAt && contract.terminatedAt < contract.endDate
-          ? contract.terminatedAt
-          : contract.endDate,
-      );
-      const overlapStart =
-        contractStart > startDate ? contractStart : startDate;
-      const overlapEnd = contractEnd < endDate ? contractEnd : endDate;
+      const contractStart = dayIndex(contract.startDate);
+      const contractEnd = dayIndex(contract.endDate);
+      const paidUntil = contract.terminatedAt
+        ? Math.min(contractEnd, dayIndex(contract.terminatedAt))
+        : contractEnd;
+      const from = Math.max(contractStart, rangeStart);
+      const to = Math.min(paidUntil, rangeEnd);
 
-      if (overlapStart <= overlapEnd) {
-        const months =
-          (overlapEnd.getUTCFullYear() - overlapStart.getUTCFullYear()) * 12 +
-          (overlapEnd.getUTCMonth() - overlapStart.getUTCMonth()) +
-          (overlapEnd.getUTCDate() - overlapStart.getUTCDate() >= 0 ? 1 : 0);
-
-        const duration = Math.max(0, months);
-        totalWages += contract.salary * duration;
+      if (from <= to) {
+        // Salary is monthly and prorated by day; the bonus total is spread
+        // evenly over the contract, so the share after a termination is
+        // never paid. Bonuses are reported as part of wages.
+        let cents = proratedMonthlyCents(toCents(contract.salary), from, to);
+        const bonusCents = toCents(contract.bonuses);
+        if (bonusCents)
+          cents +=
+            (bonusCents * (to - from + 1)) / (contractEnd - contractStart + 1);
+        wageCents += Math.round(cents);
       }
 
-      if (contractStart >= startDate && contractStart <= endDate) {
-        totalSignOnFees += Number(contract.signOnFee || 0);
-        totalContractAgentFees += Number(contract.agentFee || 0);
+      if (contractStart >= rangeStart && contractStart <= rangeEnd) {
+        signOnFeeCents += toCents(contract.signOnFee);
+        agentFeeCents += toCents(contract.agentFee);
       }
     }
 
     return {
-      totalWages,
-      totalSignOnFees,
-      totalAgentFees: totalContractAgentFees,
+      totalWages: fromCents(wageCents),
+      totalSignOnFees: fromCents(signOnFeeCents),
+      totalAgentFees: fromCents(agentFeeCents),
     };
   }
 }

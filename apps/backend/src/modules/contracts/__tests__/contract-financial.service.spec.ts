@@ -31,7 +31,8 @@ describe('Database calendar dates', () => {
           new Date('2026-10-31T23:59:59.999Z'),
         ),
       ).toEqual({
-        totalWages: 1000,
+        // Starts on the 20th: 12 of October's 31 days.
+        totalWages: 387.1,
         totalSignOnFees: 200,
         totalAgentFees: 100,
       });
@@ -59,6 +60,28 @@ describe('Database calendar dates', () => {
       In(WAGE_BEARING_STATUSES),
     );
     expect(WAGE_BEARING_STATUSES).not.toContain(ContractStatus.PENDING);
+  });
+  it('spreads bonuses over the contract and prorates partial months', async () => {
+    const repo = {
+      find: jest.fn().mockResolvedValue([
+        {
+          status: ContractStatus.ACTIVE,
+          startDate: new Date('2026-01-01'),
+          endDate: new Date('2026-12-31'),
+          salary: 3100.1,
+          bonuses: 3650,
+        },
+      ]),
+    };
+    const service = new ContractFinancialService(
+      repo as unknown as Repository<Contract>,
+    );
+    // January 1-10: 10/31 of the salary plus 10/365 of the bonuses.
+    const { totalWages } = await service.calculateTotalWages(
+      new Date('2026-01-01'),
+      new Date('2026-01-10T23:59:59.999Z'),
+    );
+    expect(totalWages).toBe(1100.03);
   });
   it('normalizes DATE columns without shifting their UTC calendar day', () => {
     expect(dateColumnTransformer.from('2026-02-28')).toEqual(

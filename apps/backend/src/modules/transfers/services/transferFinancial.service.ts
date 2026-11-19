@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between } from 'typeorm';
 import { Transfer } from '@/shared/entities/transfer.entity';
 import { TransferStatus, TransferDirection } from '@repo/core';
+import { fromCents, toCents } from '@/shared/utils/money';
 
 @Injectable()
 export class TransferFinancialService {
@@ -29,26 +30,25 @@ export class TransferFinancialService {
       },
     });
 
-    let transferIncome = 0;
-    let transferExpenses = 0;
-    let transferAgentFees = 0;
+    let incomeCents = 0;
+    let expenseCents = 0;
+    let agentFeeCents = 0;
 
     for (const transfer of transfers) {
-      const fee = Number(transfer.transferFee || 0);
-      const agentFee = Number(transfer.agentFee || 0);
-
+      const fee = toCents(transfer.transferFee);
       if (transfer.transferDirection === TransferDirection.OUTGOING) {
-        transferIncome += fee;
+        incomeCents += fee;
       } else if (transfer.transferDirection === TransferDirection.INCOMING) {
-        transferExpenses += fee;
-        transferAgentFees += agentFee;
+        expenseCents += fee;
       }
+      // Agents are paid on sales as well as purchases.
+      agentFeeCents += toCents(transfer.agentFee);
     }
 
     return {
-      transferIncome,
-      transferExpenses,
-      transferAgentFees,
+      transferIncome: fromCents(incomeCents),
+      transferExpenses: fromCents(expenseCents),
+      transferAgentFees: fromCents(agentFeeCents),
     };
   }
 }
